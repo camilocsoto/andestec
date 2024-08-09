@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS Andes_Tec_db.variables (
   var_temperature DECIMAL,
   var_radiofrecuency INT,
   var_presure DECIMAL,
-  var_force INT,
+  var_time TIMESTAMP,
   var_capacity INT,
   var_battery INT,
   sensors_sen_id INT NOT NULL,

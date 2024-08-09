@@ -20,8 +20,8 @@ class Variable(models.Model):
     temperature = models.DecimalField(max_digits=5, decimal_places=2)
     radiofrequency = models.IntegerField()
     pressure = models.DecimalField(max_digits=5, decimal_places=2)
-    force = models.IntegerField()
-    capacity = models.IntegerField()
+    dateTime = models.DateTimeField()
+    capacity = models.IntegerField() #current % of capacity
     battery = models.IntegerField()
     sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE)
     location = models.TextField()

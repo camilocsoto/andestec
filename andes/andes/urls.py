@@ -16,7 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from api.views import view_sensor_data
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('load_data/', view_sensor_data)
 ]
