@@ -1,9 +1,10 @@
 from django.shortcuts import render, get_object_or_404
 from api.utils import process_sensor_data
+from django.db import IntegrityError, OperationalError
 from .models import Sensor, Variable
 # Create your views here.
 
-def keep_data_of_sensors(request):
+def view_keep_data_of_sensors(request):
     # make every operation to upload the data at variables table.
     #below, "sensor" keep the item in the database to get few values
     data_from_api = process_sensor_data()
@@ -24,15 +25,28 @@ def keep_data_of_sensors(request):
     Prel = int(data_from_api['pressure']) + 14,7
     current_capacity = (Prel/int(sen_max_capacity))*100
     
-    # Upload the database: still I've gotta repair it for missing datetime
-    Variable.objects.create(
-        var_temperature = data_from_api['temperature'],
-        var_radiofrecuency = data_from_api['signal'],
-        var_presure = Prel,
-        dateTime = data_from_api['heartbeatDate'], 
-        var_capacity = current_capacity, #most important than anything
-        var_battery =data_from_api['battery'],
-        sensors_sen_id =sen_id,
-        localizacion = "not available yet!",
-    )
+    # Upload the database: 
+    try:
+        Variable.objects.create(
+            var_temperature = data_from_api['temperature'],
+            var_radiofrecuency = data_from_api['signal'],
+            var_presure = Prel,
+            dateTime = data_from_api['heartbeatDate'], 
+            var_capacity = current_capacity, #most important than anything
+            var_battery =data_from_api['battery'],
+            sensors_sen_id =sen_id,
+            localizacion = "not available yet!",
+        )
+        response_message = "the data has been save succesfully."
+    except IntegrityError as e:
+        # Manejar errores relacionados con la integridad de la base de datos
+        response_message = f"Error de integridad: {e}"
+    except OperationalError as e:
+        # Manejar errores operacionales
+        response_message = f"Error operativo: {e}"
+    except Exception as e:
+        # Manejar cualquier otro error
+        response_message = f"Se produjo un error inesperado: {e}"
+        
+    return render(request, 'dashboard/variables_updated.html', {'transc_status': response_message})
     
