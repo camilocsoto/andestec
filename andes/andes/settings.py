@@ -89,8 +89,12 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'), 
         'HOST': config('HOST'),      # 🟠 IP del servidor donde está PostgreSQL
         'PORT': config('PORT'),           # Puerto de PostgreSQL, 5432 es el predeterminado
+        'OPTIONS': {
+            'options': '-c search_path=antec'
+        }
     }
 }
+
 
 
 # Password validation
