@@ -3,6 +3,17 @@ from api.utils import process_sensor_data
 from django.db import IntegrityError, OperationalError
 from .models import Sensor, Variable
 
+def view_search_last_update(request):
+    """
+    logic to give the last record of variables in database. 
+    Move all this things to a new file named "utils.py" and just excecute the functions right here.
+    MAKE A NEW FUNCTIONS TO COMPARE THE DATE FROM THE API AND THE DATABASE THAT YOU'VE GOT SCIENCE THE FIRST ITEM
+    CREATE AN INTERFACE!
+    DONE :D
+    """
+    response_message = ""
+    return render(request, 'dashboard/variables_updated.html', {'transc_status': response_message})
+
 def view_keep_data_of_sensors(request):
     # make every operation to upload the data at variables table.
     #below, "sensor" keep the item in the database to get few values
