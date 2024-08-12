@@ -17,12 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from api.views import view_sensor_data
-from dashboard.views import view_keep_data_of_sensors
-from dashboard.views import view_search_last_update
+from dashboard.views import view_compare
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('load_data/', view_sensor_data),
-    path('transac_status/', view_keep_data_of_sensors),
-    path('transac_status/', view_search_last_update),
+    path('compare/', view_compare)
 ]
