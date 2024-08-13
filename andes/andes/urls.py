@@ -18,9 +18,12 @@ from django.contrib import admin
 from django.urls import path
 from api.views import view_sensor_data
 from dashboard.views import view_compare
+from interface.views import view_index
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('load_data/', view_sensor_data),
-    path('compare/', view_compare)
+    path('compare/', view_compare),
+    path('dashboard', view_index)
 ]
