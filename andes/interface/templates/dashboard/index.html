@@ -12,7 +12,7 @@
         class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="flex items-center justify-between mb-4">
           <div class="flex-shrink-0"> <!--⚡gas percentage-->
-            <span class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">$41%</span>
+            <span class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">{{capacidad}} %</span>
             <h3 class="text-base font-light text-gray-500 dark:text-gray-400">gas percentage</h3>
           </div>
           <!--⚡how many this is slowing-->
@@ -178,7 +178,7 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    14,7 °C
+                    {{temperatura}} °C
                   </div>
                 </div>
               </li>
@@ -206,7 +206,7 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    19,12 psi
+                    {{presion}} psi
                   </div>
                 </div>
               </li>
@@ -234,7 +234,7 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    98 %
+                    {{bateria}} %
                   </div>
                 </div>
               </li>
@@ -262,7 +262,7 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    27 dbm
+                    {{senial}} dbm
                   </div>
                 </div>
               </li>
@@ -288,7 +288,7 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    4:40 pm
+                    {{hora}}
                   </div>
                 </div>
               </li>
