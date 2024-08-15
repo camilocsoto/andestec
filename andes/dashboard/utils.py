@@ -31,7 +31,7 @@ def compare_dates():
     sensor_date = get_data_sensor()
     if sensor_date['heartbeatDate'] == is_variable:
         # won't keep the same register in the db
-        return "cannot add, please wait"
+        return False
     else:
         return keep_variables()
 
@@ -70,9 +70,9 @@ def keep_variables():
             sensors_sen_id = sensor_instance, #use the instance here
             localizacion = "not available yet!",
         )
-        return "the data has been kept succesfully"
+        return True
     except Exception as e:
-        return f"error finded: {e}"
+        return False
     
     # keep the threated information.
      
