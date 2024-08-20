@@ -1,10 +1,7 @@
 from django.shortcuts import render
+from .utils import get_latest_data
 
 # Create your views here.
 def view_index(request):
-    return render(request, 'dashboard/index.html')
-"""
-def signin_view(request):
-    # lógica de la vista de inicio de sesión
-    return render(request, 'signin.html')
-    """
+    context = get_latest_data()    
+    return render(request, 'dashboard/index.html', context)
