@@ -9,9 +9,9 @@ def get_latest_data():
     date_part, time_part = var_time_str.split(", ")[0:2]
     
     data = {
-        'capacidad': get_last_record.var_capacity,
+        'capacidad': get_last_record.var_current_capacity,
         'temperatura': get_last_record.var_temperature,
-        'presion': get_last_record.var_presure,
+        'presion': get_last_record.var_output_capacity,
         'bateria': get_last_record.var_battery,
         'senial': get_last_record.var_radiofrecuency,
         'hora': time_part,
