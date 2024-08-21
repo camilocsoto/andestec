@@ -1,3 +1,4 @@
+/**
 import ApexCharts from 'apexcharts';
 
 const getMainChartOptions = () => {
@@ -57,12 +58,12 @@ const getMainChartOptions = () => {
 		},
 		series: [
 			{
-				name: 'Revenue',
+				name: 'presure',
 				data: [6356, 6218, 6156, 6526, 6356, 6256, 6056],
 				color: '#1A56DB'
 			},
 			{
-				name: 'Revenue (previous period)',
+				name: 'other values',
 				data: [6556, 6725, 6424, 6356, 6586, 6756, 6616],
 				color: '#FDBA8C'
 			}
@@ -76,7 +77,7 @@ const getMainChartOptions = () => {
 			}
 		},
 		xaxis: {
-			categories: ['01 Feb', '02 Feb', '03 Feb', '04 Feb', '05 Feb', '06 Feb', '07 Feb'],
+			categories: ['jola Feb', '02 Feb', '03 Feb', '04 Feb', '05 Feb', '06 Feb', '07 Feb'],
 			labels: {
 				style: {
 					colors: [mainChartColors.labelColor],
@@ -156,8 +157,8 @@ if (document.getElementById('new-products-chart')) {
 				name: 'Quantity',
 				color: '#1A56DB',
 				data: [
-					{ x: '01 Feb', y: 170 },
-					{ x: '02 Feb', y: 180 },
+					{ x: 'hola', y: 170 },
+					{ x: 'mundo', y: 180 },
 					{ x: '03 Feb', y: 164 },
 					{ x: '04 Feb', y: 145 },
 					{ x: '05 Feb', y: 194 },
@@ -313,7 +314,7 @@ const getSignupsChartOptions = () => {
 			name: 'Users',
 			data: [1334, 2435, 1753, 1328, 1155, 1632, 1336]
 		}],
-		labels: ['01 Feb', '02 Feb', '03 Feb', '04 Feb', '05 Feb', '06 Feb', '07 Feb'],
+		labels: ['01 Mar', '02 abr', 'may', 'june', 'july', 'aug', 'sept'],
 		chart: {
 			type: 'bar',
 			height: '140px',
@@ -595,3 +596,5 @@ if (document.getElementById('products-pie-chart-api')) {
 		chart.updateOptions(pieChartOptions(dt));
 	});
 }
+
+ */
