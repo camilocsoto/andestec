@@ -1,21 +1,29 @@
 from dashboard.models import Variable
 
 def get_latest_data():
-    # as compare_data makes the validation, if it's true, execute this function every minute.
-    get_last_record = Variable.objects.latest('id')    
-    #extract date and time
-    var_time_str = get_last_record.var_time.strftime("%b. %d %Y, %I:%M %p")
+    # get last five registers
+    latest_variables = Variable.objects.order_by('-id')[:5]
     
-    date_part, time_part = var_time_str.split(", ")[0:2]
-    
-    data = {
-        'capacidad': get_last_record.var_current_capacity,
-        'temperatura': get_last_record.var_temperature,
-        'presion': get_last_record.var_output_capacity,
-        'bateria': get_last_record.var_battery,
-        'senial': get_last_record.var_radiofrecuency,
-        'hora': time_part,
-        'dia': date_part
-    }
-    return data
+    # Procesa los registros para separar la fecha y la hora
+    processed_variables = []
+    for variable in latest_variables:
+        var_time_str = variable.var_time.strftime("%Y-%m-%d  %H:%M %p")
+        date_part, time_part = var_time_str.split("  ")
+        
+        processed_variable = {
+            'capacidad': variable.var_current_capacity,
+            'temperatura': variable.var_temperature,
+            'presion': variable.var_output_capacity,
+            'bateria': variable.var_battery,
+            'senial': variable.var_radiofrecuency,
+            'fecha': date_part,
+            'hora': time_part
+        }
+        processed_variables.append(processed_variable)
 
+    context = {
+        'segment': 'charts',
+        'parent': 'apps',
+        'variables': processed_variables
+    }
+    return context

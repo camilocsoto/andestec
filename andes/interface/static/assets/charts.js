@@ -1,6 +1,17 @@
 import ApexCharts from 'apexcharts';
 
+let variablesData = JSON.parse(document.getElementById('variables-data').textContent);
+
+// Extrae los valores específicos para cada serie
+let hoursData = variablesData.map(variable => variable.hora);
+let capacitiesData = variablesData.map(variable => variable.capacidad);
+let outputData = variablesData.map(variable => variable.presion);
+
 const getMainChartOptions = () => {
+    console.log(hoursData)
+    console.log(capacitiesData)
+    console.log(outputData)
+
 	let mainChartColors = {}
 
 	if (document.documentElement.classList.contains('dark')) {
@@ -57,13 +68,13 @@ const getMainChartOptions = () => {
 		},
 		series: [
 			{
-				name: 'Revenue',
-				data: [6356, 6218, 6156, 6526, 6356, 6256, 6056],
+				name: 'current % of gas (%)',
+				data: capacitiesData,
 				color: '#1A56DB'
 			},
 			{
-				name: 'Revenue (previous period)',
-				data: [6556, 6725, 6424, 6356, 6586, 6756, 6616],
+				name: 'current % output force of gas',
+				data: outputData,
 				color: '#FDBA8C'
 			}
 		],
@@ -76,7 +87,7 @@ const getMainChartOptions = () => {
 			}
 		},
 		xaxis: {
-			categories: ['01 Feb', '02 Feb', '03 Feb', '04 Feb', '05 Feb', '06 Feb', '07 Feb'],
+			categories: hoursData,
 			labels: {
 				style: {
 					colors: [mainChartColors.labelColor],
@@ -108,7 +119,7 @@ const getMainChartOptions = () => {
 					fontWeight: 500,
 				},
 				formatter: function (value) {
-					return '$' + value;
+					return  value + '%';
 				}
 			},
 		},
@@ -137,6 +148,8 @@ const getMainChartOptions = () => {
 		]
 	};
 }
+const chart = new ApexCharts(document.querySelector("#chart"), options);
+chart.render();
 
 if (document.getElementById('main-chart')) {
 	const chart = new ApexCharts(document.getElementById('main-chart'), getMainChartOptions());
@@ -147,7 +160,7 @@ if (document.getElementById('main-chart')) {
 		chart.updateOptions(getMainChartOptions());
 	});
 }
-
+// others
 if (document.getElementById('new-products-chart')) {
 	const options = {
 		colors: ['#1A56DB', '#FDBA8C'],

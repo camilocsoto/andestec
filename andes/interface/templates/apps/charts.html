@@ -181,6 +181,7 @@
           </div>
         </div>
         <div class="flex gap-5 items-center justify-between">
+          <!-- 👇Aquí están los charts-->
           <div class="w-full" id="products-bar-chart-api"></div>
           <div class="w-full" id="products-pie-chart-api"></div>
         </div>
@@ -200,7 +201,7 @@
               id="sales-by-category-dropdown">
               <div class="px-4 py-3" role="none">
                 <p class="text-sm font-medium text-gray-900 truncate dark:text-white" role="none">
-                  Sep 16, 2021 - Sep 22, 2021
+                  Sep 16, 2021 - Sep 22, 2021 =D
                 </p>
               </div>
               <ul class="py-1" role="none">
@@ -265,16 +266,16 @@
 
 <script>
 
-  // Pull data from the backend
-  const products = JSON.parse('{{ products | safe }}');
+  // Pull data from the backend 👇
+  const variables = JSON.parse('{{ variables }} | safe }}');
 
   function getProductsBarChart(data) {
     return {
       colors: ['#1A56DB', '#FDBA8C'],
       series: [{
-        name: 'Product',
+        name: 'Variable',
         color: '#1A56DB',
-        data: data.map(product => ({ x: product.fields.name, y: product.fields.price }))
+        data: data.map(variable => ({ x: variable.fields.var_time, y: variable.fields.var_current_capacity }))
       }],
       chart: {
         type: 'bar',
@@ -355,8 +356,8 @@
     }
 
     return {
-      series: data.map(product => product.fields.price),
-      labels: data.map(product => product.fields.name),
+      series: data.map(variable => variable.fields.var_current_capacity),
+      labels: data.map(variable => variable.fields.var_time),
       colors: ['#16BDCA', '#FDBA8C', '#1A56DB'],
       chart: {
         type: 'donut',
@@ -420,14 +421,14 @@
   };
 
   (async () => {
-    const productsBarChart = new ApexCharts(document.getElementById('products-bar-chart'), getProductsBarChart(products));
+    const productsBarChart = new ApexCharts(document.getElementById('products-bar-chart'), getProductsBarChart(variables));
     productsBarChart.render();
 
-    const productsPieChart = new ApexCharts(document.getElementById('products-pie-chart'), getProductsPieChart(products));
+    const productsPieChart = new ApexCharts(document.getElementById('products-pie-chart'), getProductsPieChart(variables));
     productsPieChart.render();
 
     document.addEventListener('dark-mode', function () {
-      productsPieChart.updateOptions(getProductsPieChart(products));
+      productsPieChart.updateOptions(getProductsPieChart(variables));
     });
   })();
 

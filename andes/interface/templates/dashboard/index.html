@@ -12,13 +12,13 @@
         class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="flex items-center justify-between mb-4">
           <div class="flex-shrink-0"> <!--⚡gas percentage-->
-            <span class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">{{capacidad}} %</span>
+            <span class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">{{variables.0.capacidad}} %</span>
             <h3 class="text-base font-light text-gray-500 dark:text-gray-400">gas percentage</h3>
           </div>
           <!--⚡how many this is slowing-->
           <div 
             class="flex items-center justify-end flex-1 text-base font-medium text-green-500 dark:text-green-400">
-            12.5%
+            12,5
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
               <path fill-rule="evenodd"
                 d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z"
@@ -177,7 +177,7 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {{temperatura}} °C
+                    {{variables.0.temperatura}} °C
                   </div>
                 </div>
               </li>
@@ -205,7 +205,7 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {{presion}} psi
+                    {{variables.0.presion}} %
                   </div>
                 </div>
               </li>
@@ -233,7 +233,7 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {{bateria}} %
+                    {{variables.0.bateria}} %
                   </div>
                 </div>
               </li>
@@ -261,7 +261,7 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {{senial}} dbm
+                    {{variables.0.senial}} dbm
                   </div>
                 </div>
               </li>
@@ -276,12 +276,12 @@
                       </p>
                       <div class="flex items-center justify-end flex-1 text-sm text-red-600 dark:text-red-500">
 
-                        <span class="ml-2 text-gray-500">{{dia}}</span>
+                        <span class="ml-2 text-gray-500">{{variables.0.fecha}}</span>
                       </div>
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {{hora}}
+                    {{variables.0.hora}}
                   </div>
                 </div>
               </li>
@@ -483,7 +483,7 @@
       </div>
 
     </div>
-
+    {% comment %}
     <div
       class="p-4 bg-white border mt-4 border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
       <!-- Card header -->
@@ -1076,6 +1076,7 @@
         </div>
       </div>
     </div>
+    {% endcomment %}
   </div>
 </main>
 {% endblock content %}
@@ -1086,6 +1087,14 @@
     setInterval(function() {
         location.reload();
     }, 60000);
+</script>
+
+<script type="text/javascript">
+  var chartData = {
+      hours: {{ variables.hora|json_script:"variables-data" }},
+      capacities: {{ variables.capacidad|json_script:"variables-data" }},
+      outputs: {{ variables.presion|json_script:"variables-data" }}
+  };
 </script>
 
 {% endblock %}
