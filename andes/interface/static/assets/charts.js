@@ -1,5 +1,13 @@
-/**
 import ApexCharts from 'apexcharts';
+
+// bring the data of index.html, to show the information of the model Variables
+let variablesData = JSON.parse(document.getElementById('variables-data').textContent);
+
+// Extrae los valores específicos para cada serie
+let hoursData = variablesData.map(variable => variable.hora);
+let capacitiesData = variablesData.map(variable => variable.capacidad);
+let outputData = variablesData.map(variable => variable.presion);
+
 
 const getMainChartOptions = () => {
 	let mainChartColors = {}
@@ -58,13 +66,13 @@ const getMainChartOptions = () => {
 		},
 		series: [
 			{
-				name: 'presure',
-				data: [6356, 6218, 6156, 6526, 6356, 6256, 6056],
+				name: 'current % of gas (%)',
+				data: capacitiesData,
 				color: '#1A56DB'
 			},
 			{
-				name: 'other values',
-				data: [6556, 6725, 6424, 6356, 6586, 6756, 6616],
+				name: 'current % output force of gas',
+				data: outputData,
 				color: '#FDBA8C'
 			}
 		],
@@ -77,7 +85,7 @@ const getMainChartOptions = () => {
 			}
 		},
 		xaxis: {
-			categories: ['jola Feb', '02 Feb', '03 Feb', '04 Feb', '05 Feb', '06 Feb', '07 Feb'],
+			categories: hoursData,
 			labels: {
 				style: {
 					colors: [mainChartColors.labelColor],
@@ -109,7 +117,7 @@ const getMainChartOptions = () => {
 					fontWeight: 500,
 				},
 				formatter: function (value) {
-					return '$' + value;
+					return  value + '%';
 				}
 			},
 		},
@@ -138,6 +146,8 @@ const getMainChartOptions = () => {
 		]
 	};
 }
+const chart = new ApexCharts(document.querySelector("#chart"), options);
+chart.render();
 
 if (document.getElementById('main-chart')) {
 	const chart = new ApexCharts(document.getElementById('main-chart'), getMainChartOptions());
@@ -157,8 +167,8 @@ if (document.getElementById('new-products-chart')) {
 				name: 'Quantity',
 				color: '#1A56DB',
 				data: [
-					{ x: 'hola', y: 170 },
-					{ x: 'mundo', y: 180 },
+					{ x: '01 Feb', y: 170 },
+					{ x: '02 Feb', y: 180 },
 					{ x: '03 Feb', y: 164 },
 					{ x: '04 Feb', y: 145 },
 					{ x: '05 Feb', y: 194 },
@@ -314,7 +324,7 @@ const getSignupsChartOptions = () => {
 			name: 'Users',
 			data: [1334, 2435, 1753, 1328, 1155, 1632, 1336]
 		}],
-		labels: ['01 Mar', '02 abr', 'may', 'june', 'july', 'aug', 'sept'],
+		labels: ['01 Feb', '02 Feb', '03 Feb', '04 Feb', '05 Feb', '06 Feb', '07 Feb'],
 		chart: {
 			type: 'bar',
 			height: '140px',
@@ -415,8 +425,8 @@ const pieChartOptions = (data) => {
 	}
 
 	return {
-		series: data.map(dt => dt.price),
-		labels: data.map(dt => dt.name),
+		series: data.map(dt => dt.var_current_capacity),
+		labels: data.map(dt => dt.var_time),
 		colors: ['#16BDCA', '#FDBA8C', '#1A56DB'],
 		chart: {
 			type: 'donut',
@@ -498,9 +508,9 @@ if (document.getElementById('products-bar-chart-api')) {
 		colors: ['#1A56DB', '#FDBA8C'],
 		series: [
 			{
-				name: 'Product',
+				name: 'Variable',
 				color: '#1A56DB',
-				data: dt.map(product => ({ x: product.name, y: product.price }))
+				data: dt.map(variable => ({ x: variable.var_time, y: variable.var_current_capacity }))
 			},
 		],
 		chart: {
@@ -596,5 +606,3 @@ if (document.getElementById('products-pie-chart-api')) {
 		chart.updateOptions(pieChartOptions(dt));
 	});
 }
-
- */

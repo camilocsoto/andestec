@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .utils import process_sensor_data
+from .utils import process_sensor_data    
 
 def view_sensor_data(request):
     # Instance of the json received from the api

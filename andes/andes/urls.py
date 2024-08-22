@@ -24,5 +24,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('load_data/', view_sensor_data),
     path('compare/', view_compare),
-    path('dashboard', view_index)
+    path('dashboard/', view_index)
 ]
