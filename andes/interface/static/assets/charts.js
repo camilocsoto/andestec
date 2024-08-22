@@ -1,6 +1,5 @@
 import ApexCharts from 'apexcharts';
 
-// bring the data of index.html, to show the information of the model Variables
 let variablesData = JSON.parse(document.getElementById('variables-data').textContent);
 
 // Extrae los valores específicos para cada serie
@@ -8,8 +7,11 @@ let hoursData = variablesData.map(variable => variable.hora);
 let capacitiesData = variablesData.map(variable => variable.capacidad);
 let outputData = variablesData.map(variable => variable.presion);
 
-
 const getMainChartOptions = () => {
+    console.log(hoursData)
+    console.log(capacitiesData)
+    console.log(outputData)
+
 	let mainChartColors = {}
 
 	if (document.documentElement.classList.contains('dark')) {
@@ -158,7 +160,7 @@ if (document.getElementById('main-chart')) {
 		chart.updateOptions(getMainChartOptions());
 	});
 }
-
+// others
 if (document.getElementById('new-products-chart')) {
 	const options = {
 		colors: ['#1A56DB', '#FDBA8C'],
@@ -425,8 +427,8 @@ const pieChartOptions = (data) => {
 	}
 
 	return {
-		series: data.map(dt => dt.var_current_capacity),
-		labels: data.map(dt => dt.var_time),
+		series: data.map(dt => dt.price),
+		labels: data.map(dt => dt.name),
 		colors: ['#16BDCA', '#FDBA8C', '#1A56DB'],
 		chart: {
 			type: 'donut',
@@ -508,9 +510,9 @@ if (document.getElementById('products-bar-chart-api')) {
 		colors: ['#1A56DB', '#FDBA8C'],
 		series: [
 			{
-				name: 'Variable',
+				name: 'Product',
 				color: '#1A56DB',
-				data: dt.map(variable => ({ x: variable.var_time, y: variable.var_current_capacity }))
+				data: dt.map(product => ({ x: product.name, y: product.price }))
 			},
 		],
 		chart: {

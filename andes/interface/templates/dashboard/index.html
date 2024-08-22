@@ -483,7 +483,7 @@
       </div>
 
     </div>
-
+    {% comment %}
     <div
       class="p-4 bg-white border mt-4 border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
       <!-- Card header -->
@@ -1076,6 +1076,7 @@
         </div>
       </div>
     </div>
+    {% endcomment %}
   </div>
 </main>
 {% endblock content %}
@@ -1090,9 +1091,10 @@
 
 <script type="text/javascript">
   var chartData = {
-      hours: {{ variables|safe|json_script:"variables-data" }},
-      capacities: {{ variables|safe|json_script:"variables-data" }},
-      outputs: {{ variables|safe|json_script:"variables-data" }}
+      hours: {{ variables.hora|json_script:"variables-data" }},
+      capacities: {{ variables.capacidad|json_script:"variables-data" }},
+      outputs: {{ variables.presion|json_script:"variables-data" }}
   };
 </script>
+
 {% endblock %}

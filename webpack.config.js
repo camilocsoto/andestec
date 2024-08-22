@@ -19,7 +19,7 @@ module.exports = {
         test: /\.(png|jpg|gif|svg)$/,
         loader: 'file-loader',
         options: {
-            outputPath: './andes/dist/static/images/'
+            outputPath: 'images/'
         }
       },
       {
@@ -32,7 +32,6 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.jsx', '.css'],
-    preferRelative: true
 },
 plugins: [
     new MiniCssExtractPlugin(),
