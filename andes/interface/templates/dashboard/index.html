@@ -6,13 +6,13 @@
 
 <main>
   <div class="px-4 pt-6">
-    <div id= "sensor-data" class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
-      <!-- Main widget -->
+    <div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+      <!-- Main widget 🔥-->
       <div
         class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="flex items-center justify-between mb-4">
           <div class="flex-shrink-0"> <!--⚡gas percentage-->
-            <span class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">{{variables.0.capacidad}} %</span>
+            <span class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">{{objects.0.capacidad}} %</span>
             <h3 class="text-base font-light text-gray-500 dark:text-gray-400">gas percentage</h3>
           </div>
           <!--⚡how many this is slowing-->
@@ -164,7 +164,7 @@
                       <div
                         class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
                         
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"F
                           xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                           <path clip-rule="evenodd" fill-rule="evenodd"
                             d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
@@ -177,7 +177,7 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {{variables.0.temperatura}} °C
+                    {{objects.0.temperatura}} °C
                   </div>
                 </div>
               </li>
@@ -205,7 +205,7 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {{variables.0.presion}} %
+                    {{objects.0.presion}} %
                   </div>
                 </div>
               </li>
@@ -233,7 +233,7 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {{variables.0.bateria}} %
+                    {{objects.0.bateria}} %
                   </div>
                 </div>
               </li>
@@ -261,7 +261,7 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {{variables.0.senial}} dbm
+                    {{objects.0.senial}} dbm
                   </div>
                 </div>
               </li>
@@ -276,12 +276,12 @@
                       </p>
                       <div class="flex items-center justify-end flex-1 text-sm text-red-600 dark:text-red-500">
 
-                        <span class="ml-2 text-gray-500">{{variables.0.fecha}}</span>
+                        <span class="ml-2 text-gray-500">{{objects.0.fecha}}</span>
                       </div>
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {{variables.0.hora}}
+                    {{objects.0.hora}}
                   </div>
                 </div>
               </li>
@@ -450,6 +450,7 @@
         </div>
         <div class="w-full" id="week-signups-chart"></div>
       </div>
+      <!--last chart!!!! 😅-->
       <div
         class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="w-full">
@@ -481,7 +482,6 @@
         </div>
         <div id="traffic-channels-chart" class="w-full"></div>
       </div>
-
     </div>
     {% comment %}
     <div
@@ -1078,6 +1078,11 @@
     </div>
     {% endcomment %}
   </div>
+  <!-- este div transporta la info-->
+  <div id="data-container-charts" style="display:none;" 
+     data-charts="{{charts}}">
+  </div>
+
 </main>
 {% endblock content %}
 
@@ -1088,13 +1093,4 @@
         location.reload();
     }, 60000);
 </script>
-
-<script type="text/javascript">
-  var chartData = {
-      hours: {{ variables.hora|json_script:"variables-data" }},
-      capacities: {{ variables.capacidad|json_script:"variables-data" }},
-      outputs: {{ variables.presion|json_script:"variables-data" }}
-  };
-</script>
-
 {% endblock %}

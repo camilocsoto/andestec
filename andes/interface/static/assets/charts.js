@@ -1,17 +1,12 @@
 import ApexCharts from 'apexcharts';
-
-let variablesData = JSON.parse(document.getElementById('variables-data').textContent);
-
-// Extrae los valores específicos para cada serie
-let hoursData = variablesData.map(variable => variable.hora);
-let capacitiesData = variablesData.map(variable => variable.capacidad);
-let outputData = variablesData.map(variable => variable.presion);
+// extract the data from the array
+const dataContainer = document.getElementById('data-container-charts');
+let chartsData = JSON.parse(dataContainer.getAttribute('data-charts'));
+let hoursData = chartsData.hour;
+let capacitiesData = chartsData.capacitiy;
+let outputData = chartsData.output;
 
 const getMainChartOptions = () => {
-    console.log(hoursData)
-    console.log(capacitiesData)
-    console.log(outputData)
-
 	let mainChartColors = {}
 
 	if (document.documentElement.classList.contains('dark')) {
@@ -148,9 +143,6 @@ const getMainChartOptions = () => {
 		]
 	};
 }
-const chart = new ApexCharts(document.querySelector("#chart"), options);
-chart.render();
-
 if (document.getElementById('main-chart')) {
 	const chart = new ApexCharts(document.getElementById('main-chart'), getMainChartOptions());
 	chart.render();
@@ -411,6 +403,7 @@ if (document.getElementById('week-signups-chart')) {
 	});
 }
 
+/* hasta aquí
 
 const pieChartOptions = (data) => {
 
@@ -608,3 +601,4 @@ if (document.getElementById('products-pie-chart-api')) {
 		chart.updateOptions(pieChartOptions(dt));
 	});
 }
+*/

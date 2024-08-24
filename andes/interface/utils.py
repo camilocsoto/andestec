@@ -1,4 +1,5 @@
 from dashboard.models import Variable
+import json
 
 def get_latest_data():
     # get last five registers
@@ -12,7 +13,7 @@ def get_latest_data():
         
         processed_variable = {
             'capacidad': variable.var_current_capacity,
-            'temperatura': variable.var_temperature,
+            'temperatura': float(variable.var_temperature),
             'presion': variable.var_output_capacity,
             'bateria': variable.var_battery,
             'senial': variable.var_radiofrecuency,
@@ -21,9 +22,31 @@ def get_latest_data():
         }
         processed_variables.append(processed_variable)
 
-    context = {
-        'segment': 'charts',
-        'parent': 'apps',
-        'variables': processed_variables
+    # process the information required to to make the charts
+    hours = []
+    capacities = []
+    outputs = []
+
+    for variable in processed_variables:
+        hours.append(variable['hora'])
+        capacities.append(variable['capacidad'])
+        outputs.append(variable['presion'])
+    # oganize it as has to be
+    hours.reverse()
+    capacities.reverse()
+    outputs.reverse()
+    graph_data = {
+        'hour':hours,    
+        'capacitiy':capacities,
+        'output':outputs
     }
-    return context
+    # at the end, clean this
+    latest_variables = 0
+    
+    #serialize the info to render the html faster    
+    return {
+            'objects':processed_variables,
+            'charts':json.dumps(graph_data) 
+        }
+
+
