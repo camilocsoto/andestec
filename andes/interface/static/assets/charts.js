@@ -2,9 +2,12 @@ import ApexCharts from 'apexcharts';
 // extract the data from the array
 const dataContainer = document.getElementById('data-container-charts');
 let chartsData = JSON.parse(dataContainer.getAttribute('data-charts'));
+//main chart
 let hoursData = chartsData.hour;
 let capacitiesData = chartsData.capacitiy;
 let outputData = chartsData.output;
+// second chart
+let temperature = chartsData.temp;
 
 const getMainChartOptions = () => {
 	let mainChartColors = {}
@@ -152,23 +155,19 @@ if (document.getElementById('main-chart')) {
 		chart.updateOptions(getMainChartOptions());
 	});
 }
-// others
+//  current capacity chart 🔥
 if (document.getElementById('new-products-chart')) {
+	// data for this chart
+	let capacity_serie = hoursData.map((time, index) => {
+		return {x: time, y: capacitiesData[index]};
+	});
 	const options = {
 		colors: ['#1A56DB', '#FDBA8C'],
 		series: [
 			{
-				name: 'Quantity',
+				name: '% of gas',
 				color: '#1A56DB',
-				data: [
-					{ x: '01 Feb', y: 170 },
-					{ x: '02 Feb', y: 180 },
-					{ x: '03 Feb', y: 164 },
-					{ x: '04 Feb', y: 145 },
-					{ x: '05 Feb', y: 194 },
-					{ x: '06 Feb', y: 170 },
-					{ x: '07 Feb', y: 155 },
-				]
+				data: capacity_serie
 			}
 		],
 		chart: {
@@ -240,6 +239,7 @@ if (document.getElementById('new-products-chart')) {
 	chart.render();
 }
 
+// current output of gas 🔥
 const getVisitorsChartOptions = () => {
 	let visitorsChartColors = {}
 
@@ -257,10 +257,10 @@ const getVisitorsChartOptions = () => {
 
 	return {
 		series: [{
-			name: 'Visitors',
-			data: [500, 590, 600, 520, 610, 550, 600]
+			name: 'Pressure',
+			data: outputData
 		}],
-		labels: ['01 Feb', '02 Feb', '03 Feb', '04 Feb', '05 Feb', '06 Feb', '07 Feb'],
+		labels: hoursData,
 		chart: {
 			type: 'area',
 			height: '305px',
@@ -299,7 +299,6 @@ const getVisitorsChartOptions = () => {
 	}
 }
 
-
 const getSignupsChartOptions = () => {
 	let signupsChartColors = {}
 
@@ -315,10 +314,10 @@ const getSignupsChartOptions = () => {
 
 	return {
 		series: [{
-			name: 'Users',
-			data: [1334, 2435, 1753, 1328, 1155, 1632, 1336]
+			name: 'output of gas',
+			data: outputData
 		}],
-		labels: ['01 Feb', '02 Feb', '03 Feb', '04 Feb', '05 Feb', '06 Feb', '07 Feb'],
+		labels: hoursData,
 		chart: {
 			type: 'bar',
 			height: '140px',

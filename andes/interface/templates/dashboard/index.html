@@ -209,6 +209,7 @@
                   </div>
                 </div>
               </li>
+              {%comment%}
               <li class="py-3 sm:py-4">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center min-w-0">
@@ -285,6 +286,7 @@
                   </div>
                 </div>
               </li>
+              {%endcomment%}
             </ul>
           </div>
           <div class="hidden pt-4" id="about" role="tabpanel" aria-labelledby="about-tab">
@@ -413,8 +415,9 @@
       <div
         class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="w-full">
-          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Pressure per day</h3>
-          <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">-/--</span>
+          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Current percentage of gas capacity</h3>
+          <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">{{objects.0.capacidad}} %</span>
+          {%comment%}
           <p class="flex items-center text-base font-normal text-gray-500 dark:text-gray-400">
             <span class="flex items-center mr-1.5 text-sm text-green-500 dark:text-green-400">
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"
@@ -427,14 +430,16 @@
             </span>
             Since last day
           </p>
+          {%endcomment%}
         </div>
         <div class="w-full" id="new-products-chart"></div>
       </div>
       <div
         class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="w-full">
-          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Temperature per day</h3>
-          <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">-/--</span>
+          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Gas outlet pressure percentage</h3>
+          <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">{{objects.0.presion}} %</span>
+          {%comment%}
           <p class="flex items-center text-base font-normal text-gray-500 dark:text-gray-400">
             <span class="flex items-center mr-1.5 text-sm text-green-500 dark:text-green-400">
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"
@@ -447,6 +452,7 @@
             </span>
             Since last day
           </p>
+          {%endcomment%}
         </div>
         <div class="w-full" id="week-signups-chart"></div>
       </div>
@@ -454,29 +460,29 @@
       <div
         class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="w-full">
-          <h3 class="mb-2 text-base font-normal text-gray-500 dark:text-gray-400">Updates per day</h3>
+          <h3 class="mb-2 text-base font-normal text-gray-500 dark:text-gray-400">Temperature</h3>
           <div class="flex items-center mb-2">
-            <div class="w-16 text-sm font-medium dark:text-white">50+</div>
+            <div class="w-16 text-sm font-medium dark:text-white">{{objects.0.fecha}}</div>
             <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: 18%"></div>
+              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{objects.0.temperatura}}%"></div>
             </div>
           </div>
           <div class="flex items-center mb-2">
-            <div class="w-16 text-sm font-medium dark:text-white">40+</div>
+            <div class="w-16 text-sm font-medium dark:text-white">{{objects.1.fecha}}</div>
             <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: 15%"></div>
+              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{objects.1.temperatura}}%"></div>
             </div>
           </div>
           <div class="flex items-center mb-2">
-            <div class="w-16 text-sm font-medium dark:text-white">30+</div>
+            <div class="w-16 text-sm font-medium dark:text-white">{{objects.2.fecha}}</div>
             <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: 60%"></div>
+              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{objects.2.temperatura}}%"></div>
             </div>
           </div>
           <div class="flex items-center mb-2">
-            <div class="w-16 text-sm font-medium dark:text-white">20+</div>
+            <div class="w-16 text-sm font-medium dark:text-white">{{objects.3.fecha}}</div>
             <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: 30%"></div>
+              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{objects.3.temperatura}}%"></div>
             </div>
           </div>
         </div>
