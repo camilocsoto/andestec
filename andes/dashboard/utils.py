@@ -93,6 +93,10 @@ def keep_variables():
         current_volume = (n * R * T[0])/aP
         # rule of 3 🖖
         current_percentage = (current_volume*100)/max_volume
+        
+        if current_percentage > 100:
+            raise ValueError("It's a bug, fix it")
+        
         # create instance to foreign key
         sensor_instance = get_object_or_404(Sensor, sen_id=_id)
         # Upload the database: 
@@ -109,6 +113,8 @@ def keep_variables():
             
         )
         return True
+    except ValueError as e:
+        return e
     except Exception as e:
         return e
     
