@@ -120,6 +120,10 @@ const getMainChartOptions = () => {
 					return  value + '%';
 				}
 			},
+		tickAmount: 10, // Asegura que haya 10 intervalos
+		min: 0,
+		max: 100,
+		forceNiceScale: true, // Asegura que los valores sean agradables visualmente
 		},
 		legend: {
 			fontSize: '14px',
@@ -228,7 +232,7 @@ if (document.getElementById('new-products-chart')) {
 			},
 		},
 		yaxis: {
-			show: false
+			labels: false
 		},
 		fill: {
 			opacity: 1
