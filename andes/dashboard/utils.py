@@ -3,20 +3,31 @@ from .models import Sensor, Variable
 from api.utils import process_sensor_data
 """
 #this should execute when the sensor is previous registered:
-#process to keep information of the sensor.
+
+data_from_api = process_sensor_data()
+
+OR process to keep information of the sensor.
         data_from_api = {
         'deviceNo': 'YAVMMQYKDANVXPYU', 
         'pressure': '96.86',
         'temperature': '17.20',
         'battery': 97,
         'signal': 27,
-        'heartbeatDate': '2024-08-20 12:26:48+00:00'
+        'heartbeatDate': '2024-08-28 03:30:41'
         }
 
 """
 def get_data_sensor():
     #connect with utils (api) to bring the organized data.
-    data_from_api = process_sensor_data()
+    data_from_api = {
+        'deviceNo': 'YAVMMQYKDANVXPYU', 
+        'pressure': '50.53',
+        'temperature': '-30.01',
+        'battery': 97,
+        'signal': 27,
+        'heartbeatDate': '2024-08-28 05:34:41'
+        
+        }
     return data_from_api
 
 def search_last_item():
@@ -72,17 +83,14 @@ def process_information():
         sensor_instance = get_object_or_404(Sensor, sen_id=_id)
         
         sen_max_output_force = sensor.max_output_force # in the forms transform(kPa -> psi)
-        # Current output force
-        P = data_from_api['pressure'] #(psi)
-        Prel = float(P[0])
         # section to set the max volume -> 65% propane & 35% butane.
         gas_density = 0.524 # g/cm^3
         mass_capacity = sensor.max_masa # kg
         max_volume = (mass_capacity*1000)/gas_density #cm^3
         
         #section to set the current volume 
-        # aP -> psi to Pa
-        aP = float(data_from_api['pressure']) * 6894
+        # aP -> psi
+        aP = float(data_from_api['pressure'])#(psi)
         
         if aP > 0:
             # T -> °C to °K
@@ -94,8 +102,7 @@ def process_information():
                 current_percentage = (current_volume*100)/max_volume
                 
                 #output force
-                current_output_force = (Prel/float(sen_max_output_force))*100 #🟠
-                
+                current_output_force = ((aP*100)/sen_max_output_force) #🟠
             else: 
                 # ⚡no normal conditions
                 #Charles's law V(2) = V(1)*T(2)/T(1)
@@ -112,22 +119,21 @@ def process_information():
                 current_percentage = (current_volume*100)/new_max_volume
                 
                 #output force
-                current_output_force = (Prel/new_max_volume)*100 
+                current_output_force = ((aP *100)/new_max_volume)
         else:
             current_output_force = 0
             current_percentage = 0
             
-        return keep_information(sensor_instance, data_from_api, Prel, current_output_force, current_percentage)
+        return keep_information(sensor_instance, data_from_api, aP, current_output_force, current_percentage)
     except Exception:
         return False
-    
 
-def keep_information(sensor_instance, data_from_api, Prel, current_output_force, current_percentage):
+def keep_information(sensor_instance, data_from_api, aP, current_output_force, current_percentage):
     # Upload the database: 
     Variable.objects.create(
         var_temperature = data_from_api['temperature'],
         var_radiofrecuency = data_from_api['signal'],
-        var_presure = Prel,
+        var_presure = aP,
         var_time = data_from_api['heartbeatDate'], 
         var_battery =data_from_api['battery'],
         localizacion = "not available yet!",
@@ -138,5 +144,4 @@ def keep_information(sensor_instance, data_from_api, Prel, current_output_force,
     return True
     # keep the threated information.
      
-    
     
