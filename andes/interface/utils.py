@@ -17,6 +17,7 @@ def get_latest_data():
             'bateria': variable.var_battery,
             'senial': variable.var_radiofrecuency,
             'fecha': date_part,
+            'litros': variable.var_litres,
             'hora': var_time_str,
             'minutes': time_part
         }

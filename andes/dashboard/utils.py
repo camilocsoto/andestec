@@ -124,11 +124,11 @@ def process_information():
             current_output_force = 0
             current_percentage = 0
             
-        return keep_information(sensor_instance, data_from_api, aP, current_output_force, current_percentage)
+        return keep_information(sensor_instance, data_from_api, aP, current_output_force, current_percentage, current_volume)
     except Exception:
         return False
 
-def keep_information(sensor_instance, data_from_api, aP, current_output_force, current_percentage):
+def keep_information(sensor_instance, data_from_api, aP, current_output_force, current_percentage, current_volume):
     # Upload the database: 
     Variable.objects.create(
         var_temperature = data_from_api['temperature'],
@@ -137,6 +137,7 @@ def keep_information(sensor_instance, data_from_api, aP, current_output_force, c
         var_time = data_from_api['heartbeatDate'], 
         var_battery =data_from_api['battery'],
         localizacion = "not available yet!",
+        var_litres = current_volume,
         var_current_capacity = current_percentage, #most important than anything
         var_output_capacity = current_output_force, 
         sensors_sen_id = sensor_instance, #use the instance here   
