@@ -2,21 +2,32 @@ from django.shortcuts import get_object_or_404
 from .models import Sensor, Variable
 from api.utils import process_sensor_data
 """
-this should execute when the sensor is previous registered:
-process to keep information of the sensor.
+#this should execute when the sensor is previous registered:
+
+data_from_api = process_sensor_data()
+
+OR process to keep information of the sensor.
         data_from_api = {
         'deviceNo': 'YAVMMQYKDANVXPYU', 
         'pressure': '96.86',
         'temperature': '17.20',
         'battery': 97,
         'signal': 27,
-        'heartbeatDate': '2024-08-20 12:26:48+00:00'
+        'heartbeatDate': '2024-08-28 03:30:41'
         }
 
 """
 def get_data_sensor():
     #connect with utils (api) to bring the organized data.
-    data_from_api = process_sensor_data()
+    data_from_api = {
+        'deviceNo': 'YAVMMQYKDANVXPYU', 
+        'pressure': '50.53',
+        'temperature': '-30.01',
+        'battery': 97,
+        'signal': 27,
+        'heartbeatDate': '2024-08-28 05:34:41'
+        
+        }
     return data_from_api
 
 def search_last_item():
@@ -34,7 +45,7 @@ def compare_dates():
     # add first register to variables table
     is_variable = search_last_item()
     if is_variable == 0:
-        return keep_variables()
+        return process_information()
     
     # if exists data in variables table:
     sensor_date = get_data_sensor()
@@ -42,77 +53,96 @@ def compare_dates():
         # won't keep the same register in the db
         return False
     else:
-        return keep_variables()
+        return process_information()
 
     
-def keep_variables():
-# 🟠 processing information and make every operation to upload the data at variables table. 
+def process_information():
+    """
+    MOST IMPORTANT:Steps to set the current Volume (L) of gas
+    1. Calcule the maximum volume of gas in the cylinder:
+    max_volume = mass of the cylinder (g)/ gas density (g/cm^3)
+    2. Calculate the current volume of gas in the cylinder under normal conditions:
+    #boyl's law under normal conditions V(1) = P(1)*V(2)/P(2)
+    3. Calculate the current volume of gas in the cylinder under no normal conditions:
+    #Charles's law V(2) = V(1)*T(2)/T(1)            
+    #Gay-Lussac's law P(2) = P(1)*T(2)/T(1)                
+    #boyl's law under no normal conditions V(1) = P(1)*V(2)/P(2)
+    4. Use the rule of three.
+    -----------------------------------------------------------------
+    steps to find the current output of gas
+    Prel = real pressure of the bowl in psi
+    2° rule of 3 => get the % of gas: (Prel/sen_max_output_force)*100
+    """
     try:
         data_from_api = get_data_sensor()
         # link the sensor where the variable belongs
         sensor = get_object_or_404(Sensor, sen_serialno = data_from_api['deviceNo'])
         # extract info of the specific sensor:
         _id = int(sensor.sen_id)
-        sen_max_output_force = sensor.max_output_force
-        """
-        steps to find the current output of gas
-        1° you gotta find the relative preassure: Prel = Pmed + Patm
-        Where:
-        Prel = real pressure of the bowl in psi
-        Pmed = data_from_api['pressure'] in psi
-        Patm = 14,7 psi
-        2° rule of 3 => get the % of gas: (Prel/sen_max_output_force)*100
-        """
-        Prel = float(data_from_api['pressure']) + 14,7
-        current_output_force = (Prel[0]/float(sen_max_output_force))*100
-        
-        """
-        MOST IMPORTANT:Steps to set the current porcentage of gas
-        max_volume = mass of the cylinder (kg)/ gas density (kg/m^3)
-        current_volume = (n * R * T)/ aP
-        n = mass of cylinder (g) / molas mass of gas (g/mol)
-        R = constant of noble gases
-        T = current temperature from sensor (K)
-        aP = current pressure data from sensor (Pa)
-        """
-        # section to set the first material and find the max volume -> 65% propane & 35% butane.
-        gas_density = 2.14 # kg/m^3
-        molar_mass = 49 #g/mol
-        mass_capacity = sensor.max_masa # kg
-        #section to convert the units and find the current volume 
-        # aP -> psi to Pa
-        aP = float(data_from_api['pressure']) * 6894 
-        # T -> °C to °K
-        T = float(data_from_api['temperature']) + 273,15 #exec it as T[0]
-        # R -> (J/mol*k)
-        R = 8.314
-        # n -> (kg -> g) to (1/mol)
-        n = (mass_capacity*1000)/molar_mass
-        # get the volumes
-        max_volume = mass_capacity/gas_density
-        current_volume = (n * R * T[0])/aP
-        # rule of 3 🖖
-        current_percentage = (current_volume*100)/max_volume
         # create instance to foreign key
         sensor_instance = get_object_or_404(Sensor, sen_id=_id)
-        # Upload the database: 
-        Variable.objects.create(
-            var_temperature = data_from_api['temperature'],
-            var_radiofrecuency = data_from_api['signal'],
-            var_presure = Prel[0],
-            var_time = data_from_api['heartbeatDate'], 
-            var_battery =data_from_api['battery'],
-            localizacion = "not available yet!",
-            var_current_capacity = current_percentage, #most important than anything
-            var_output_capacity = current_output_force, 
-            sensors_sen_id = sensor_instance, #use the instance here
+        
+        sen_max_output_force = sensor.max_output_force # in the forms transform(kPa -> psi)
+        # section to set the max volume -> 65% propane & 35% butane.
+        gas_density = 0.524 # g/cm^3
+        mass_capacity = sensor.max_masa # kg
+        max_volume = (mass_capacity*1000)/gas_density #cm^3
+        
+        #section to set the current volume 
+        # aP -> psi
+        aP = float(data_from_api['pressure'])#(psi)
+        
+        if aP > 0:
+            # T -> °C to °K
+            T = float(data_from_api['temperature']) + 273,15
+            if T[0] >= 288.15 and T[0] <= 298.15:
+                #boyl's law under normal conditions V(1) = P(1)*V(2)/P(2)
+                current_volume = (aP * max_volume)/sen_max_output_force
+                #rule of 3 🖖
+                current_percentage = (current_volume*100)/max_volume
+                
+                #output force
+                current_output_force = ((aP*100)/sen_max_output_force) #🟠
+            else: 
+                # ⚡no normal conditions
+                #Charles's law V(2) = V(1)*T(2)/T(1)
+                V_normal_c = max_volume
+                T_normal_c = 293.15
+                new_max_volume = (V_normal_c*T_normal_c)/T[0]
+                
+                #Gay-Lussac's law P(2) = P(1)*T(2)/T(1)
+                new_max_pressure = (sen_max_output_force*T[0])/T_normal_c
+                
+                #boyl's law under no normal conditions V(1) = P(1)*V(2)/P(2)
+                current_volume = (aP * new_max_volume)/new_max_pressure
+                #rule of 3 to set the %
+                current_percentage = (current_volume*100)/new_max_volume
+                
+                #output force
+                current_output_force = ((aP *100)/new_max_volume)
+        else:
+            current_output_force = 0
+            current_percentage = 0
             
+        return keep_information(sensor_instance, data_from_api, aP, current_output_force, current_percentage, current_volume)
+    except Exception:
+        return False
+
+def keep_information(sensor_instance, data_from_api, aP, current_output_force, current_percentage, current_volume):
+    # Upload the database: 
+    Variable.objects.create(
+        var_temperature = data_from_api['temperature'],
+        var_radiofrecuency = data_from_api['signal'],
+        var_presure = aP,
+        var_time = data_from_api['heartbeatDate'], 
+        var_battery =data_from_api['battery'],
+        localizacion = "not available yet!",
+        var_litres = current_volume,
+        var_current_capacity = current_percentage, #most important than anything
+        var_output_capacity = current_output_force, 
+        sensors_sen_id = sensor_instance, #use the instance here   
         )
-        return True
-    except Exception as e:
-        return e
-    
+    return True
     # keep the threated information.
      
-    
     

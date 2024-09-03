@@ -17,8 +17,8 @@ class User(models.Model):
 class Sensor(models.Model):
     sen_id = models.AutoField(primary_key=True, verbose_name="id of sensor")
     sen_name = models.CharField(max_length=85, verbose_name="name of sensor")
-    sen_type = models.CharField(max_length=45, verbose_name="type of sensor")
-    max_output_force = models.IntegerField(verbose_name="percentage of output force")
+    sen_type = models.CharField(max_length=45, verbose_name="type of sensor") 
+    max_output_force = models.IntegerField(verbose_name="maximum pressure force in psi") #kPa to psi
     max_masa = models.IntegerField(null=True, verbose_name="maximun masa allowed in kg")
     sen_serialno = models.CharField(max_length=45, verbose_name="serial of sensor")
     sen_imei = models.CharField(max_length=45, null= True, verbose_name="imei of sensor")
@@ -33,6 +33,7 @@ class Variable(models.Model):
     var_time = models.DateTimeField(verbose_name="current time")
     var_output_capacity = models.IntegerField(null=True, verbose_name="current output force") #current % of force output
     var_current_capacity = models.IntegerField(null = True, verbose_name="current percentage of gas")
+    var_litres = models.DecimalField(max_digits=5, decimal_places=2, null = True, verbose_name="current amount of litres")
     var_battery = models.IntegerField(verbose_name="current percentage battery")
     localizacion = models.CharField(max_length=45, null=True, verbose_name="current location")
     sensors_sen_id = models.ForeignKey(Sensor, on_delete=models.CASCADE)

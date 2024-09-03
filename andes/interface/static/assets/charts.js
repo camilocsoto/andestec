@@ -1,17 +1,15 @@
 import ApexCharts from 'apexcharts';
-
-let variablesData = JSON.parse(document.getElementById('variables-data').textContent);
-
-// Extrae los valores específicos para cada serie
-let hoursData = variablesData.map(variable => variable.hora);
-let capacitiesData = variablesData.map(variable => variable.capacidad);
-let outputData = variablesData.map(variable => variable.presion);
+// extract the data from the array
+const dataContainer = document.getElementById('data-container-charts');
+let chartsData = JSON.parse(dataContainer.getAttribute('data-charts'));
+//main chart
+let hoursData = chartsData.hour;
+let capacitiesData = chartsData.capacitiy;
+let outputData = chartsData.output;
+// second chart
+let temperature = chartsData.temp;
 
 const getMainChartOptions = () => {
-    console.log(hoursData)
-    console.log(capacitiesData)
-    console.log(outputData)
-
 	let mainChartColors = {}
 
 	if (document.documentElement.classList.contains('dark')) {
@@ -122,6 +120,10 @@ const getMainChartOptions = () => {
 					return  value + '%';
 				}
 			},
+		tickAmount: 10, // Asegura que haya 10 intervalos
+		min: 0,
+		max: 100,
+		forceNiceScale: true, // Asegura que los valores sean agradables visualmente
 		},
 		legend: {
 			fontSize: '14px',
@@ -148,9 +150,6 @@ const getMainChartOptions = () => {
 		]
 	};
 }
-const chart = new ApexCharts(document.querySelector("#chart"), options);
-chart.render();
-
 if (document.getElementById('main-chart')) {
 	const chart = new ApexCharts(document.getElementById('main-chart'), getMainChartOptions());
 	chart.render();
@@ -160,23 +159,19 @@ if (document.getElementById('main-chart')) {
 		chart.updateOptions(getMainChartOptions());
 	});
 }
-// others
+//  current capacity chart 🔥
 if (document.getElementById('new-products-chart')) {
+	// data for this chart
+	let capacity_serie = hoursData.map((time, index) => {
+		return {x: time, y: capacitiesData[index]};
+	});
 	const options = {
 		colors: ['#1A56DB', '#FDBA8C'],
 		series: [
 			{
-				name: 'Quantity',
+				name: '% of gas',
 				color: '#1A56DB',
-				data: [
-					{ x: '01 Feb', y: 170 },
-					{ x: '02 Feb', y: 180 },
-					{ x: '03 Feb', y: 164 },
-					{ x: '04 Feb', y: 145 },
-					{ x: '05 Feb', y: 194 },
-					{ x: '06 Feb', y: 170 },
-					{ x: '07 Feb', y: 155 },
-				]
+				data: capacity_serie
 			}
 		],
 		chart: {
@@ -237,7 +232,7 @@ if (document.getElementById('new-products-chart')) {
 			},
 		},
 		yaxis: {
-			show: false
+			labels: false
 		},
 		fill: {
 			opacity: 1
@@ -248,6 +243,7 @@ if (document.getElementById('new-products-chart')) {
 	chart.render();
 }
 
+// current output of gas 🔥
 const getVisitorsChartOptions = () => {
 	let visitorsChartColors = {}
 
@@ -265,10 +261,10 @@ const getVisitorsChartOptions = () => {
 
 	return {
 		series: [{
-			name: 'Visitors',
-			data: [500, 590, 600, 520, 610, 550, 600]
+			name: 'Pressure',
+			data: outputData
 		}],
-		labels: ['01 Feb', '02 Feb', '03 Feb', '04 Feb', '05 Feb', '06 Feb', '07 Feb'],
+		labels: hoursData,
 		chart: {
 			type: 'area',
 			height: '305px',
@@ -307,7 +303,6 @@ const getVisitorsChartOptions = () => {
 	}
 }
 
-
 const getSignupsChartOptions = () => {
 	let signupsChartColors = {}
 
@@ -323,10 +318,10 @@ const getSignupsChartOptions = () => {
 
 	return {
 		series: [{
-			name: 'Users',
-			data: [1334, 2435, 1753, 1328, 1155, 1632, 1336]
+			name: 'output of gas',
+			data: outputData
 		}],
-		labels: ['01 Feb', '02 Feb', '03 Feb', '04 Feb', '05 Feb', '06 Feb', '07 Feb'],
+		labels: hoursData,
 		chart: {
 			type: 'bar',
 			height: '140px',
@@ -411,6 +406,7 @@ if (document.getElementById('week-signups-chart')) {
 	});
 }
 
+/* hasta aquí
 
 const pieChartOptions = (data) => {
 
@@ -608,3 +604,4 @@ if (document.getElementById('products-pie-chart-api')) {
 		chart.updateOptions(pieChartOptions(dt));
 	});
 }
+*/
