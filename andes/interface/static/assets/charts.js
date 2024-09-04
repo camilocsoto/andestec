@@ -73,7 +73,7 @@ const getMainChartOptions = () => {
 			{
 				name: 'current % output force of gas',
 				data: outputData,
-				color: '#FDBA8C'
+				color: '#00b8ff'
 			}
 		],
 		markers: {
