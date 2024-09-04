@@ -16,8 +16,9 @@ Including another URLconf
 """
 
 from django.urls import path
-from .views import view_index
+from .views import MainView, ExportExcelView
 
 urlpatterns = [
-    path('device/', view_index)
+    path('device/<int:id>', MainView.as_view()),
+    path('download/', ExportExcelView.as_view())
 ]
