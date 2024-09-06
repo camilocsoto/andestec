@@ -28,11 +28,11 @@ def get_data_sensor():
     # connect with utils (api) to bring the organized data.
     data_from_api = {
         "deviceNo": "YAVMMQYKDANVXPYU",
-        "pressure": "50.53",
-        "temperature": "-30.01",
+        "pressure": "1.53",
+        "temperature": "-273.15",
         "battery": 97,
         "signal": 27,
-        "heartbeatDate": "2024-08-28 05:34:41",
+        "heartbeatDate": "2024-08-28 06:34:41",
     }
     return data_from_api
 
@@ -102,10 +102,10 @@ def process_information():
         # aP -> psi
         aP = float(data_from_api["pressure"])  # (psi)
         # T -> °C to °K
-        T = float(data_from_api["temperature"]) + 273, 15
+        T = float(data_from_api["temperature"]) + 273.15
 
-        if aP >= 0 and T[0] >= 1:
-            if T[0] >= 288.15 and T[0] <= 298.15:
+        if aP >= 0 and T >= 1:
+            if T >= 288.15 and T <= 298.15:
                 # boyl's law under normal conditions V(1) = P(1)*V(2)/P(2)
                 current_volume = (aP * max_volume) / sen_max_output_force
                 # rule of 3 🖖
@@ -118,10 +118,10 @@ def process_information():
                 # Charles's law V(2) = V(1)*T(2)/T(1)
                 V_normal_c = max_volume
                 T_normal_c = 293.15
-                new_max_volume = (V_normal_c * T_normal_c) / T[0]
+                new_max_volume = (V_normal_c * T_normal_c) / T
 
                 # Gay-Lussac's law P(2) = P(1)*T(2)/T(1)
-                new_max_pressure = (sen_max_output_force * T[0]) / T_normal_c
+                new_max_pressure = (sen_max_output_force * T) / T_normal_c
 
                 # boyl's law under no normal conditions V(1) = P(1)*V(2)/P(2)
                 current_volume = (aP * new_max_volume) / new_max_pressure
@@ -131,6 +131,7 @@ def process_information():
                 # output force
                 current_output_force = (aP * 100) / new_max_volume
         else:
+            current_volume = 0
             current_output_force = 0
             current_percentage = 0
 
@@ -143,8 +144,8 @@ def process_information():
             current_percentage,
             current_volume,
         )
-    except Exception:
-        return False
+    except Exception as e:
+        return e
 
 
 def keep_information(sensor, sensor_instance, data_from_api, aP, current_output_force, current_percentage, current_volume):
@@ -181,30 +182,32 @@ def get_mail(sensor):
 
 def send_email(sensor, user):
     # ⛔ It should create a record in the table alerts
-    user = user.us_name
+    user_name = user.us_name
     user_mail = user.us_mail
     sen_name = sensor.sen_name
+    # Define el contexto para la plantilla
     context = {
-        'user_name': user,
+        'user': user_name,
         'sensor_name': sen_name
     }
-    
-    template = get_template('templates/email_template.html')
-    content = template.render(context)
-    
-    
-    message = EmailMultiAlternatives(
-        subject=subject_mail,
-        body='',
-        from_email=settings.EMAIL_HOST_USER,
-        to=[user_mail],
-        cc=[]
-    )
-    
-    subject_mail = f"¡Alerta en el cilindro {context.sensor_name}!"
-    
-    message.attach_alternative(content, 'text/html')
-     
-    return message
-    # send_mail(subject, compose, settings.EMAIL_HOST_USER, [user_mail], fail_silently=False)
+    try:
+        # Obtiene la plantilla
+        template = get_template('email_template.html')  # Ajusta la ruta si es necesario
+        content = template.render(context)
+        # Define el asunto del correo antes de crear el mensaje
+        subject_mail = f"¡Alerta en el cilindro {sen_name}!"
+        # Crea el mensaje de correo electrónico
+        message = EmailMultiAlternatives(
+            subject=subject_mail,
+            body='',
+            from_email=settings.EMAIL_HOST_USER,
+            to=[user_mail],
+            cc=[]
+        )
+        # Adjunta el contenido HTML
+        message.attach_alternative(content, 'text/html')
+        message.send()
+        return True
+    except Exception as e:
+        return e
     
