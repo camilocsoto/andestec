@@ -95,15 +95,11 @@ class ExportExcelView(View):
             for col in range(1, len(headers) + 1):
                 column_letter = get_column_letter(col)
                 worksheet.column_dimensions[column_letter].width = 15
-
-
-
         # Prepare the download of the file
         response = HttpResponse(
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
         response['Content-Disposition'] = f'attachment; filename=datos_cilindro_{sensor.sen_id}.xlsx'
-
         # Guarda el workbook en la respuesta
         workbook.save(response)
 

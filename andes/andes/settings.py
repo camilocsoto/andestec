@@ -154,3 +154,10 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 INTERNAL_IPS = [
     "127.0.0.1"
 ]
+
+# Configuration to send warning emails about the gas volume.
+EMAIL_HOST = config('SMTP')
+EMAIL_PORT = 587
+EMAIL_HOST_USER = config('USER_MAIL')
+EMAIL_HOST_PASSWORD = config('USER_MAIL_PASSWORD')
+EMAIL_USE_TLS = True
