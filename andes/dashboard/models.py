@@ -18,8 +18,8 @@ class Sensor(models.Model):
     sen_id = models.AutoField(primary_key=True, verbose_name="id of sensor")
     sen_name = models.CharField(max_length=85, verbose_name="name of sensor")
     sen_type = models.CharField(max_length=45, verbose_name="type of sensor") 
-    max_output_force = models.IntegerField(verbose_name="maximum pressure force in psi") #kPa to psi
-    max_masa = models.IntegerField(null=True, verbose_name="maximun masa allowed in kg")
+    max_output_force = models.DecimalField(max_digits=5, decimal_places=2, null=True, verbose_name="pressure force in max volume") #psi
+    max_masa = models.DecimalField(max_digits=5, decimal_places=2, null=True, verbose_name="maximun masa allowed in kg")
     sen_serialno = models.CharField(max_length=45, verbose_name="serial of sensor")
     sen_imei = models.CharField(max_length=45, null= True, verbose_name="imei of sensor")
     user_us_id = models.ForeignKey(User, on_delete=models.CASCADE)

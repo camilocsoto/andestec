@@ -64,6 +64,33 @@ def compare_dates():
         return process_information()
 
 
+def set_max_pressure(gas_density):
+    """
+    This func just execute one time per sensor.
+    This sets the max output pressure in sensor table.
+    Clearing p in an alternative gas equation in normal conditions
+    P = (ρ*R*T)/M
+    Variables:
+    P = pressure atm
+    ρ (rho)= gas density kg/m^3
+    R = constant 8.314 J(mol/K)
+    T =temperature °K
+    M = molar mass of the gas g/mol
+    """
+    # Pressure under normal conditions
+    rho =gas_density # kg/m^3
+    R = 8.314 #J/(mol*k)
+    T = 290.15 # °K
+    M = 49.01/1000 # g/mol -> kg/mol.
+    P = (rho*R*T)/M #Pa
+    psi = P/6895 # psi in max volume
+
+
+
+    
+    
+
+
 def process_information():
     """
     MOST IMPORTANT:Steps to set the current Volume (L) of gas
@@ -90,19 +117,20 @@ def process_information():
         # get its user_id foreign key
         sensor_instance = get_object_or_404(Sensor, sen_id=_id)
 
-        sen_max_output_force = (
-            sensor.max_output_force
-        )  # in the forms transform(kPa -> psi)
         # section to set the max volume -> 65% propane & 35% butane.
-        gas_density = 0.524  # g/cm^3
+        gas_density = 524  # g/L
         mass_capacity = sensor.max_masa  # kg
-        max_volume = (mass_capacity * 1000) / gas_density  # cm^3
+        max_volume = (mass_capacity * 1000) / gas_density  # L
+
+        # section to set the max pressure:
+        sen_max_output_force = sensor.max_output_force
 
         # section to set the current volume
         # aP -> psi
         aP = float(data_from_api["pressure"])  # (psi)
         # T -> °C to °K
         T = float(data_from_api["temperature"]) + 273.15
+
 
         if aP >= 0 and T >= 1:
             if T >= 288.15 and T <= 298.15:
@@ -144,8 +172,8 @@ def process_information():
             current_percentage,
             current_volume,
         )
-    except Exception as e:
-        return e
+    except Exception:
+        return False
 
 
 def keep_information(sensor, sensor_instance, data_from_api, aP, current_output_force, current_percentage, current_volume):
