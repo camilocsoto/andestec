@@ -33,7 +33,7 @@ class Variable(models.Model):
     var_time = models.DateTimeField(verbose_name="current time")
     var_output_capacity = models.IntegerField(null=True, verbose_name="current output force") #current % of force output
     var_current_capacity = models.IntegerField(null = True, verbose_name="current percentage of gas")
-    var_litres = models.DecimalField(max_digits=5, decimal_places=2, null = True, verbose_name="current amount of litres")
+    var_grams = models.DecimalField(max_digits=7, decimal_places=2, null = True, verbose_name="current amount of grams")
     var_battery = models.IntegerField(verbose_name="current percentage battery")
     localizacion = models.CharField(max_length=45, null=True, verbose_name="current location")
     sensors_sen_id = models.ForeignKey(Sensor, on_delete=models.CASCADE)

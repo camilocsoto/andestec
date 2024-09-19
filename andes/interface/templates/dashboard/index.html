@@ -337,7 +337,7 @@
       <div
         class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="w-full">
-          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Current percentage of gas capacity</h3>
+          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Current percentage of gas</h3>
           <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">{{objects.0.capacidad}} %</span>
         </div>
         <div class="w-full" id="new-products-chart"></div>
@@ -345,7 +345,7 @@
       <div
         class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="w-full">
-          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Gas outlet pressure percentage</h3>
+          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Percentage of internal pressure</h3>
           <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">{{objects.0.presion}} %</span>
         </div>
         <div class="w-full" id="week-signups-chart"></div>
@@ -403,7 +403,7 @@
                         <tr>
                             <th scope="col"
                                 class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
-                                sensor's serial
+                                sensor's name
                             </th>
                             <th scope="col"
                                 class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
@@ -415,15 +415,15 @@
                             </th>
                             <th scope="col"
                                 class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
-                                Output force
+                                Internal pressure
                             </th>
                             <th scope="col"
                                 class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
-                                Amount of litres
+                                Amount of gas
                             </th>
                             <th scope="col"
                                 class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
-                                Percentage of litres
+                                Percentage of gas
                             </th>
                         </tr>
                     </thead>
@@ -445,7 +445,7 @@
                                 {{ objeto.presion }} %
                             </td>
                             <td class="inline-flex items-center p-4 space-x-2 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
-                                <span>{{objeto.litros}} L</span>
+                                <span>{{objeto.litros}} gr</span>
                             </td>
                             <td class="p-4 text-sm font-semibold text-gray-900 whitespace-nowrap dark:text-white">
                                 <span>

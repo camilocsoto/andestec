@@ -66,12 +66,12 @@ const getMainChartOptions = () => {
 		},
 		series: [
 			{
-				name: 'current % of gas (%)',
+				name: 'Quantity of gas (%)',
 				data: capacitiesData,
 				color: '#1A56DB'
 			},
 			{
-				name: 'current % output force of gas',
+				name: 'Internal pressure of gas (%)',
 				data: outputData,
 				color: '#00b8ff'
 			}
@@ -169,7 +169,7 @@ if (document.getElementById('new-products-chart')) {
 		colors: ['#1A56DB', '#FDBA8C'],
 		series: [
 			{
-				name: '% of gas',
+				name: 'Quantity of gas',
 				color: '#1A56DB',
 				data: capacity_serie
 			}
@@ -318,7 +318,7 @@ const getSignupsChartOptions = () => {
 
 	return {
 		series: [{
-			name: 'output of gas',
+			name: 'Internal pressure of gas',
 			data: outputData
 		}],
 		labels: hoursData,
@@ -405,203 +405,3 @@ if (document.getElementById('week-signups-chart')) {
 		chart.updateOptions(getSignupsChartOptions());
 	});
 }
-
-/* hasta aquí
-
-const pieChartOptions = (data) => {
-
-	let trafficChannelsChartColors = {}
-
-	if (document.documentElement.classList.contains('dark')) {
-		trafficChannelsChartColors = {
-			strokeColor: '#1f2937'
-		};
-	} else {
-		trafficChannelsChartColors = {
-			strokeColor: '#ffffff'
-		}
-	}
-
-	return {
-		series: data.map(dt => dt.price),
-		labels: data.map(dt => dt.name),
-		colors: ['#16BDCA', '#FDBA8C', '#1A56DB'],
-		chart: {
-			type: 'donut',
-			height: 400,
-			fontFamily: 'Inter, sans-serif',
-			toolbar: {
-				show: false
-			},
-		},
-		responsive: [{
-			breakpoint: 430,
-			options: {
-			  chart: {
-				height: 300
-			  }
-			}
-		}],
-		stroke: {
-			colors: [trafficChannelsChartColors.strokeColor]
-		},
-		states: {
-			hover: {
-				filter: {
-					type: 'darken',
-					value: 0.9
-				}
-			}
-		},
-		tooltip: {
-			shared: true,
-			followCursor: false,
-			fillSeriesColor: false,
-			inverseOrder: true,
-			style: {
-				fontSize: '14px',
-				fontFamily: 'Inter, sans-serif'
-			},
-			x: {
-				show: true,
-				formatter: function (_, { seriesIndex, w }) {
-					const label = w.config.labels[seriesIndex];
-					return label
-				}
-			},
-			y: {
-				formatter: function (value) {
-					return value;
-				}
-			}
-		},
-		grid: {
-			show: false
-		},
-		dataLabels: {
-			enabled: false
-		},
-		legend: {
-			show: false
-		},
-	};
-}
-
-if (document.getElementById('products-bar-chart-api')) {
-    const apiUrl = '/api/product/';
-	let dt = []
-
-	const fetchData = async () => {
-		try {
-			const response = await fetch(apiUrl);
-			const data = await response.json();
-			dt = data
-		} catch (error) {
-			console.error('Error fetching data:', error);
-		}
-	};
-	await fetchData();
-	
-	const options = {
-		colors: ['#1A56DB', '#FDBA8C'],
-		series: [
-			{
-				name: 'Product',
-				color: '#1A56DB',
-				data: dt.map(product => ({ x: product.name, y: product.price }))
-			},
-		],
-		chart: {
-			type: 'bar',
-			height: '420px',
-			fontFamily: 'Inter, sans-serif',
-			foreColor: '#4B5563',
-			toolbar: {
-				show: false
-			}
-		},
-		plotOptions: {
-			bar: {
-				columnWidth: '90%',
-				borderRadius: 3
-			}
-		},
-		tooltip: {
-			shared : true,
-			intersect: false,
-			style: {
-				fontSize: '14px',
-				fontFamily: 'Inter, sans-serif'
-			},
-		},
-		states: {
-			hover: {
-				filter: {
-					type: 'darken',
-					value: 1
-				}
-			}
-		},
-		stroke: {
-			show: true,
-			width: 5,
-			colors: ['transparent']
-		},
-		grid: {
-			show: false
-		},
-		dataLabels: {
-			enabled: false
-		},
-		legend: {
-			show: false
-		},
-		xaxis: {
-			floating: false,
-			labels: {
-				show: false
-			},
-			axisBorder: {
-				show: false
-			},
-			axisTicks: {
-				show: false
-			},
-		},
-		yaxis: {
-			show: false
-		},
-		fill: {
-			opacity: 1
-		}
-	};
-
-	const chart = new ApexCharts(document.getElementById('products-bar-chart-api'), options); 
-	chart.render();
-}
-
-if (document.getElementById('products-pie-chart-api')) {
-	const apiUrl = '/api/product/';
-	let dt = []
-
-	const fetchData = async () => {
-		try {
-			const response = await fetch(apiUrl);
-			const data = await response.json();
-			dt = data
-		} catch (error) {
-			console.error('Error fetching data:', error);
-		}
-	};
-	await fetchData();
-
-
-	const chart = new ApexCharts(document.getElementById('products-pie-chart-api'), pieChartOptions(dt));
-	chart.render();
-
-	// init again when toggling dark mode
-	document.addEventListener('dark-mode', function () {
-		chart.updateOptions(pieChartOptions(dt));
-	});
-}
-*/

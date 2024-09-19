@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from .models import Sensor, Variable, User
 from api.utils import process_sensor_data
+from .maths import Math
 
 # libs to sent mails:
 from django.conf import settings
@@ -28,11 +29,11 @@ def get_data_sensor():
     # connect with utils (api) to bring the organized data.
     data_from_api = {
         "deviceNo": "YAVMMQYKDANVXPYU",
-        "pressure": "1.53",
-        "temperature": "-273.15",
+        "pressure": "82.5",
+        "temperature": "17.15",
         "battery": 97,
         "signal": 27,
-        "heartbeatDate": "2024-08-28 06:34:41",
+        "heartbeatDate": "2024-08-28 07:34:41",
     }
     return data_from_api
 
@@ -59,54 +60,16 @@ def compare_dates():
     sensor_date = get_data_sensor()
     if sensor_date["heartbeatDate"] == is_variable:
         # won't keep the same register in the db
-        return False
+        return f"{False} - porque db {is_variable} es igual a {sensor_date} o((>ω< ))o"
     else:
         return process_information()
 
-
-def set_max_pressure(gas_density):
-    """
-    This func just execute one time per sensor.
-    This sets the max output pressure in sensor table.
-    Clearing p in an alternative gas equation in normal conditions
-    P = (ρ*R*T)/M
-    Variables:
-    P = pressure atm
-    ρ (rho)= gas density kg/m^3
-    R = constant 8.314 J(mol/K)
-    T =temperature °K
-    M = molar mass of the gas g/mol
-    """
-    # Pressure under normal conditions
-    rho =gas_density # kg/m^3
-    R = 8.314 #J/(mol*k)
-    T = 290.15 # °K
-    M = 49.01/1000 # g/mol -> kg/mol.
-    P = (rho*R*T)/M #Pa
-    psi = P/6895 # psi in max volume
-
-
-
-    
-    
-
-
 def process_information():
     """
-    MOST IMPORTANT:Steps to set the current Volume (L) of gas
-    1. Calcule the maximum volume of gas in the cylinder:
-    max_volume = mass of the cylinder (g)/ gas density (g/cm^3)
-    2. Calculate the current volume of gas in the cylinder under normal conditions:
-    #boyl's law under normal conditions V(1) = P(1)*V(2)/P(2)
-    3. Calculate the current volume of gas in the cylinder under no normal conditions:
-    #Charles's law V(2) = V(1)*T(2)/T(1)
-    #Gay-Lussac's law P(2) = P(1)*T(2)/T(1)
-    #boyl's law under no normal conditions V(1) = P(1)*V(2)/P(2)
-    4. Use the rule of three.
-    -----------------------------------------------------------------
-    steps to find the current output of gas
-    Prel = real pressure of the bowl in psi
-    2° rule of 3 => get the % of gas: (Prel/sen_max_output_force)*100
+    
+    MOST IMPORTANT:Steps to set the current quantity mass (kg) of gas
+    If you wanna understand how, go to the math.py file.
+    
     """
     try:
         data_from_api = get_data_sensor()
@@ -117,80 +80,48 @@ def process_information():
         # get its user_id foreign key
         sensor_instance = get_object_or_404(Sensor, sen_id=_id)
 
-        # section to set the max volume -> 65% propane & 35% butane.
-        gas_density = 524  # g/L
-        mass_capacity = sensor.max_masa  # kg
-        max_volume = (mass_capacity * 1000) / gas_density  # L
-
-        # section to set the max pressure:
-        sen_max_output_force = sensor.max_output_force
-
-        # section to set the current volume
-        # aP -> psi
-        aP = float(data_from_api["pressure"])  # (psi)
-        # T -> °C to °K
-        T = float(data_from_api["temperature"]) + 273.15
-
-
-        if aP >= 0 and T >= 1:
-            if T >= 288.15 and T <= 298.15:
-                # boyl's law under normal conditions V(1) = P(1)*V(2)/P(2)
-                current_volume = (aP * max_volume) / sen_max_output_force
-                # rule of 3 🖖
-                current_percentage = (current_volume * 100) / max_volume
-
-                # output force
-                current_output_force = (aP * 100) / sen_max_output_force  # 🟠
-            else:
-                # ⚡no normal conditions
-                # Charles's law V(2) = V(1)*T(2)/T(1)
-                V_normal_c = max_volume
-                T_normal_c = 293.15
-                new_max_volume = (V_normal_c * T_normal_c) / T
-
-                # Gay-Lussac's law P(2) = P(1)*T(2)/T(1)
-                new_max_pressure = (sen_max_output_force * T) / T_normal_c
-
-                # boyl's law under no normal conditions V(1) = P(1)*V(2)/P(2)
-                current_volume = (aP * new_max_volume) / new_max_pressure
-                # rule of 3 to set the %
-                current_percentage = (current_volume * 100) / new_max_volume
-
-                # output force
-                current_output_force = (aP * 100) / new_max_volume
-        else:
-            current_volume = 0
-            current_output_force = 0
-            current_percentage = 0
+        # section to set the top glp quanitity -> 65% propane & 35% butane.
+        
+        object_capacity = float(sensor.max_masa)*453.6  # lb to gr.
+        mass_quantity = object_capacity*0.85 # It's standard to avoid increasing 85% of the substance in a cylinder
+        
+        #section to set the current quantity mass (kg) of gas
+        aP = float(data_from_api["pressure"])/14.69   # psi to atm
+        T = float(data_from_api["temperature"]) + 273.15 # °C to °K
+        
+        #calculations
+        maths = Math(T, aP)
+        maths.molarVolume()
+        gas_quantity = round(maths.gasQuantity(), 2) # g
+        
+        # Now, gas Quantity and mass_quantity define the % of gas.        
+        current_percentage =(gas_quantity*100)/mass_quantity
+        # internal pressure
+        # sensor.max_output_force, when it brakes
+        
+        current_output_force = (float(data_from_api["pressure"])*100)/ float(sensor.max_output_force)
 
         return keep_information(
-            sensor,
-            sensor_instance,
-            data_from_api,
-            aP,
-            current_output_force,
-            current_percentage,
-            current_volume,
-        )
-    except Exception:
-        return False
+            sensor, sensor_instance, data_from_api, current_output_force, current_percentage, gas_quantity)
+    except Exception as e:
+        return f"error en process information {e}"
 
 
-def keep_information(sensor, sensor_instance, data_from_api, aP, current_output_force, current_percentage, current_volume):
+def keep_information(sensor, sensor_instance, data_from_api, current_output_force, current_percentage, gas_quantity):
     # Upload the database:
     Variable.objects.create(
         var_temperature=data_from_api["temperature"],
         var_radiofrecuency=data_from_api["signal"],
-        var_presure=aP,
+        var_presure=data_from_api["pressure"],
         var_time=data_from_api["heartbeatDate"],
         var_battery=data_from_api["battery"],
         localizacion="not available yet!",
-        var_litres=current_volume,
+        var_grams=gas_quantity,
         var_current_capacity=current_percentage,  # most important than anything
         var_output_capacity=current_output_force,
         sensors_sen_id=sensor_instance,  # use the instance here
     )
-    if current_percentage > 1 or current_output_force < 0:
+    if current_percentage > 1 or current_output_force < 80:
         return True
     else:
         return get_mail(sensor)
