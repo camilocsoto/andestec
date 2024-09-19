@@ -51,7 +51,7 @@ class ExportExcelView(View):
         # set the names of the columns
         headers = [
             'ID', 'Sensor Name', 'Time', 'Temperature (°C)', 
-            'Pressure (psi)',  'Output Force (%)', 'Litres (L)', 'Percentage of Gas (%)'
+            'Pressure (psi)',  'Output Force (%)', 'Grams (g)', 'Percentage of Gas (%)'
         ]
         # add enough space to the image and add it
         worksheet.append([''] * len(headers))
@@ -83,7 +83,7 @@ class ExportExcelView(View):
                 variable.var_temperature,
                 variable.var_presure, # Current pressure in psi detected by the sensor
                 variable.var_output_capacity, # % of pressure in psi
-                variable.var_litres,
+                variable.var_grams,
                 variable.var_current_capacity, # % of gas in litres 
             ])
             # set styles to rows of the data

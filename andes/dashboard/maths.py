@@ -5,9 +5,9 @@ class Math():
     This class let you get the current cuantity of matter in the bowl
     """
     def __init__(self, temperture, pressure):
-        self.temperture = temperture,
-        self.pressure = pressure,
-        self.z = 0,
+        self.temperture = temperture
+        self.pressure = pressure
+        self.z = 0
         self.Vmol = 0
     
     def getZ(self) -> float:

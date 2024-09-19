@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from .models import Sensor, Variable, User
 from api.utils import process_sensor_data
-from .math import Math
+from .maths import Math
 
 # libs to sent mails:
 from django.conf import settings
@@ -29,11 +29,11 @@ def get_data_sensor():
     # connect with utils (api) to bring the organized data.
     data_from_api = {
         "deviceNo": "YAVMMQYKDANVXPYU",
-        "pressure": "1.53",
-        "temperature": "-273.15",
+        "pressure": "82.5",
+        "temperature": "17.15",
         "battery": 97,
         "signal": 27,
-        "heartbeatDate": "2024-08-28 06:34:41",
+        "heartbeatDate": "2024-08-28 07:34:41",
     }
     return data_from_api
 
@@ -60,7 +60,7 @@ def compare_dates():
     sensor_date = get_data_sensor()
     if sensor_date["heartbeatDate"] == is_variable:
         # won't keep the same register in the db
-        return False
+        return f"{False} - porque db {is_variable} es igual a {sensor_date} o((>ω< ))o"
     else:
         return process_information()
 
@@ -82,40 +82,41 @@ def process_information():
 
         # section to set the top glp quanitity -> 65% propane & 35% butane.
         
-        object_capacity = sensor.max_masa*453.6  # lb to gr.
+        object_capacity = float(sensor.max_masa)*453.6  # lb to gr.
         mass_quantity = object_capacity*0.85 # It's standard to avoid increasing 85% of the substance in a cylinder
         
         #section to set the current quantity mass (kg) of gas
-        aP = float(data_from_api["pressure"])/14.696  # psi to atm
+        aP = float(data_from_api["pressure"])/14.69   # psi to atm
         T = float(data_from_api["temperature"]) + 273.15 # °C to °K
         
         #calculations
         maths = Math(T, aP)
-        maths.molarVolume
-        gas_quantity = maths.gasQuantity # g
+        maths.molarVolume()
+        gas_quantity = round(maths.gasQuantity(), 2) # g
+        
         # Now, gas Quantity and mass_quantity define the % of gas.        
         current_percentage =(gas_quantity*100)/mass_quantity
         # internal pressure
         # sensor.max_output_force, when it brakes
         
-        current_output_force = (aP*100)/ sensor.max_output_force
+        current_output_force = (float(data_from_api["pressure"])*100)/ float(sensor.max_output_force)
 
         return keep_information(
-            sensor, sensor_instance, data_from_api, aP, current_output_force, current_percentage, gas_quantity)
-    except Exception:
-        return False
+            sensor, sensor_instance, data_from_api, current_output_force, current_percentage, gas_quantity)
+    except Exception as e:
+        return f"error en process information {e}"
 
 
-def keep_information(sensor, sensor_instance, data_from_api, aP, current_output_force, current_percentage, gas_quantity):
+def keep_information(sensor, sensor_instance, data_from_api, current_output_force, current_percentage, gas_quantity):
     # Upload the database:
     Variable.objects.create(
         var_temperature=data_from_api["temperature"],
         var_radiofrecuency=data_from_api["signal"],
-        var_presure=aP,
+        var_presure=data_from_api["pressure"],
         var_time=data_from_api["heartbeatDate"],
         var_battery=data_from_api["battery"],
         localizacion="not available yet!",
-        var_litres=gas_quantity,
+        var_grams=gas_quantity,
         var_current_capacity=current_percentage,  # most important than anything
         var_output_capacity=current_output_force,
         sensors_sen_id=sensor_instance,  # use the instance here
