@@ -18,6 +18,8 @@ from django.core.mail import EmailMultiAlternatives
         'battery': 97,
         'signal': 27,
         'heartbeatDate': '2024-08-28 03:30:41'
+        'lat': '4.294071',
+        'lng': '-74.028749'
     }
 OR process to keep information of the sensor.    
 data_from_api = process_sensor_data()
@@ -34,6 +36,8 @@ def get_data_sensor():
         "battery": 97,
         "signal": 27,
         "heartbeatDate": "2024-08-28 07:34:41",
+        "lat": "4.294071",
+        "lng": "-74.028749"
     }
     return data_from_api
 
@@ -60,7 +64,7 @@ def compare_dates():
     sensor_date = get_data_sensor()
     if sensor_date["heartbeatDate"] == is_variable:
         # won't keep the same register in the db
-        return f"{False} - porque db {is_variable} es igual a {sensor_date} o((>ω< ))o"
+        return False
     else:
         return process_information()
 
@@ -100,11 +104,10 @@ def process_information():
         # sensor.max_output_force, when it brakes
         
         current_output_force = (float(data_from_api["pressure"])*100)/ float(sensor.max_output_force)
-
         return keep_information(
             sensor, sensor_instance, data_from_api, current_output_force, current_percentage, gas_quantity)
-    except Exception as e:
-        return f"error en process information {e}"
+    except Exception:
+        return False
 
 
 def keep_information(sensor, sensor_instance, data_from_api, current_output_force, current_percentage, gas_quantity):
@@ -115,7 +118,7 @@ def keep_information(sensor, sensor_instance, data_from_api, current_output_forc
         var_presure=data_from_api["pressure"],
         var_time=data_from_api["heartbeatDate"],
         var_battery=data_from_api["battery"],
-        localizacion="not available yet!",
+        localizacion= f'{data_from_api["lat"]} {data_from_api["lng"]}',
         var_grams=gas_quantity,
         var_current_capacity=current_percentage,  # most important than anything
         var_output_capacity=current_output_force,

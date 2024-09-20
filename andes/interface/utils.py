@@ -17,9 +17,10 @@ def get_latest_data():
             'bateria': variable.var_battery,
             'senial': variable.var_radiofrecuency,
             'fecha': date_part,
-            'litros': variable.var_grams,
+            'grams': variable.var_grams,
             'hora': var_time_str,
-            'minutes': time_part
+            'minutes': time_part,
+            'position': variable.localizacion
         }
         processed_variables.append(processed_variable)
         

@@ -1,6 +1,8 @@
 from django.views.generic.base import TemplateView
+import folium.map
 from .utils import get_latest_data
 from dashboard.models import Variable
+from django.shortcuts import render
 # To create the reports
 from django.http import HttpResponse
 from django.views import View
@@ -9,6 +11,8 @@ from openpyxl.drawing.image import Image as OpenpyxlImage
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 import os
+# To create maps
+import folium
 
 class MainView(TemplateView):
     # Charge the info of the db to the template
@@ -50,8 +54,8 @@ class ExportExcelView(View):
                              bottom=Side(style='thin'))
         # set the names of the columns
         headers = [
-            'ID', 'Sensor Name', 'Time', 'Temperature (°C)', 
-            'Pressure (psi)',  'Output Force (%)', 'Grams (g)', 'Percentage of Gas (%)'
+            'Id', 'Sensor name', 'Time', 'Temperature (°C)', 
+            'Pressure (psi)',  'Input pressure (%)', 'Grams (g)', 'Percentage of gas (%)'
         ]
         # add enough space to the image and add it
         worksheet.append([''] * len(headers))
@@ -102,5 +106,17 @@ class ExportExcelView(View):
         response['Content-Disposition'] = f'attachment; filename=datos_cilindro_{sensor.sen_id}.xlsx'
         # Guarda el workbook en la respuesta
         workbook.save(response)
-
         return response
+    
+def view_map(request):
+    # Coordenadas iniciales (ejemplo: Bogotá, Colombia)
+    mapa = folium.Map(location=[4.60971, -74.08175], zoom_start=13)
+    
+    # Agrega un marcador
+    folium.Marker([4.60971, -74.08175], popup="Bogotá").add_to(mapa)
+    
+    # Genera el HTML del mapa
+    mapa_html = mapa._repr_html_()
+    
+    # Renderiza la plantilla con el mapa
+    return render(request, 'dashboard/maps.html', {'mapa': mapa_html})
