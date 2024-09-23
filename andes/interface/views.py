@@ -109,14 +109,29 @@ class ExportExcelView(View):
         return response
     
 def view_map(request):
-    # Coordenadas iniciales (ejemplo: Bogotá, Colombia)
-    mapa = folium.Map(location=[4.60971, -74.08175], zoom_start=13)
+    # Llama a la función get_latest_data()
+    latest_data = get_latest_data()
     
-    # Agrega un marcador
-    folium.Marker([4.60971, -74.08175], popup="Bogotá").add_to(mapa)
-    
-    # Genera el HTML del mapa
-    mapa_html = mapa._repr_html_()
-    
-    # Renderiza la plantilla con el mapa
-    return render(request, 'dashboard/maps.html', {'mapa': mapa_html})
+    # if it has registers
+    if latest_data['objects']:
+        first_object = latest_data['objects'][0]
+        position = first_object['position']  # There you've got the location
+        #convert it to numbers
+        lat, lng = map(float, position.split(' '))
+        # Crete the map
+        mapa = folium.Map(location=[lat, lng], zoom_start=13)
+        # Add a flag
+        folium.Marker([lat, lng], popup="Ubicación del Sensor").add_to(mapa)
+        # Generate the html
+        mapa_html = mapa._repr_html_()
+
+        # Renderiza la plantilla con el mapa
+        return render(request, 'dashboard/maps.html', {'mapa': mapa_html})
+    else:
+        # Manejar el caso donde no hay datos en 'objects'
+        mapa = folium.Map(location=[4.690347, -74.067436], zoom_start=13)
+        # Add a flag
+        folium.Marker([4.690347, -74.067436], popup="Andes's offices").add_to(mapa)
+        # Generate the html
+        mapa_html = mapa._repr_html_()
+        return render(request, 'dashboard/maps.html', {'mapa': mapa_html})
