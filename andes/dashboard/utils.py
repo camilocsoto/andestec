@@ -13,7 +13,7 @@ from django.core.mail import EmailMultiAlternatives
 #this should execute when the sensor is previous registered:
     data_from_api = {
         'deviceNo': 'YAVMMQYKDANVXPYU', 
-        'pressure': '96.86',
+        'pressure': '4.86',
         'temperature': '17.20',
         'battery': 97,
         'signal': 27,
@@ -31,11 +31,11 @@ def get_data_sensor():
     # connect with utils (api) to bring the organized data.
     data_from_api = {
         "deviceNo": "YAVMMQYKDANVXPYU",
-        "pressure": "82.5",
-        "temperature": "17.15",
+        "pressure": "11.5",
+        "temperature": "15.15",
         "battery": 97,
         "signal": 27,
-        "heartbeatDate": "2024-08-28 07:34:41",
+        "heartbeatDate": "2024-08-29 07:34:41",
         "lat": "4.294071",
         "lng": "-74.028749"
     }
@@ -58,6 +58,7 @@ def compare_dates():
     # add first register to variables table
     is_variable = search_last_item()
     if is_variable == 0:
+        #when is the first register, it has to been configured by itself. 🟠
         return process_information()
 
     # if exists data in variables table:
@@ -70,12 +71,14 @@ def compare_dates():
 
 def process_information():
     """
-    
-    MOST IMPORTANT:Steps to set the current quantity mass (kg) of gas
-    If you wanna understand how, go to the math.py file.
-    
+    1. The first part of the function, link the information of the db with the current info.
+    2. Transform the total mass, the pressure and the temperature to international units.
+    3. The total volume is calculated with the compressibility factor (z), the max pressure and the max mol's quantity.
+    4. The current mol's quantity (n) is calculated with the current pressure.
+    5. The Avogadro's law let us find the current volume.
+    6. Calculate the % of volume and pressure.
     """
-    try:
+    try: # first part of the function
         data_from_api = get_data_sensor()
         # link the sensor where the variable belongs
         sensor = get_object_or_404(Sensor, sen_serialno=data_from_api["deviceNo"])
@@ -85,30 +88,30 @@ def process_information():
         sensor_instance = get_object_or_404(Sensor, sen_id=_id)
 
         # section to set the top glp quanitity -> 65% propane & 35% butane.
-        
         object_capacity = float(sensor.max_masa)*453.6  # lb to gr.
         mass_quantity = object_capacity*0.85 # It's standard to avoid increasing 85% of the substance in a cylinder
-        
+        max_pressure = float(round(sensor.max_output_force, 2))
         #section to set the current quantity mass (kg) of gas
         aP = float(data_from_api["pressure"])/14.69   # psi to atm
         T = float(data_from_api["temperature"]) + 273.15 # °C to °K
         
+        # section to set the total volume
+        t_volume = Math(T, max_pressure)
+        z = t_volume.getZ()
+        n_max = float(mass_quantity)/49.01
+        total_volume = (z*n_max*0.082*T)/max_pressure
         #calculations
-        maths = Math(T, aP)
-        maths.molarVolume()
-        gas_quantity = round(maths.gasQuantity(), 2) # g
+        maths = Math(T, aP) # maths = Math(290.15, 0.54) print(maths.getZ())
+        gas_quantity = round(maths.gasQuantity(total_volume), 2) # mol
+        current_volume = maths.avogadro_law(total_volume, n_max, gas_quantity) # L
         
         # Now, gas Quantity and mass_quantity define the % of gas.        
-        current_percentage =(gas_quantity*100)/mass_quantity
-        # internal pressure
-        # sensor.max_output_force, when it brakes
-        
-        current_output_force = (float(data_from_api["pressure"])*100)/ float(sensor.max_output_force)
+        current_percentage =(current_volume*100)/total_volume
+        current_output_force = (aP*100)/ max_pressure
         return keep_information(
             sensor, sensor_instance, data_from_api, current_output_force, current_percentage, gas_quantity)
-    except Exception:
+    except:
         return False
-
 
 def keep_information(sensor, sensor_instance, data_from_api, current_output_force, current_percentage, gas_quantity):
     # Upload the database:
@@ -124,7 +127,7 @@ def keep_information(sensor, sensor_instance, data_from_api, current_output_forc
         var_output_capacity=current_output_force,
         sensors_sen_id=sensor_instance,  # use the instance here
     )
-    if current_percentage > 1 or current_output_force < 80:
+    if current_percentage > 10 or current_output_force >10:
         return True
     else:
         return get_mail(sensor)

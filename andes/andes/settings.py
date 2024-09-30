@@ -46,12 +46,12 @@ INSTALLED_APPS = [
     'rest_framework',
     'dashboard', #add the other modules
     'api',
-    'interface',
-    'debug_toolbar'
+    'interface'
+    # 'debug_toolbar' until I wanna activate it.
 ]
 
 MIDDLEWARE = [
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    #"debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

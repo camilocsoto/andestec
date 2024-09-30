@@ -55,7 +55,7 @@ class ExportExcelView(View):
         # set the names of the columns
         headers = [
             'Id', 'Sensor name', 'Time', 'Temperature (°C)', 
-            'Pressure (psi)',  'Input pressure (%)', 'Grams (g)', 'Percentage of gas (%)'
+            'Pressure (psi)',  'Pressure (%)', 'Quantity of gas (mol)', 'Percentage of gas (%)'
         ]
         # add enough space to the image and add it
         worksheet.append([''] * len(headers))
