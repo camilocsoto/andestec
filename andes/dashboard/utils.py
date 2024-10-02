@@ -13,7 +13,7 @@ from django.core.mail import EmailMultiAlternatives
 #this should execute when the sensor is previous registered:
     data_from_api = {
         'deviceNo': 'YAVMMQYKDANVXPYU', 
-        'pressure': '4.86',
+        'pressure': '1.86',
         'temperature': '17.20',
         'battery': 97,
         'signal': 27,
@@ -127,7 +127,7 @@ def keep_information(sensor, sensor_instance, data_from_api, current_output_forc
         var_output_capacity=current_output_force,
         sensors_sen_id=sensor_instance,  # use the instance here
     )
-    if current_percentage > 10 or current_output_force >10:
+    if current_percentage > 9 or current_output_force >20:
         return True
     else:
         return get_mail(sensor)
@@ -172,7 +172,7 @@ def send_email(sensor, user):
         # Adjunta el contenido HTML
         message.attach_alternative(content, 'text/html')
         message.send()
-        return True
+        return "The message has been sent"
     except Exception as e:
         return e
     
