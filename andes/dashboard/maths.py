@@ -22,29 +22,40 @@ class Math():
         P_r = self.pressure/Pc
         T_r = self.temperture/Tc
         # get the compression factor, Z
-        self.z = gc.calc_z(Pr=P_r, Tr=T_r)
+        try:
+            self.z = gc.calc_z(Pr=P_r, Tr=T_r)
+        except Exception as e:
+            raise e
         return self.z        
-
-    def molarVolume(self) ->float:
-        """ 🟢
-        When there's no extrem conditions: use the Z factor and change the ideal gasses P*Vmol = Z*R*T. After, clear Vmol:
-        Vmol = (Z*R*T)/P, its magnitude is L/mol
-        """
-        Z = self.getZ()
-        self.Vmol = (Z*0.082*self.temperture)/self.pressure
-        return self.Vmol
     
-    def gasQuantity(self) ->float:
+    def gasQuantity(self, total_volume) ->float:
         """ 🟢🟢
-        1. Rho (ρ) is the density of the GLP = molar mass/molar volume. (g/L)
-        2 Vmol means the specific volume.
-        3. moles_quantity (n) =  define the cuantity of moles of glp gas. n= ρ*Vmol 
-        4. available mass (m) = quantity
+        1. if the pressure increases, the quantity of moles too because is the output pressure.
+        2. Use PV = znRT and clear n to get the quantity of gas.
+        3. n = P*V / zRT
         """
-        if self.Vmol >=1:
-            density = (49.01)/self.Vmol
-            moles_quantity = density*self.Vmol
-            available_mass = moles_quantity*49.01
-            return available_mass
+        if self.pressure > 0:
+            self.z = self.getZ()
+            n=(self.pressure*total_volume)/(self.z*0.082*self.temperture)
+            return n
         else:
             return 0
+        
+    def avogadro_law(self, total_volume, total_mol, current_mol):
+        """
+        This function let us find the current volume of gas
+        V1/n1 = V2/n2
+        V1 and n1 is the initial moment and V2 and n2 is the current volume
+        """
+        current_volume = (total_volume*current_mol)/total_mol
+        return current_volume
+        
+    def maxGasQuantity(self, masa) -> float:
+        """
+        Just excecute to set the max capacity
+        """
+        max_gas = self.molarVolume()
+        
+        n = masa/49.01
+        max_gas_cuantity = n*max_gas
+        return max_gas_cuantity

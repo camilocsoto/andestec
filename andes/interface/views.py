@@ -1,6 +1,8 @@
 from django.views.generic.base import TemplateView
+import folium.map
 from .utils import get_latest_data
 from dashboard.models import Variable
+from django.shortcuts import render
 # To create the reports
 from django.http import HttpResponse
 from django.views import View
@@ -9,6 +11,8 @@ from openpyxl.drawing.image import Image as OpenpyxlImage
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 import os
+# To create maps
+import folium
 
 class MainView(TemplateView):
     # Charge the info of the db to the template
@@ -50,8 +54,8 @@ class ExportExcelView(View):
                              bottom=Side(style='thin'))
         # set the names of the columns
         headers = [
-            'ID', 'Sensor Name', 'Time', 'Temperature (°C)', 
-            'Pressure (psi)',  'Output Force (%)', 'Grams (g)', 'Percentage of Gas (%)'
+            'Id', 'Sensor name', 'Time', 'Temperature (°C)', 
+            'Pressure (psi)',  'Pressure (%)', 'Quantity of gas (mol)', 'Percentage of gas (%)'
         ]
         # add enough space to the image and add it
         worksheet.append([''] * len(headers))
@@ -102,5 +106,32 @@ class ExportExcelView(View):
         response['Content-Disposition'] = f'attachment; filename=datos_cilindro_{sensor.sen_id}.xlsx'
         # Guarda el workbook en la respuesta
         workbook.save(response)
-
         return response
+    
+def view_map(request):
+    # Llama a la función get_latest_data()
+    latest_data = get_latest_data()
+    
+    # if it has registers
+    if latest_data['objects']:
+        first_object = latest_data['objects'][0]
+        position = first_object['position']  # There you've got the location
+        #convert it to numbers
+        lat, lng = map(float, position.split(' '))
+        # Crete the map
+        mapa = folium.Map(location=[lat, lng], zoom_start=13)
+        # Add a flag
+        folium.Marker([lat, lng], popup="Ubicación del Sensor").add_to(mapa)
+        # Generate the html
+        mapa_html = mapa._repr_html_()
+
+        # Renderiza la plantilla con el mapa
+        return render(request, 'dashboard/maps.html', {'mapa': mapa_html})
+    else:
+        # Manejar el caso donde no hay datos en 'objects'
+        mapa = folium.Map(location=[4.690347, -74.067436], zoom_start=13)
+        # Add a flag
+        folium.Marker([4.690347, -74.067436], popup="Andes's offices").add_to(mapa)
+        # Generate the html
+        mapa_html = mapa._repr_html_()
+        return render(request, 'dashboard/maps.html', {'mapa': mapa_html})

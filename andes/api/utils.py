@@ -58,6 +58,9 @@ def process_sensor_data():
         'battery': None,
         'signal': None,
         'iccid': None,
+        'heartbeatDate':data['device']['sensorsList'][0]['heartbeatDate'],
+        'lat': data['device']['lat'],
+        'lng': data['device']['lng']
     }
 
     for sensor in sensors:
@@ -71,7 +74,5 @@ def process_sensor_data():
             processed_data['signal'] = sensor['value']
         elif sensor['sensorName'] == "流量卡":  # ICCID
             processed_data['iccid'] = sensor['value']
-
-    processed_data['heartbeatDate'] = data['device']['sensorsList'][0]['heartbeatDate']
     
     return processed_data
