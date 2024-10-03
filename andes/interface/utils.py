@@ -13,11 +13,12 @@ def get_latest_data():
         processed_variable = {
             'capacidad': variable.var_current_capacity,
             'temperatura': float(variable.var_temperature),
-            'presion': variable.var_output_capacity,
+            'psi': float(variable.var_presure), # psi
+            'presion': variable.var_output_capacity, # %
             'bateria': variable.var_battery,
             'senial': variable.var_radiofrecuency,
             'fecha': date_part,
-            'grams': variable.var_grams,
+            'litres': variable.var_litres,
             'hora': var_time_str,
             'minutes': time_part,
             'position': variable.localizacion

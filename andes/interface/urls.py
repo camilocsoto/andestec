@@ -16,10 +16,11 @@ Including another URLconf
 """
 
 from django.urls import path
-from .views import MainView, ExportExcelView, view_map
+from .views import MainView, ExportExcelView, view_map, simple_form
 
 urlpatterns = [
     path('device/<int:id>', MainView.as_view(), name='device_view'),
     path('download/', ExportExcelView.as_view()),
-    path('maps/', view_map, name='view_map' )
+    path('maps/', view_map, name='view_map' ),
+    path('asign/', simple_form, name='asign_sensor' )
 ]

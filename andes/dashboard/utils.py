@@ -12,24 +12,6 @@ from django.core.mail import EmailMultiAlternatives
 """
 #this should execute when the sensor is previous registered:
     data_from_api = {
-        'deviceNo': 'YAVMMQYKDANVXPYU', 
-        'pressure': '1.86',
-        'temperature': '17.20',
-        'battery': 97,
-        'signal': 27,
-        'heartbeatDate': '2024-08-28 03:30:41'
-        'lat': '4.294071',
-        'lng': '-74.028749'
-    }
-OR process to keep information of the sensor.    
-data_from_api = process_sensor_data()
-
-"""
-
-
-def get_data_sensor():
-    # connect with utils (api) to bring the organized data.
-    data_from_api = {
         "deviceNo": "YAVMMQYKDANVXPYU",
         "pressure": "11.5",
         "temperature": "15.15",
@@ -39,8 +21,15 @@ def get_data_sensor():
         "lat": "4.294071",
         "lng": "-74.028749"
     }
-    return data_from_api
+OR process to keep information of the sensor.    
+data_from_api = process_sensor_data()
 
+"""
+
+def get_data_sensor():
+    # connect with utils (api) to bring the organized data.
+    data_from_api = process_sensor_data()
+    return data_from_api
 
 def search_last_item():
     try:
@@ -109,11 +98,11 @@ def process_information():
         current_percentage =(current_volume*100)/total_volume
         current_output_force = (aP*100)/ max_pressure
         return keep_information(
-            sensor, sensor_instance, data_from_api, current_output_force, current_percentage, gas_quantity)
+            sensor, sensor_instance, data_from_api, current_output_force, current_percentage, current_volume)
     except:
         return False
 
-def keep_information(sensor, sensor_instance, data_from_api, current_output_force, current_percentage, gas_quantity):
+def keep_information(sensor, sensor_instance, data_from_api, current_output_force, current_percentage, current_volume):
     # Upload the database:
     Variable.objects.create(
         var_temperature=data_from_api["temperature"],
@@ -122,7 +111,7 @@ def keep_information(sensor, sensor_instance, data_from_api, current_output_forc
         var_time=data_from_api["heartbeatDate"],
         var_battery=data_from_api["battery"],
         localizacion= f'{data_from_api["lat"]} {data_from_api["lng"]}',
-        var_grams=gas_quantity,
+        var_litres=current_volume,
         var_current_capacity=current_percentage,  # most important than anything
         var_output_capacity=current_output_force,
         sensors_sen_id=sensor_instance,  # use the instance here
@@ -172,7 +161,7 @@ def send_email(sensor, user):
         # Adjunta el contenido HTML
         message.attach_alternative(content, 'text/html')
         message.send()
-        return "The message has been sent"
+        return True
     except Exception as e:
         return e
     
