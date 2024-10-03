@@ -201,11 +201,39 @@
                         </svg>
                         0% <!--⛔ this is dynamic-->
                         <span class="ml-2 text-gray-500">vs last record</span>
-                      </div>
+                      </div>  
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {{objects.0.presion}} %
+                    {{objects.0.psi}} psi
+                  </div>
+                </div>
+              </li>
+              <li class="py-3 sm:py-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center min-w-0">
+                    <img class="flex-shrink-0 w-10 h-10"
+                      src="./../../static/dist/images/products/litres.png" alt="imac image">
+                    <div class="ml-3">
+                      <!--⚡litres-->
+                      <p class="font-medium text-gray-900 truncate dark:text-white">
+                        Litres
+                      </p>
+                      <div
+                        class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"F
+                          xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <path clip-rule="evenodd" fill-rule="evenodd"
+                            d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
+                          </path>
+                        </svg>
+                        0% <!--⛔ this is dynamic-->
+                        <span class="ml-2 text-gray-500">vs last record</span>
+                      </div>  
+                    </div>
+                  </div>
+                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                    {{objects.0.litres}} L
                   </div>
                 </div>
               </li>
@@ -433,7 +461,7 @@
                         <!-- Alternating row color -->
                         <tr class="{% cycle '' 'bg-gray-50 dark:bg-gray-700' %}">
                             <td class="p-4 text-sm font-normal text-gray-900 whitespace-nowrap dark:text-white">
-                                Sent by <span class="font-semibold"> sensor of Andes</span>
+                                Sent by <span class="font-semibold"> Sensor 1</span>
                             </td>
                             <td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
                                 {{ objeto.hora }}
@@ -442,10 +470,10 @@
                                 {{ objeto.temperatura }} °C
                             </td>
                             <td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
-                                {{ objeto.presion }} %
+                                {{ objeto.psi }} psi
                             </td>
                             <td class="inline-flex items-center p-4 space-x-2 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
-                                <span>{{objeto.grams}} gr</span>
+                                <span>{{objeto.litres}} L</span>
                             </td>
                             <td class="p-4 text-sm font-semibold text-gray-900 whitespace-nowrap dark:text-white">
                                 <span>

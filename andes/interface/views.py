@@ -1,18 +1,13 @@
 from django.views.generic.base import TemplateView
-import folium.map
 from .utils import get_latest_data
-from dashboard.models import Variable
 from django.shortcuts import render
 # To create the reports
-from django.http import HttpResponse
 from django.views import View
-from openpyxl import Workbook
-from openpyxl.drawing.image import Image as OpenpyxlImage
-from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
-from openpyxl.utils import get_column_letter
-import os
+from .reports import excel_report
 # To create maps
 import folium
+import folium.map
+
 
 class MainView(TemplateView):
     # Charge the info of the db to the template
@@ -27,91 +22,13 @@ class MainView(TemplateView):
 class ExportExcelView(View):
     # create a report of the database
     def get(self, request, *args, **kwargs):
-        """
-        Add an image to the report, the logo of Andes.
-        Add styles to the table
-        Add the information to the table
-        """
-        # Ceate a new workbook file in excel
-        workbook = Workbook()
-        worksheet = workbook.active
-        worksheet.title = "Report Data"
-
-        # set the image and his propierties
-        image_path = os.path.join('./interface/static/dist/images/andes_tec.png')
-        img = OpenpyxlImage(image_path)
-        img.height = 92
-        img.width = 390
-        worksheet.add_image(img, 'A1')  # 'A1' is the field where the image will be add
-
-        # set styles to the headers row
-        header_font = Font(bold=True, color="FFFFFF")
-        header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
-        header_alignment = Alignment(horizontal="center", vertical="center")
-        thin_border = Border(left=Side(style='thin'), 
-                             right=Side(style='thin'), 
-                             top=Side(style='thin'), 
-                             bottom=Side(style='thin'))
-        # set the names of the columns
-        headers = [
-            'Id', 'Sensor name', 'Time', 'Temperature (°C)', 
-            'Pressure (psi)',  'Pressure (%)', 'Quantity of gas (mol)', 'Percentage of gas (%)'
-        ]
-        # add enough space to the image and add it
-        worksheet.append([''] * len(headers))
-        worksheet.append([''] * len(headers))
-        worksheet.append([''] * len(headers))
-        worksheet.append([''] * len(headers))
-        worksheet.append([''] * len(headers))
-        worksheet.append(headers)
-
-        # set the styles for the space of the html
-        for col_num, header in enumerate(headers, start=1):
-            cell = worksheet.cell(row=6, column=col_num)
-            cell.font = header_font
-            cell.fill = header_fill
-            cell.alignment = header_alignment
-            cell.border = thin_border
-
-        # get the data of the table Variable
-        variables = Variable.objects.select_related('sensors_sen_id').order_by('-id')
-
-        # Agrega los datos al Excel
-        for variable in variables:
-            # Obtén el sensor asociado
-            sensor = variable.sensors_sen_id
-            worksheet.append([
-                variable.id,
-                sensor.sen_name,
-                variable.var_time.strftime("%Y-%m-%d %H:%M:%S"),
-                variable.var_temperature,
-                variable.var_presure, # Current pressure in psi detected by the sensor
-                variable.var_output_capacity, # % of pressure in psi
-                variable.var_grams,
-                variable.var_current_capacity, # % of gas in litres 
-            ])
-            # set styles to rows of the data
-            for row in worksheet.iter_rows(min_row=7, max_row=worksheet.max_row, min_col=1, max_col=len(headers)):
-                for cell in row:
-                    cell.border = thin_border
-
-            # Adjust the size of the fields
-            for col in range(1, len(headers) + 1):
-                column_letter = get_column_letter(col)
-                worksheet.column_dimensions[column_letter].width = 15
-        # Prepare the download of the file
-        response = HttpResponse(
-            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
-        response['Content-Disposition'] = f'attachment; filename=datos_cilindro_{sensor.sen_id}.xlsx'
-        # Guarda el workbook en la respuesta
-        workbook.save(response)
-        return response
+        # create the report
+        return excel_report()
     
 def view_map(request):
+    """
     # Llama a la función get_latest_data()
     latest_data = get_latest_data()
-    
     # if it has registers
     if latest_data['objects']:
         first_object = latest_data['objects'][0]
@@ -124,7 +41,6 @@ def view_map(request):
         folium.Marker([lat, lng], popup="Ubicación del Sensor").add_to(mapa)
         # Generate the html
         mapa_html = mapa._repr_html_()
-
         # Renderiza la plantilla con el mapa
         return render(request, 'dashboard/maps.html', {'mapa': mapa_html})
     else:
@@ -135,3 +51,19 @@ def view_map(request):
         # Generate the html
         mapa_html = mapa._repr_html_()
         return render(request, 'dashboard/maps.html', {'mapa': mapa_html})
+    """
+    
+        # Crete the map
+    lat = 4.698446
+    lng = -74.105120
+    mapa = folium.Map(location=[lat, lng], zoom_start=13)
+    # Add a flag
+    folium.Marker([lat, lng], popup="Ubicación del Sensor").add_to(mapa)
+    # Generate the html
+    mapa_html = mapa._repr_html_()
+    # Renderiza la plantilla con el mapa
+    return render(request, 'dashboard/maps.html', {'mapa': mapa_html})
+    
+def simple_form(request):
+    # it's wrong!
+    return render(request, './forms/asign_sensor.html')
