@@ -66,12 +66,12 @@ const getMainChartOptions = () => {
 		},
 		series: [
 			{
-				name: 'Quantity of gas (%)',
+				name: 'gallons of bottled gas (%)',
 				data: capacitiesData,
 				color: '#1A56DB'
 			},
 			{
-				name: 'Internal pressure of gas (%)',
+				name: 'gallons of gas drained gas',
 				data: outputData,
 				color: '#00b8ff'
 			}

@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'dashboard', #add the other modules
-    'api',
     'interface'
     # 'debug_toolbar' until I wanna activate it.
 ]

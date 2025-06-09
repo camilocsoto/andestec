@@ -11,9 +11,9 @@
       <div
         class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="flex items-center justify-between mb-4">
-          <div class="flex-shrink-0"> <!--⚡gas percentage-->
+          <div class="flex-shrink-0"> <!--⚡comportamiento del gas en el tiempo-->
             <span class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">{{objects.0.capacidad}} %</span>
-            <h3 class="text-base font-light text-gray-500 dark:text-gray-400">gas percentage</h3>
+            <h3 class="text-base font-light text-gray-500 dark:text-gray-400">energy behavior over time</h3>
           </div>
           <!--⚡how many this is slowing-->
           <div 
@@ -137,7 +137,7 @@
           <li class="w-full">
             <button id="faq-tab" data-tabs-target="#faq" type="button" role="tab" aria-controls="faq"
               aria-selected="true"
-              class="inline-block w-full p-4 rounded-tl-lg bg-gray-50 hover:bg-gray-100 focus:outline-none dark:bg-gray-700 dark:hover:bg-gray-600">Sensor information</button>
+              class="inline-block w-full p-4 rounded-tl-lg bg-gray-50 hover:bg-gray-100 focus:outline-none dark:bg-gray-700 dark:hover:bg-gray-600">plant information</button>
           </li>
           <li class="w-full">
             <button id="about-tab" data-tabs-target="#about" type="button" role="tab" aria-controls="about"
@@ -153,13 +153,13 @@
                   <div class="flex items-center min-w-0">
 
                     <img class="flex-shrink-0 w-10 h-10"
-                      src="./../../static/dist/images/products/temperature.png"
+                      src="./../../static/dist/images/products/time.png"
                       alt="imac image">
 
                     <div class="ml-3">
-                      <!-- ⚡temperature-->
+                      <!-- Hours of operation-->
                       <p class="font-medium text-gray-900 truncate dark:text-white">
-                        Temperature
+                        Hours of operation
                       </p>
                       <div
                         class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
@@ -177,7 +177,7 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {{objects.0.temperatura}} °C
+                    {{objects.0.temperatura}} hours
                   </div>
                 </div>
               </li>
@@ -185,11 +185,11 @@
                 <div class="flex items-center justify-between">
                   <div class="flex items-center min-w-0">
                     <img class="flex-shrink-0 w-10 h-10"
-                      src="./../../static/dist/images/products/pressure.png" alt="imac image">
+                      src="./../../static/dist/images/products/battery.png" alt="imac image">
                     <div class="ml-3">
-                      <!--⚡pressure-->
+                      <!--⚡Energy consumed by the motors-->
                       <p class="font-medium text-gray-900 truncate dark:text-white">
-                        Pressure
+                        Energy used
                       </p>
                       <div
                         class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
@@ -205,7 +205,7 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {{objects.0.psi}} psi
+                    {{objects.0.psi}} kWh
                   </div>
                 </div>
               </li>
@@ -213,11 +213,11 @@
                 <div class="flex items-center justify-between">
                   <div class="flex items-center min-w-0">
                     <img class="flex-shrink-0 w-10 h-10"
-                      src="./../../static/dist/images/products/litres.png" alt="imac image">
+                      src="./../../static/dist/images/products/pressure.png" alt="imac image">
                     <div class="ml-3">
-                      <!--⚡litres-->
+                      <!--⚡potencia del motor -->
                       <p class="font-medium text-gray-900 truncate dark:text-white">
-                        Litres
+                        Motor power
                       </p>
                       <div
                         class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
@@ -233,12 +233,68 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {{objects.0.litres}} L
+                    {{objects.0.litres}} mW
+                  </div>
+                </div>
+              </li>
+              <li class="py-3 sm:py-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center min-w-0">
+                    <img class="flex-shrink-0 w-10 h-10"
+                      src="./../../static/dist/images/products/litres.png" alt="imac image">
+                    <div class="ml-3">
+                      <!--⚡frecuencia del motor -->
+                      <p class="font-medium text-gray-900 truncate dark:text-white">
+                        Motor frequency
+                      </p>
+                      <div
+                        class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"F
+                          xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <path clip-rule="evenodd" fill-rule="evenodd"
+                            d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
+                          </path>
+                        </svg>
+                        0% <!--⛔ this is dynamic-->
+                        <span class="ml-2 text-gray-500">vs last record</span>
+                      </div>  
+                    </div>
+                  </div>
+                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                    {{objects.0.litres}} kHz
+                  </div>
+                </div>
+              </li>
+              <li class="py-3 sm:py-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center min-w-0">
+                    <img class="flex-shrink-0 w-10 h-10"
+                      src="./../../static/dist/images/products/battery.png" alt="imac image">
+                    <div class="ml-3">
+                      <!--⚡frecuencia del motor -->
+                      <p class="font-medium text-gray-900 truncate dark:text-white">
+                        Motor electricity
+                      </p>
+                      <div
+                        class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"F
+                          xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <path clip-rule="evenodd" fill-rule="evenodd"
+                            d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
+                          </path>
+                        </svg>
+                        0% <!--⛔ this is dynamic-->
+                        <span class="ml-2 text-gray-500">vs last record</span>
+                      </div>  
+                    </div>
+                  </div>
+                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                    {{objects.0.litres}} A
                   </div>
                 </div>
               </li>
             </ul>
-          </div>
+          </div> 
           <div class="hidden pt-4" id="about" role="tabpanel" aria-labelledby="about-tab">
             <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
               <li class="py-3 sm:py-4">
@@ -365,16 +421,16 @@
       <div
         class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="w-full">
-          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Current percentage of gas</h3>
-          <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">{{objects.0.capacidad}} %</span>
+          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">pumping energy</h3>
+          <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">{{objects.0.capacidad}} Kg</span>
         </div>
         <div class="w-full" id="new-products-chart"></div>
       </div>
       <div
         class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="w-full">
-          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Percentage of internal pressure</h3>
-          <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">{{objects.0.presion}} %</span>
+          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">gas packaging cost</h3>
+          <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">$ {{objects.0.presion}} cop</span>
         </div>
         <div class="w-full" id="week-signups-chart"></div>
       </div>
@@ -382,27 +438,27 @@
       <div
         class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="w-full">
-          <h3 class="mb-2 text-base font-normal text-gray-500 dark:text-gray-400">Temperature</h3>
+          <h3 class="mb-2 text-base font-normal text-gray-500 dark:text-gray-400">Energy used per motor</h3>
           <div class="flex items-center mb-2">
-            <div class="w-16 text-sm font-medium dark:text-white">{{objects.0.fecha}}</div>
+            <div class="w-16 text-sm font-medium dark:text-white">M1</div> <!-- {{objects.0.fecha}} -->
             <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
               <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{objects.0.temperatura}}%"></div>
             </div>
           </div>
           <div class="flex items-center mb-2">
-            <div class="w-16 text-sm font-medium dark:text-white">{{objects.1.fecha}}</div>
+            <div class="w-16 text-sm font-medium dark:text-white">M2</div>
             <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
               <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{objects.1.temperatura}}%"></div>
             </div>
           </div>
           <div class="flex items-center mb-2">
-            <div class="w-16 text-sm font-medium dark:text-white">{{objects.2.fecha}}</div>
+            <div class="w-16 text-sm font-medium dark:text-white">M3</div>
             <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
               <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{objects.2.temperatura}}%"></div>
             </div>
           </div>
           <div class="flex items-center mb-2">
-            <div class="w-16 text-sm font-medium dark:text-white">{{objects.3.fecha}}</div>
+            <div class="w-16 text-sm font-medium dark:text-white">All</div>
             <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
               <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{objects.3.temperatura}}%"></div>
             </div>
@@ -417,8 +473,8 @@
     <!-- Card header -->
     <div class="items-center justify-between lg:flex">
       <div class="mb-4 lg:mb-0">
-        <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Sensor's records</h3>
-        <span class="text-base font-normal text-gray-500 dark:text-gray-400">This is a list of latest sensor's records </span>
+        <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Plant's records</h3>
+        <span class="text-base font-normal text-gray-500 dark:text-gray-400">This is a list of latest plant's records </span>
       </div>
     </div>
 <!-- Table -->
@@ -431,7 +487,7 @@
                         <tr>
                             <th scope="col"
                                 class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
-                                sensor's name
+                                plant's name
                             </th>
                             <th scope="col"
                                 class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
@@ -502,6 +558,6 @@
 <script type="text/javascript">
     setInterval(function() {
         location.reload();
-    }, 60000);
+    }, 15000);
 </script>
 {% endblock %}

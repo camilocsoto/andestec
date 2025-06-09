@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
-from .models import Sensor, Variable, User
-from api.utils import process_sensor_data
+from interface.models import Sensor, Variable, User
+from interface.sensors import process_sensor_data
 from .maths import Math
 
 # libs to sent mails:

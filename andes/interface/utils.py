@@ -1,4 +1,4 @@
-from dashboard.models import Variable
+from .models import Variable
 import json
 
 def get_latest_data():
