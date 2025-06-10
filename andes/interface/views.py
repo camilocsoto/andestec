@@ -1,5 +1,5 @@
 from django.views.generic.base import TemplateView
-from .utils import get_latest_data
+from .utils import get_latest_data, compare_dates
 from django.shortcuts import render
 from .sensors import process_sensor_data    
 # To create the reports
@@ -8,7 +8,6 @@ from .reports import excel_report
 # To create maps
 import folium
 import folium.map
-
 
 class MainView(TemplateView):
     # Charge the info of the db to the template
@@ -69,9 +68,16 @@ def simple_form(request):
     # it's wrong!
     return render(request, './forms/asign_sensor.html')
 
-# api views
+# ====== api views ========
 
 def view_sensor_data(request): # si pones *args **kwgars, el id se guarda ahí...
     # Instance of the json received from the api (clase 13 platzi)
     processed_data = process_sensor_data() # si se le pide el parametro, solo te va a actualizar los que necesitas
     return render(request, 'api/load_data.html', {'processed_data': processed_data})
+
+# ====== interface views ========
+
+def view_compare(request):
+    #each minute, evaluate if can register the data.
+    response_message = compare_dates()
+    return render(request, 'variables_updated.html', {'status': response_message})
