@@ -4,7 +4,7 @@ from openpyxl.drawing.image import Image as OpenpyxlImage
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 from django.http import HttpResponse
-from dashboard.models import Variable
+from .models import Variable
 
 def excel_report():
     """

@@ -1,0 +1,65 @@
+services:
+  andes-tech:
+    container_name: app
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c "python manage.py migrate --no-input && python manage.py collectstatic --no-input && python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/db:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7.0.12
+    container_name: redis-server
+    restart: always
+    ports:
+      - "6379:6379"
+
+  celery:
+    container_name: celery-worker
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A andes.celery worker --loglevel=info
+    environment:
+      DJANGO_SETTINGS_MODULE: andes.settings
+      PYTHONPATH: /app
+    depends_on:
+      - db
+      - redis
+
+  celery-beat:
+    container_name: celery-beat
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A andes.celery beat --loglevel=info
+    environment:
+      DJANGO_SETTINGS_MODULE: andes.settings
+      PYTHONPATH: /app
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  postgres_data:

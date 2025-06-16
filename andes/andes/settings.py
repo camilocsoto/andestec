@@ -19,7 +19,7 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 # let access to every variable.
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+environ.Env.read_env(os.path.join(BASE_DIR, "andes / .env"))
 # get and set the variables of the db
 
 # Quick-start development settings - unsuitable for production
@@ -44,8 +44,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'dashboard', #add the other modules
-    'api',
     'interface'
     # 'debug_toolbar' until I wanna activate it.
 ]
@@ -66,7 +64,7 @@ ROOT_URLCONF = 'andes.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'interface' / 'templates'], # template of dashboards
+        'DIRS': [BASE_DIR / 'templates'], # template of dashboards
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -81,43 +79,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'andes.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': config('DB_NAME'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'), 
-        'HOST': config('HOST'),      # 🟠 IP del servidor donde está PostgreSQL
-        'PORT': config('PORT'),           # Puerto de PostgreSQL, 5432 es el predeterminado
-        'OPTIONS': {
-            'options': '-c search_path=antec'
-        }
+        'HOST': config('HOST'), # 🟠 IP del servidor donde está PostgreSQL
+        'PORT': config('PORT')
     }
 }
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
 ]
 
 
@@ -125,22 +105,21 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [ # add to operate the dasboard's template
-    BASE_DIR / 'interface' / 'static',
+    BASE_DIR / 'static',
 ]
+# Directorio donde `collectstatic` volcará todos los archivos
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

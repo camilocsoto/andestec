@@ -1,7 +1,7 @@
 module.exports = {
     content: [
-      './andes/interface/templates/**/*.html',
-      './andes/interface/static/**/*.js',
+      './templates/**/*.html',
+      './static/**/*.js',
       './node_modules/flowbite/**/*.js'
     ],
     safelist: [
