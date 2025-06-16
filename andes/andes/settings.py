@@ -19,7 +19,7 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 # let access to every variable.
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+environ.Env.read_env(os.path.join(BASE_DIR, "andes / .env"))
 # get and set the variables of the db
 
 # Quick-start development settings - unsuitable for production
@@ -86,10 +86,7 @@ DATABASES = {
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'), 
         'HOST': config('HOST'), # 🟠 IP del servidor donde está PostgreSQL
-        'PORT': config('PORT'),
-        'OPTIONS': {
-            'options': '-c search_path=antec'
-        }
+        'PORT': config('PORT')
     }
 }
 
@@ -121,6 +118,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [ # add to operate the dasboard's template
     BASE_DIR / 'static',
 ]
+# Directorio donde `collectstatic` volcará todos los archivos
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
