@@ -33,10 +33,7 @@ COPY . .
 
 # 5) Instalar dependencias Node y generar assets
 RUN npm ci --legacy-peer-deps && \
-    npm run build && \
-    npx tailwindcss \
-      -i ./static/assets/style.css \
-      -o ./static/dist/css/output.css
+    npm run build
 
 # 6) Instalar Python desde las ruedas
 RUN pip install --no-cache-dir --no-index --find-links=/app/wheels \
