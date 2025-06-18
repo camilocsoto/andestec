@@ -10,12 +10,11 @@ services:
       - "8000:8000"
     depends_on:
       - db
-      # - redis
 
   db:
     build:
       context: .
-      dockerfile: Dockerfile.postgres
+      dockerfile: ./docker/Dockerfile.postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/db:/docker-entrypoint-initdb.d

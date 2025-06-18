@@ -87,9 +87,9 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'), 
         'HOST': config('HOST'), # 🟠 IP del servidor donde está PostgreSQL
         'PORT': config('PORT'),
-        'OPTIONS': {
-            'options': '-c search_path=antec'
-        }
+        # 'OPTIONS': {
+        #    'options': '-c search_path=antec'
+        # }
     }
 }
 
