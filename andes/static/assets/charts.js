@@ -154,7 +154,7 @@ const getMainChartOptions = (chartsData) => {
     };
 }
 // ▼▼▼ ENVOLTURA PRINCIPAL: Todo el código que interactúa con el DOM va aquí dentro ▼▼▼
-document.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('load', function() {
     
     // 1. La extracción de datos del DOM se mueve aquí dentro.
     // Esto asegura que #data-container-charts exista antes de intentar leerlo.
