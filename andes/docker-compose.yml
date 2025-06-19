@@ -10,8 +10,10 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - redis
 
   db:
+    container_name: db
     build:
       context: .
       dockerfile: ./docker/Dockerfile.postgres
@@ -24,6 +26,40 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
+  
+  redis:
+    image: redis:7.0.12
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  celery:
+    container_name: celery-worker
+    build:
+      context: .
+    restart: always
+    environment:
+      - DJANGO_SETTINGS_MODULE=andes.settings
+    command: celery -A andes.celery worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+
+  celery-beat:
+    container_name: celery-beat
+    build:
+      context: .
+    environment:
+      - DJANGO_SETTINGS_MODULE=andes.settings
+    command: celery -A andes.celery beat --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
 
 volumes:
   postgres_data:

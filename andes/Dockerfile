@@ -48,7 +48,6 @@ FROM python:3.11.5-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app \
     DJANGO_SETTINGS_MODULE=andes.settings
 
 WORKDIR /app
@@ -61,7 +60,7 @@ RUN apt-get update && \
 # 2) Copiar paquetes Python instalados
 COPY --from=builder /install /install
 ENV PATH=/install/bin:$PATH \
-    PYTHONPATH=/install/lib/python3.11/site-packages
+    PYTHONPATH=/install/lib/python3.11/site-packages:/app
 
 # 3) Copiar la fuente completa (incluye static/dist)
 COPY --from=builder /app /app
