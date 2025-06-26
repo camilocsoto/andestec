@@ -65,7 +65,10 @@ Los datos son almacenados en una base de datos PostgreSQL, con un esquema person
 - `localizacion`: Coordenadas GPS
 - `sensors_sen_id_id`: FK al sensor
 
+## Documentación  
+Pronto
+
 ## Última Actualización
 
-2025-06-25 04:22:51
+2025-06-26 23:53:51
 
