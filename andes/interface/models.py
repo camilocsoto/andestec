@@ -1,41 +1,129 @@
 from django.db import models
+from django.utils import timezone
+from accounts.models import Empresa
 
-#Entity classes are created in the database
-class User(models.Model):
-    us_name = models.CharField(max_length=75, verbose_name="name of user")
-    us_contact = models.CharField(max_length=15, verbose_name= "contact of user")
-    us_mail = models.EmailField(max_length=95, verbose_name= "mail of user")
-    us_hash_pass = models.TextField(verbose_name= "password of user")
-    us_status = models.BinaryField(default=b'\x01', verbose_name= "status of user")
-    
-    def __str__(self) -> str:
-        return f"user: {self.us_name} - contact: {self.us_contact} - mail: {self.us_mail} - pass: {self.us_hash_pass} - stat: {self.us_status}"
-    
+
+class TipoSensor(models.Model):
+    nombre = models.CharField(max_length=45, verbose_name="nombreTipoSensor")
+
     class Meta:
-        db_table = 'andes_users'
+        db_table = 'tipoSensor'
+
+    def __str__(self):
+        return self.nombre or f"{self.pk}-{self.nombre}"
+
 
 class Sensor(models.Model):
-    sen_id = models.AutoField(primary_key=True, verbose_name="id of sensor")
-    sen_name = models.CharField(max_length=85, verbose_name="name of sensor")
-    sen_direction = models.CharField(max_length=45, verbose_name="type of sensor") 
-    max_output_force = models.DecimalField(max_digits=5, decimal_places=2, null=True, verbose_name="pressure force in max volume") #psi
-    max_masa = models.DecimalField(max_digits=5, decimal_places=2, null=True, verbose_name="maximun masa allowed in kg")
-    sen_serialno = models.CharField(max_length=45, verbose_name="serial of sensor")
-    sen_imei = models.CharField(max_length=45, null= True, verbose_name="imei of sensor")
-    user_us_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    class Meta:
-        db_table = 'andes_sensors'
+    nombre = models.CharField(max_length=45, null=True, blank=True, verbose_name="nombre")
+    imei = models.CharField(max_length=45, null=True, blank=True, verbose_name="imei")
+    numSerial = models.CharField(max_length=45, null=True, blank=True, verbose_name="numSerial")
+    estado = models.BinaryField(null=True, blank=True, verbose_name="estado")
+    localizacion = models.CharField(max_length=45, null=True, blank=True, verbose_name="localizacion")
+    bateria = models.SmallIntegerField(null=True, blank=True, verbose_name="bateria")
+    senal = models.CharField(max_length=45, null=True, blank=True, verbose_name="señal")
+    ultimaActualizacion = models.DateTimeField(null=True, blank=True, verbose_name="ultimaActualizacion")
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True, verbose_name="empresa")
+    tipoSensor = models.ForeignKey(TipoSensor, on_delete=models.PROTECT, verbose_name="tipoSensor")
 
-class Variable(models.Model):
-    var_temperature = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="temperature")
-    var_radiofrecuency = models.IntegerField(verbose_name="signal")
-    var_presure = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="current output of gas")
-    var_time = models.DateTimeField(verbose_name="current time")
-    var_output_capacity = models.IntegerField(null=True, verbose_name="current output force") #current % of force output
-    var_current_capacity = models.IntegerField(null = True, verbose_name="current percentage of gas")
-    var_litres = models.DecimalField(max_digits=7, decimal_places=2, null = True, verbose_name="current amount of litres")
-    var_battery = models.IntegerField(verbose_name="current percentage battery")
-    localizacion = models.CharField(max_length=45, null=True, verbose_name="current location")
-    sensors_sen_id = models.ForeignKey(Sensor, on_delete=models.CASCADE)
     class Meta:
-        db_table = 'andes_variables'
+        db_table = 'Sensor'
+
+    def __str__(self):
+        return f"{self.nombre or self.numSerial} ({self.imei})"
+
+
+class CaracteristicasMedidor(models.Model):
+    TipoMedidor = models.CharField(max_length=45, null=True, blank=True, verbose_name="TipoMedidor")
+    CapacidadMaximaKg = models.SmallIntegerField(null=True, blank=True, verbose_name="CapacidadMaximaKg")
+    PesoActualCilindroKg = models.SmallIntegerField(null=True, blank=True, verbose_name="PesoActualCilindroKg")
+    PresionMaximaPSI = models.SmallIntegerField(null=True, blank=True, verbose_name="PresionMaximaPSI")
+    CaracteristicasMedidorcol = models.CharField(max_length=45, null=True, blank=True, verbose_name="CaracterísticasMedidorcol")
+    sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE, verbose_name="Sensor")
+
+    class Meta:
+        db_table = 'CaracterísticasMedidor'
+
+    def __str__(self):
+        return f"CaracterísticasMedidor {self.pk} para {self.sensor}"
+
+
+class Variables(models.Model):
+    fechaActualizacion = models.DateTimeField(null=True, blank=True, verbose_name="fechaActualizacion")
+    presion = models.SmallIntegerField(null=True, blank=True, verbose_name="presion")
+    temperatura = models.SmallIntegerField(null=True, blank=True, verbose_name="temperatura")
+    densidad = models.SmallIntegerField(null=True, blank=True, verbose_name="densidad")
+    cantidad_actual_gas = models.SmallIntegerField(null=True, blank=True, verbose_name="cantidad_actual_gas")
+    cantidad_actual_porcentaje = models.SmallIntegerField(null=True, blank=True, verbose_name="cantidad_actual_porcentaje")
+    caudal = models.SmallIntegerField(null=True, blank=True, verbose_name="caudal")
+    caracteristicas_medidor = models.ForeignKey(CaracteristicasMedidor, on_delete=models.CASCADE, verbose_name="CaracterísticasMedidor")
+
+    class Meta:
+        db_table = 'Variables'
+
+    def __str__(self):
+        return f"Variables {self.pk} ({self.fechaActualizacion})"
+
+
+class TipoPeticion(models.Model):
+    nombre = models.CharField(max_length=45, null=True, blank=True, verbose_name="nombre")
+
+    class Meta:
+        db_table = 'TipoPeticion'
+
+    def __str__(self):
+        return self.nombre or f"TipoPeticion {self.pk}"
+
+
+class NivelImportancia(models.Model):
+    Nombre = models.CharField(max_length=45, null=True, blank=True, verbose_name="Nombre")
+
+    class Meta:
+        db_table = 'NivelImportancia'
+
+    def __str__(self):
+        return self.Nombre or f"NivelImportancia {self.pk}"
+
+
+class TcketSoporte(models.Model):
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, verbose_name="empresa")
+    TipoPeticion = models.ForeignKey(TipoPeticion, on_delete=models.PROTECT, verbose_name="TipoPeticion")
+    asunto = models.CharField(max_length=100, null=True, blank=True, verbose_name="asunto")
+    NivelImportancia = models.ForeignKey(NivelImportancia, on_delete=models.PROTECT, verbose_name="NivelImportancia")
+    estado = models.BinaryField(null=True, blank=True, verbose_name="estado")
+    descripcion = models.TextField(null=True, blank=True, verbose_name="descripcion")
+    fecha_creacion = models.DateTimeField(null=True, blank=True, verbose_name="fecha_creacion")
+    fecha_actualizacion = models.DateTimeField(null=True, blank=True, verbose_name="fecha_actualizacion")
+    archivos_comprimidos = models.BinaryField(null=True, blank=True, verbose_name="archivos_comprimidos")
+
+    class Meta:
+        db_table = 'TcketSoporte'
+
+    def __str__(self):
+        return f"TcketSoporte {self.pk} - {self.asunto}"
+
+
+class Notificacion(models.Model):
+    nombre_notificacion = models.CharField(max_length=45, null=True, blank=True, verbose_name="nombre_notificacion")
+    estado = models.BooleanField(null=True, blank=True, verbose_name="estado")
+    descripcion = models.TextField(null=True, blank=True, verbose_name="descripcion")
+
+    class Meta:
+        db_table = 'notificacion'
+
+    def __str__(self):
+        return self.nombre_notificacion or f"Notificacion {self.pk}"
+
+
+class Alarma(models.Model):
+    nombreAlarma = models.CharField(max_length=45, null=True, blank=True, verbose_name="nombreAlarma")
+    fecha = models.DateTimeField(null=True, blank=True, verbose_name="fecha")
+    descripcion = models.TextField(null=True, blank=True, verbose_name="descripcion")
+    estado = models.BooleanField(null=True, blank=True, verbose_name="estado")
+    Sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE, verbose_name="Sensor")
+    notificacion = models.ForeignKey(Notificacion, on_delete=models.CASCADE, verbose_name="notificacion")
+
+    class Meta:
+        db_table = 'alarma'
+
+    def __str__(self):
+        return f"Alarma {self.nombreAlarma} ({self.pk})"

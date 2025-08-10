@@ -1,4 +1,5 @@
-from .models import Sensor, Variable, User
+from .models import Sensor, Variables
+from accounts.models import Usuario
 from django.shortcuts import get_object_or_404
 import json
 
