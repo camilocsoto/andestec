@@ -3,7 +3,8 @@ from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 class TipoDocumento(models.Model):
-    nombreDoc = models.CharField(max_length=45, verbose_name="nombreDoc")
+    nombreDoc = models.CharField(max_length=45, verbose_name="tipo de documento")
+    tipoPersona = models.CharField(max_length=45, null=True, blank=True, verbose_name="tipo de persona")
 
     class Meta:
         db_table = 'TipoDocumento'

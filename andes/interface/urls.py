@@ -18,6 +18,7 @@ Including another URLconf
 from django.urls import path
 from .views import MainView, ExportExcelView, view_map, simple_form, view_sensor_data, view_compare
 
+app_name = 'app'
 urlpatterns = [
     path('device/<int:id>', MainView.as_view(), name='device_view'),
     path('download/', ExportExcelView.as_view()),
