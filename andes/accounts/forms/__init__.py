@@ -1,2 +1,2 @@
 from .login import AuthForm
-from .signin import UserForm
+from .signin import EmpresaRegistroForm
