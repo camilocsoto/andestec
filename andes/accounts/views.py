@@ -7,12 +7,12 @@ from typing import cast
 
 class SignUpEmpView(CreateView):
     form_class = EmpresaRegistroForm
-    template_name = 'registration/signup.html'
-    success_url = reverse_lazy('accounts:login')
+    template_name = 'authentication/sign-in.html'
+    success_url = reverse_lazy('accounts:register')
 
 class CustomLoginView(LoginView):
     authentication_form = AuthForm
-    template_name = 'registration/login.html'
+    template_name = 'authentication/sign-in.html'
     def get_success_url(self):
         user = cast(Usuario, self.request.user)
         # redirige a la vista correspondiente según el rol del usuario
