@@ -25,5 +25,5 @@ urlpatterns = [
     path('maps/', view_map, name='view_map' ),
     path('asign/', simple_form, name='asign_sensor'),
     path('load_data/', view_sensor_data),
-    path('compare/', view_compare) 
+    path('compare/', view_compare, name='compare'), 
 ]

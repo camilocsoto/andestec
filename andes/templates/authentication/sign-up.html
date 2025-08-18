@@ -43,7 +43,7 @@
                 Create account
             </button>
             <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                <a href="{% url "signin" %}" class="text-primary-700 hover:underline dark:text-primary-500">Sign IN</a>
+                <a href="{% url "users:register" %}" class="text-primary-700 hover:underline dark:text-primary-500">Sign IN</a>
                 &nbsp; &bull; &nbsp; 
                 <a href="https://docs.appseed.us/products/rocket/django/"  target="_blank"
                    class="text-primary-700 hover:underline dark:text-primary-500">Documentation</a>                    
@@ -56,7 +56,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const tipoPersonaSelect = document.getElementById("id_tipo_persona");
     const lastNameContainer = document.getElementById("field-container-last_name");
-    const tipoDocumentoSelect = document.getElementById("id_tipo_documento");
 
     function toggleLastNameField() {
         if (tipoPersonaSelect.value === "jurídica") {
@@ -66,32 +65,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function updateTipoDocumento() {
-        const tipoPersona = tipoPersonaSelect.value;
-        if (!tipoPersona) return;
-
-        fetch(`/filtrar-documentos/?tipo_persona=${tipoPersona}`)
-            .then(response => response.json())
-            .then(data => {
-                tipoDocumentoSelect.innerHTML = "";
-                data.forEach(doc => {
-                    const option = document.createElement("option");
-                    option.value = doc.id;
-                    option.textContent = doc.nombreDoc;
-                    tipoDocumentoSelect.appendChild(option);
-                });
-            });
-    }
-
-    tipoPersonaSelect.addEventListener("change", function () {
+    if (tipoPersonaSelect) {
+        tipoPersonaSelect.addEventListener("change", toggleLastNameField);
         toggleLastNameField();
-        updateTipoDocumento();
-    });
-
-    // Inicialización
-    toggleLastNameField();
-    if (tipoPersonaSelect.value) {
-        updateTipoDocumento();
     }
 });
 </script>
