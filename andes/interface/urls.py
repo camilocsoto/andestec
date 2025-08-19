@@ -16,7 +16,7 @@ Including another URLconf
 """
 
 from django.urls import path
-from .views import MainView, ExportExcelView, view_map, simple_form, view_sensor_data, view_compare
+from .views import *
 
 app_name = 'app'
 urlpatterns = [
@@ -26,4 +26,5 @@ urlpatterns = [
     path('asign/', simple_form, name='asign_sensor'),
     path('load_data/', view_sensor_data),
     path('compare/', view_compare, name='compare'), 
+    path('emp_menu/', MenuEmpView.as_view(), name='emp_menu')
 ]

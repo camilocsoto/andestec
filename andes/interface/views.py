@@ -1,4 +1,10 @@
 from django.views.generic.base import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import Empresa
+from accounts.models import Usuario
+from django.shortcuts import redirect
+from typing import cast
+
 from .utils import get_latest_data, compare_dates
 from django.shortcuts import render
 from .sensors import process_sensor_data    
@@ -81,3 +87,23 @@ def view_compare(request):
     #each minute, evaluate if can register the data.
     response_message = compare_dates()
     return render(request, 'variables_updated.html', {'status': response_message})
+
+
+# ========= Menu views ============
+
+class MenuEmpView(LoginRequiredMixin, TemplateView):
+    template_name = 'menu/empresa.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        user = cast(Usuario, request.user)
+        if not Empresa.objects.filter(usuario_id=user.pk).exists():
+            return redirect('users:login')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = cast(Usuario, self.request.user)
+        context['user_id'] = user.pk
+        context['user_name'] = user.get_full_name() 
+        context['empresa'] = Empresa.objects.filter(usuario_id=user.pk).first()
+        return context
