@@ -1,0 +1,92 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto mt-8">
+  <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 sm:p-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
+      <div>
+        <h3 class="flex items-center text-xl font-bold text-gray-900 dark:text-white">
+          Operarios de {{ request.user.get_full_name }}
+        </h3>
+        <span class="text-sm text-gray-500 dark:text-gray-400">Lista de operarios registrados</span>
+      </div>
+
+      <!-- boton -->
+      <div class="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-1 rounded">
+        <a href="{% url 'users:createEmp' %}"
+           class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-green-500 text-white hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400">
+          + Crear Operador
+        </a>
+      </div>
+    </div> 
+    <!-- Tabla responsive (scroll horizontal) -->
+    <div class="flex flex-col mt-4">
+      <div class="overflow-x-auto rounded-lg">
+        <div class="inline-block min-w-full align-middle">
+          <div class="overflow-hidden sm:rounded-lg">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+              <thead class="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th scope="col"
+                      class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                    Nombre
+                  </th>
+                  <th scope="col"
+                      class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                    Documento
+                  </th>
+                  <th scope="col"
+                      class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                    Área
+                  </th>
+                  <th scope="col"
+                      class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody class="bg-white dark:bg-gray-800">
+                {% for op in app %}
+                <tr class="{% cycle '' 'bg-gray-50 dark:bg-gray-700' %}">
+                  <td class="p-4 text-sm font-normal text-gray-900 whitespace-nowrap dark:text-white">
+                    {{ op.usuario.get_full_name }}
+                  </td>
+                  <td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
+                    {{ op.usuario.numDocumento }}
+                  </td>
+                  <td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
+                    {{ op.area }}
+                  </td>
+                  <td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
+                    <div class="flex gap-2">
+                      <a href="{% url 'users:updateEmp' op.usuario.pk %}"
+                         class="px-3 py-1 text-sm font-medium rounded-lg bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                        Editar
+                      </a>
+                      <a href="{% url 'users:deleteEmp' op.usuario.pk %}"
+                         class="px-3 py-1 text-sm font-medium rounded-lg bg-red-500 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
+                        Eliminar
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" class="p-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                    No hay operarios registrados.
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

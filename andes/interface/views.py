@@ -1,12 +1,14 @@
 from django.views.generic.base import TemplateView
+from django.views.generic import ListView, DeleteView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Empresa
-from accounts.models import Usuario
+from accounts.models import Usuario, Operador
 from django.shortcuts import redirect
 from typing import cast
 
 from .utils import get_latest_data, compare_dates
 from django.shortcuts import render
+from django.urls import reverse_lazy
 from .sensors import process_sensor_data    
 # To create the reports
 from django.views import View
@@ -107,3 +109,6 @@ class MenuEmpView(LoginRequiredMixin, TemplateView):
         context['user_name'] = user.get_full_name() 
         context['empresa'] = Empresa.objects.filter(usuario_id=user.pk).first()
         return context
+    
+# ========= operador gest ===========
+

@@ -73,7 +73,7 @@ class Operador(models.Model):
         Usuario, on_delete=models.CASCADE,
         primary_key=True, verbose_name="Usuario"
     )
-    area = models.CharField(max_length=45, null=True, blank=True, verbose_name="area")
+    cargo = models.CharField(max_length=45, null=True, blank=True, verbose_name="area")
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, verbose_name="empresa")
 
     class Meta:
