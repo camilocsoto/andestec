@@ -1,0 +1,39 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto mt-8">
+  <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 sm:p-6">
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Confirmar eliminación</h3>
+
+    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+      ¿Estás seguro de que quieres eliminar a este operario? <br> Esta acción eliminará el usuario y sus datos relacionados.
+    </p>
+
+    <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded">
+      <p class="text-sm text-gray-800 dark:text-white"><strong>Nombre:</strong> {{ object.get_full_name }}</p>
+      <p class="text-sm text-gray-800 dark:text-white"><strong>Correo:</strong> {{ object.email }}</p>
+      {# mostrar cargo si existe el operador relacionado #}
+      {% if object.operador %}
+      <p class="text-sm text-gray-800 dark:text-white"><strong>Cargo:</strong> {{ object.operador.cargo }}</p>
+      {% endif %}
+    </div>
+
+    <form method="post" class="flex gap-3">
+      {% csrf_token %}
+      <a href="{% url 'users:empList' %}"
+         class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+        Cancelar
+      </a>
+
+      <button type="submit"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium
+                     bg-red-200 text-gray-900 hover:bg-red-300 focus:outline-none focus:ring-2 focus:ring-offset-2
+                     dark:bg-red-600 dark:text-white dark:hover:bg-red-700">
+        Eliminar permanentemente
+      </button>
+    </form>
+
+  </div>
+</div>
+{% endblock %}

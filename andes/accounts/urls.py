@@ -10,6 +10,6 @@ urlpatterns = [
     # operador gests
     path("emp_list", OperadorListView.as_view(), name="empList"),
     path("create_op", OperadorCreateView.as_view(), name="createEmp"),
-    path("delete_op", OperadorDeleteView.as_view(), name="deleteEmp"),
-    path("delete_op", OperadorDeleteView.as_view(), name="updateEmp"),
+    path("update_op/<int:pk>/update", OperadorUpdateView.as_view(), name="updateEmp"),
+    path("delete_op/<int:pk>/", OperadorDeleteView.as_view(), name="deleteEmp"),
 ]

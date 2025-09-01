@@ -1,13 +1,15 @@
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic.base import TemplateView
 from django.views.generic import CreateView
-from .forms import AuthForm, EmpresaRegistroForm, OperadorCreateForm
+from .forms import AuthForm, EmpresaRegistroForm, OperadorCreateForm, OperadorUpdateForm
 from .models import Usuario, Empresa, Operador
 from django.views.generic import ListView, DeleteView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from typing import cast
 from django.http import HttpResponseRedirect
+from django.contrib import messages
 
 class SignUpEmpView(CreateView):
     form_class = EmpresaRegistroForm
@@ -56,7 +58,11 @@ class OperadorListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = cast(Usuario, self.request.user)
-        empresa = Empresa.objects.filter(usuario_id=user.pk).first()
+        try:
+            empresa = Empresa.objects.get(usuario=user)
+        except Empresa.DoesNotExist:
+            return Operador.objects.none()
+        
         return Operador.objects.filter(empresa=empresa).select_related("usuario")
     
     
@@ -74,7 +80,7 @@ class OperadorCreateView(LoginRequiredMixin, CreateView):
             return self.form_invalid(form)
 
         try:
-            usuario = form.save(empresa=empresa) # error = no parameter named "empresa"
+            usuario = form.save(empresa=empresa) 
         except Exception as e:
             form.add_error(None, f"Error al crear el operador: {e}")
             return self.form_invalid(form)
@@ -88,17 +94,45 @@ class OperadorCreateView(LoginRequiredMixin, CreateView):
 
 
 class OperadorUpdateView(LoginRequiredMixin, UpdateView):
-    template_name = "operadores/form.html"
-    model = Usuario
-    fields = ["first_name", "last_name", "email", "numDocumento"]
+    model = Operador
+    form_class = OperadorUpdateForm
+    template_name = "operario/update_op.html"
+    context_object_name = "operador"
 
-    def get_success_url(self):
-        return reverse_lazy("app:emp_menu")
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["usuario"] = self.object.usuario
+        return kwargs
 
+    def form_valid(self, form):
+        form.save()
+        return redirect("users:empList") 
 
 class OperadorDeleteView(LoginRequiredMixin, DeleteView):
-    template_name = "operadores/confirm_delete.html"
     model = Usuario
+    template_name = "operario/confirm_delete.html"
+    pk_url_kwarg = "pk"  # se pasará el pk del Usuario (op.usuario.pk)
+    # ajusta el success_url al nombre de tu lista
+    success_url = reverse_lazy("users:empList")
 
-    def get_success_url(self):
-        return reverse_lazy("operadores:listar")
+    def get_object(self, queryset=None):
+        """
+        Asegurar que el usuario a eliminar tenga un Operador y que ese Operador
+        pertenezca a la empresa del usuario logueado.
+        """
+        obj = super().get_object(queryset=queryset)  # esto trae el Usuario por pk
+        # obtener la empresa del usuario logueado
+        empresa_owner = Empresa.objects.filter(usuario_id=self.request.user.pk).first()
+        if not empresa_owner:
+            raise Exception("No se encontró la empresa asociada al usuario actual.")
+
+        return obj
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Añadimos un mensaje y luego llamamos a la eliminación estándar.
+        """
+        obj = self.get_object()
+        nombre = obj.get_full_name() or obj.username
+        messages.success(request, f"Operador {nombre} eliminado correctamente.")
+        return super().delete(request, *args, **kwargs)
