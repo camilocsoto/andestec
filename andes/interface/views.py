@@ -110,5 +110,16 @@ class MenuEmpView(LoginRequiredMixin, TemplateView):
         context['empresa'] = Empresa.objects.filter(usuario_id=user.pk).first()
         return context
     
+class MenuFactView(LoginRequiredMixin, TemplateView):
+    template_name = 'menu/admin.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = cast(Usuario, self.request.user)
+        context['user_id'] = user.pk
+        context['user_name'] = user.get_full_name() 
+        context['user'] = user
+        return context
+    
 # ========= operador gest ===========
 

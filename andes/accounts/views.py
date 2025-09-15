@@ -3,13 +3,14 @@ from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic.base import TemplateView
 from django.views.generic import CreateView
-from .forms import AuthForm, EmpresaRegistroForm, OperadorCreateForm, OperadorUpdateForm
+from .forms import AuthForm, EmpresaRegistroForm, OperadorCreateForm, OperadorUpdateForm, EmpresaUpdateForm
 from .models import Usuario, Empresa, Operador
 from django.views.generic import ListView, DeleteView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from typing import cast
 from django.http import HttpResponseRedirect
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 
 class SignUpEmpView(CreateView):
     form_class = EmpresaRegistroForm
@@ -26,7 +27,7 @@ class CustomLoginView(LoginView):
         # redirige a la vista correspondiente según el rol del usuario
         match user.rol.pk:
             case 1:
-                return reverse_lazy('app:compare')
+                return reverse_lazy('app:factoryMenu')
             case 2:
                 return reverse_lazy('app:emp_menu')
             case 3:
@@ -133,6 +134,70 @@ class OperadorDeleteView(LoginRequiredMixin, DeleteView):
         Añadimos un mensaje y luego llamamos a la eliminación estándar.
         """
         obj = self.get_object()
-        nombre = obj.get_full_name() or obj.username
+        nombre = obj.get_full_name()
         messages.success(request, f"Operador {nombre} eliminado correctamente.")
         return super().delete(request, *args, **kwargs)
+
+# factory crud views:
+
+class EmpresaListView(LoginRequiredMixin, ListView):
+    template_name = "admin_view/empresaList.html"
+    model = Empresa
+    context_object_name = "empresas"
+    paginate_by = 25  # opcional
+
+    def get_queryset(self):
+        # devolver todas las empresas, con usuario prefetch para evitar consultas N+1
+        return Empresa.objects.select_related("usuario").all()
+
+class EmpresaUpdateView(LoginRequiredMixin, UpdateView):
+    model = Empresa
+    template_name = "admin_view/empresa_update.html"
+    form_class = EmpresaUpdateForm
+    context_object_name = "empresa"
+    pk_url_kwarg = "pk"
+    success_url = reverse_lazy("users:FactList")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        # pasar la instancia de Usuario para prefill en el form
+        if "instance" in kwargs and kwargs["instance"] and getattr(kwargs["instance"], "usuario", None):
+            kwargs["usuario"] = kwargs["instance"].usuario
+        return kwargs
+
+    def form_valid(self, form):
+        empresa = form.save()
+        self.object = empresa
+        return HttpResponseRedirect(self.get_success_url())
+    
+class EmpresaDeleteView(LoginRequiredMixin, DeleteView):
+    """
+    Al borrar el Usuario, la Empresa se eliminará por cascade (Empresa.usuario on_delete=CASCADE).
+    """
+    model = Usuario
+    template_name = "admin_view/confirm_delete_empresa.html"
+    pk_url_kwarg = "pk"
+    success_url = reverse_lazy("users:FactList")  # ajusta namespace si es distinto
+
+    def get_object(self, queryset=None):
+        """
+        Verifica:
+        - que el usuario a borrar tenga una empresa relacionada,
+        - que el request.user tenga permisos (staff o superuser),
+        """
+        obj = super().get_object(queryset=queryset)
+        # Debe existir Empresa asociada
+        try:
+            _ = obj.empresa  # acceder al related object
+        except Empresa.DoesNotExist:
+            raise PermissionDenied("El usuario seleccionado no corresponde a una empresa válida.")
+        return obj
+
+    def delete(self, request, *args, **kwargs):
+        """Añadimos mensaje antes de eliminar y devolvemos redirect."""
+        obj = self.get_object()
+        nombre = obj.get_full_name() or obj.username
+        # llamar al delete normal
+        response = super().delete(request, *args, **kwargs)
+        messages.success(request, f"Empresa (usuario {nombre}) eliminada correctamente.")
+        return response

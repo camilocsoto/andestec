@@ -1,25 +1,29 @@
+// navigation.js - versión robusta
 document.addEventListener('DOMContentLoaded', function () {
   function toggleLogo() {
-    const logoLight = document.getElementById('logo-light');
-    const logoDark = document.getElementById('logo-dark');
+    try {
+      const logoLight = document.getElementById('logo-light');
+      const logoDark = document.getElementById('logo-dark');
 
-    // Verifica si el modo oscuro está activo
-    if (document.documentElement.classList.contains('dark')) {
-      logoDark.style.display = 'block';  // Muestra el logo oscuro
-      logoLight.style.display = 'none';  // Oculta el logo claro
-    } else {
-      logoLight.style.display = 'block'; // Muestra el logo claro
-      logoDark.style.display = 'none';   // Oculta el logo oscuro
+      if (!logoLight || !logoDark) {
+        console.warn("navigation.js: no se encontraron #logo-light o #logo-dark en el DOM");
+        return;
+      }
+
+      const isDark = document.documentElement.classList.contains('dark');
+
+      // usar style.display directamente; también mantenemos clases tailwind si quieres
+      logoLight.style.display = isDark ? 'none' : 'block';
+      logoDark.style.display = isDark ? 'block' : 'none';
+    } catch (err) {
+      console.error("navigation.js error:", err);
     }
   }
 
-  // Llama a la función al cargar la página
+  // Ejecutar al cargar
   toggleLogo();
 
-  // Observa cambios en el modo claro/oscuro
+  // Observar clase 'dark' en <html>
   const observer = new MutationObserver(toggleLogo);
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ['class']
-  });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 });

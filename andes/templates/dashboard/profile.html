@@ -53,7 +53,7 @@
                 {% if request.user.profile.avatar %}
                     <img class="mb-4 rounded-lg w-28 h-28 sm:mb-0 xl:mb-4 2xl:mb-0" src="{{ request.user.profile.avatar.url }}" alt="Jese picture">
                 {% else %}
-                    <img class="mb-4 rounded-lg w-28 h-28 sm:mb-0 xl:mb-4 2xl:mb-0" src="{% static "dist/img/default-user.png" %}" alt="Jese picture">
+                    <img class="mb-4 rounded-lg w-28 h-28 sm:mb-0 xl:mb-4 2xl:mb-0" src="{% static "dist/images/users/default-user.png" %}" alt="Jese picture">
                 {% endif %}
                 <div>
                     {% if request.user.profile.full_name %}

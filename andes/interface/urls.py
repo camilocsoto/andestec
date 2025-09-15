@@ -9,5 +9,6 @@ urlpatterns = [
     path('asign/', simple_form, name='asign_sensor'),
     path('load_data/', view_sensor_data),
     path('compare/', view_compare, name='compare'), 
-    path('emp_menu/', MenuEmpView.as_view(), name='emp_menu'),
+    path('employee_menu/', MenuEmpView.as_view(), name='emp_menu'),
+    path('factory_menu/', MenuFactView.as_view(), name='factoryMenu'),
 ]

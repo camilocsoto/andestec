@@ -33,7 +33,6 @@ class Usuario(AbstractUser):
     numDocumento = models.CharField(max_length=45, null=True, blank=True, verbose_name="numDocumento")
     image = models.BinaryField(null=True, blank=True, verbose_name="image")
     rol = models.ForeignKey(Rol, on_delete=models.PROTECT, null=True, blank=True, verbose_name="rol")
-    # si el SQL tiene un campo "estado" tinyint(1) lo mapeo a BooleanField:
     estado = models.BooleanField(default=False, verbose_name="estado")
 
     class Meta:
