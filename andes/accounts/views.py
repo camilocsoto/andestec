@@ -31,7 +31,7 @@ class CustomLoginView(LoginView):
             case 2:
                 return reverse_lazy('app:emp_menu')
             case 3:
-                return reverse_lazy('app:compare')  
+                return reverse_lazy('app:OperatorMenu')  
         return super().get_success_url()
     
 class CustomLogoutView(LogoutView):
