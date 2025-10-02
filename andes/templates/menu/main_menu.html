@@ -1,0 +1,189 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+<main>
+  <div class="px-4 pt-6">
+    <!-- Cabecera: el nombre según tipo -->
+    <div class="mb-8 text-center">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+        {% if is_admin %}
+          Bienvenido, {{ user_name }}
+        {% elif is_empresa and empresa %}
+          Bienvenido, {{ empresa.usuario.first_name }}
+        {% elif is_operador and operador %}
+          Bienvenido, {{ operador.usuario.first_name }}
+        {% else %}
+          Bienvenido, {{ user_name }}
+        {% endif %}
+      </h1>
+      <p class="mt-2 text-lg text-gray-600 dark:text-gray-300">
+        {% if is_admin %}
+          Panel de control
+        {% elif is_empresa %}
+          Panel de control de tu empresa
+        {% elif is_operador %}
+          Panel de control del operador
+        {% else %}
+          Panel de control
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+  {# ----------------- ADMIN CARDS ----------------- #}
+  {% if is_admin %}
+  <!-- Empresas -->
+  <a href="{% url 'users:FactList' %}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
+    <div class="flex flex-col items-center text-center">
+      <svg class="w-12 h-12 mb-4 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8V22h19.2v-2.8c0-3.2-6.4-4.8-9.6-4.8z"/>
+      </svg>
+      <h5 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Empresas</h5>
+      <p class="text-gray-500 dark:text-gray-400">Gestión de usuarios autorizados</p>
+    </div>
+  </a>
+
+  <!-- Monitorear -->
+  <a href="{% url 'app:AdminMenu' %}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
+    <div class="flex flex-col items-center text-center">
+      <svg class="w-12 h-12 mb-4 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 13h2v8H3v-8zm4-6h2v14H7V7zm4 4h2v10h-2V11zm4-8h2v18h-2V3zm4 12h2v6h-2v-6z"/>
+      </svg>
+      <h5 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Monitorear</h5>
+      <p class="text-gray-500 dark:text-gray-400">Supervisión de procesos y métricas</p>
+    </div>
+  </a>
+
+  <!-- PQRS -->
+  <a href="{% url 'app:ticketList' %}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
+    <div class="flex flex-col items-center text-center">
+      <svg class="w-12 h-12 mb-4 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 1.99 2H20a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/>
+      </svg>
+      <h5 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">PQRS</h5>
+      <p class="text-gray-500 dark:text-gray-400">Peticiones, quejas y reclamos</p>
+    </div>
+  </a>
+  {% endif %}
+  {# ----------------- END ADMIN CARDS ----------------- #}
+
+
+      {# ----------------- EMPRESA CARDS ----------------- #}
+      {% if is_empresa %}
+      <!-- Empleados -->
+      <a href="{% url 'users:empList' %}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex flex-col items-center text-center">
+          <svg class="w-12 h-12 mb-4 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8V22h19.2v-2.8c0-3.2-6.4-4.8-9.6-4.8z"/>
+          </svg>
+          <h5 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Empleados</h5>
+          <p class="text-gray-500 dark:text-gray-400">Gestión del personal</p>
+        </div>
+      </a>
+
+      <!-- Monitorear -->
+      <a href="#" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex flex-col items-center text-center">
+          <svg class="w-12 h-12 mb-4 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 13h2v8H3v-8zm4-6h2v14H7V7zm4 4h2v10h-2V11zm4-8h2v18h-2V3zm4 12h2v6h-2v-6z"/>
+          </svg>
+          <h5 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Monitorear</h5>
+          <p class="text-gray-500 dark:text-gray-400">Supervisión de procesos</p>
+        </div>
+      </a>
+
+      <!-- PQRS -->
+      <a href="{% url 'app:ticketList' %}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex flex-col items-center text-center">
+          <svg class="w-12 h-12 mb-4 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 1.99 2H20a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/>
+          </svg>
+          <h5 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">PQRS</h5>
+          <p class="text-gray-500 dark:text-gray-400">Peticiones y reclamos</p>
+        </div>
+      </a>
+      {% endif %}
+      {# ----------------- END EMPRESA CARDS ----------------- #}
+
+
+      {# ----------------- OPERADOR CARDS ----------------- #}
+      {% if is_operador %}
+      <!-- Cilindros -->
+      <a href="#" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex flex-col items-center text-center">
+          <svg
+            class="w-12 h-12 text-gray-700 dark:text-gray-200"
+            viewBox="0 0 64 64"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-label="Cilindro de gas">
+            <defs>
+                <!-- Máscara para abrir la franja horizontal y el medallón central -->
+                <mask id="band-badge-cut">
+                <!-- todo visible por defecto -->
+                <rect x="0" y="0" width="64" height="64" fill="#fff"/>
+                <!-- recorte de la franja (negro = se “abre”) -->
+                <rect x="12" y="30" width="40" height="6" rx="3" fill="#000"/>
+                <!-- recorte del medallón -->
+                <circle cx="32" cy="30" r="7" fill="#000"/>
+                </mask>
+            </defs>
+            <!-- Cuerpo principal (con máscara para franja y medallón) -->
+            <path
+                d="M22 16h20c4.4 0 8 3.6 8 8v18c0 6.6-5.4 12-12 12H26c-6.6 0-12-5.4-12-12V24c0-4.4 3.6-8 8-8Z"
+                fill="currentColor"
+                mask="url(#band-badge-cut)"/>
+            <!-- Tapa superior (collar) -->
+            <rect x="20" y="12" width="24" height="6" rx="2" fill="currentColor"/>
+            <!-- Postes de la tapa -->
+            <rect x="20" y="12" width="3" height="6" rx="1" fill="currentColor"/>
+            <rect x="41" y="12" width="3" height="6" rx="1" fill="currentColor"/>
+            <!-- Válvula: vástago y manija en T -->
+            <rect x="30" y="8" width="4" height="6" rx="1" fill="currentColor"/>
+            <rect x="27" y="8" width="10" height="2" rx="1" fill="currentColor"/>
+            <!-- Patas -->
+            <rect x="18" y="54" width="6" height="3" rx="1" fill="currentColor"/>
+            <rect x="40" y="54" width="6" height="3" rx="1" fill="currentColor"/>
+            <rect x="29" y="54" width="6" height="3" rx="1" fill="currentColor"/>
+            <!-- Medallón (borde) -->
+            <circle cx="32" cy="30" r="7.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path
+                d="M32 24.8c1.9 1.9 3 4 3 6.1 0 2-1.4 3.8-3 3.8s-3-1.8-3-3.8c0-2.1 1.1-4.2 3-6.1Z
+                M32 27.6c-.9 1-1.5 2.2-1.5 3.3 0 .9.7 1.7 1.5 1.7s1.5-.8 1.5-1.7c0-1.1-.6-2.3-1.5-3.3Z"
+                fill="currentColor"
+                opacity=".12"/>
+          </svg>
+          <h5 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Cilindros de gas</h5>
+          <p class="text-gray-500 dark:text-gray-400">Gestión de cilindros</p>
+        </div>
+      </a>
+
+      <!-- Monitorear -->
+      <a href="#" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex flex-col items-center text-center">
+          <svg class="w-12 h-12 mb-4 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 13h2v8H3v-8zm4-6h2v14H7V7zm4 4h2v10h-2V11zm4-8h2v18h-2V3zm4 12h2v6h-2v-6z"/>
+          </svg>
+          <h5 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Monitorear</h5>
+          <p class="text-gray-500 dark:text-gray-400">Supervisión de procesos</p>
+        </div>
+      </a>
+
+      <!-- PQRS -->
+      <a href="{% url 'app:ticketList' %}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex flex-col items-center text-center">
+          <svg class="w-12 h-12 mb-4 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 1.99 2H20a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/>
+          </svg>
+          <h5 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">PQRS</h5>
+          <p class="text-gray-500 dark:text-gray-400">Peticiones y reclamos</p>
+        </div>
+      </a>
+      {% endif %}
+      {# ----------------- END OPERADOR CARDS ----------------- #}
+
+    </div>
+  </div>
+</main>
+{% endblock %}

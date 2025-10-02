@@ -2,10 +2,12 @@ from django.views.generic.base import TemplateView
 from django.views.generic import ListView, DeleteView, CreateView, UpdateView, DetailView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from accounts.models import Empresa, Usuario, Operador
-from interface.models import TcketSoporte, Mensaje
+from interface.models import TcketSoporte, Mensaje, ComposicionGas, ServerCredentials, TipoSensor
+from interface.forms.gas_comp import ComposicionGasForm
 from interface.forms.messages import MessageForm
 from interface.forms.tickets import TicketSoporteForm
 from interface.forms.update_ticket import EstadoTicketForm
+from interface.forms.tipo_sensor import TipoSensorForm
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.contrib import messages
@@ -117,26 +119,45 @@ def view_compare(request):
 
 # ========= Menu views ============
 
-class MenuEmpView(LoginRequiredMixin, TemplateView):
-    template_name = 'menu/empresa.html'
+class MainMenuView(LoginRequiredMixin, TemplateView):
+    template_name = "menu/main_menu.html"
 
     def dispatch(self, request, *args, **kwargs):
+        # (opcional) redirigir si no tiene rol o no está completo su perfil
         user = cast(Usuario, request.user)
-        if not Empresa.objects.filter(usuario_id=user.pk).exists():
-            return redirect('users:login')
+        # Si quieres bloquear usuarios sin rol, puedes descomentar:
+        # if not getattr(user, "rol_id", None):
+        #     return redirect("users:login")
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = cast(Usuario, self.request.user)
-        context['user_id'] = user.pk
-        context['user_name'] = user.get_full_name() 
-        context['empresa'] = Empresa.objects.filter(usuario_id=user.pk).first()
-        return context
-    
-class MenuFactView(LoginRequiredMixin, TemplateView):
-    template_name = 'menu/admin.html'
+        role_id = getattr(user, "rol_id", None)
 
+        # flags
+        is_admin = role_id == 1
+        # si existe Empresa asociada por usuario (dueño) consideramos "empresa"
+        empresa = Empresa.objects.filter(usuario_id=user.pk).first()
+        is_empresa = bool(empresa) or role_id == 2
+
+        operador = Operador.objects.filter(usuario_id=user.pk).select_related("empresa__usuario").first()
+        is_operador = bool(operador) or role_id == 3
+
+        context.update({
+            "user": user,
+            "user_name": user.get_full_name(),
+            "role_id": role_id,
+            "is_admin": is_admin,
+            "is_empresa": is_empresa,
+            "is_operador": is_operador,
+            "empresa": empresa,
+            "operador": operador,
+        })
+        return context
+
+class MenuAdminView(LoginRequiredMixin, TemplateView):
+    template_name = 'menu/admin_services.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = cast(Usuario, self.request.user)
@@ -144,16 +165,17 @@ class MenuFactView(LoginRequiredMixin, TemplateView):
         context['user_name'] = user.get_full_name() 
         context['user'] = user
         return context
-    
-class MenuOperatorView(LoginRequiredMixin, TemplateView):
-    template_name = 'menu/operador.html'
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = cast(Usuario, self.request.user)
-        context['user_id'] = user.pk
+
+class MenuAdminSettingsView(LoginRequiredMixin, TemplateView): 
+    template_name = 'menu/admin_settings.html' 
+    def get_context_data(self, **kwargs): 
+        context = super().get_context_data(**kwargs) 
+        user = cast(Usuario, self.request.user) 
+        context['user_id'] = user.pk 
         context['user_name'] = user.get_full_name() 
-        context['user'] = user
+        context['user'] = user 
         return context
+
 
 # ========= ticket gest ===========
 
@@ -414,3 +436,73 @@ class TicketDownloadView(LoginRequiredMixin, View):
         resp["Content-Length"] = str(len(data))
         resp["Content-Disposition"] = f'attachment; filename="{filename}"'
         return resp
+    
+    
+# ========= gas properties ===========
+
+class ComposicionGasListView(LoginRequiredMixin, ListView):
+    model = ComposicionGas
+    template_name = "cruds/gas_composition/gas_comp_list.html"
+    context_object_name = "composiciones"
+
+    def get_queryset(self):
+        return ComposicionGas.objects.all().order_by('nombre')
+
+class ComposicionGasCreateView(LoginRequiredMixin, CreateView):
+    model = ComposicionGas
+    form_class = ComposicionGasForm
+    template_name = "cruds/gas_composition/gas_comp_create.html"
+    success_url = reverse_lazy("app:composiciongas_list") 
+    
+class ComposicionGasUpdateView(LoginRequiredMixin, UpdateView):
+    model = ComposicionGas
+    form_class = ComposicionGasForm
+    template_name = "cruds/gas_composition/gas_comp_update.html"
+    success_url = reverse_lazy("app:composiciongas_list")
+    
+class ComposicionGasDeleteView(LoginRequiredMixin, DeleteView):
+    model = ComposicionGas
+    template_name = "cruds/gas_composition/gas_comp_delete.html"
+    context_object_name = "composicion"
+    success_url = reverse_lazy("app:composiciongas_list")
+    
+# ========= tipo de sensores ===========
+
+class TipoSensorListView(LoginRequiredMixin, ListView):
+    model = TipoSensor
+    template_name = "cruds/tipo_sensores/tipo_sen_list.html"
+    context_object_name = "tipos"
+
+    def get_queryset(self):
+        return TipoSensor.objects.all().order_by('nombre')
+
+
+class TipoSensorCreateView(LoginRequiredMixin, CreateView):
+    model = TipoSensor
+    form_class = TipoSensorForm
+    template_name = "cruds/tipo_sensores/tipo_sen_create.html"
+    success_url = reverse_lazy("app:tiposensor_list")
+    
+    
+class TipoSensorUpdateView(LoginRequiredMixin, UpdateView):
+    model = TipoSensor
+    form_class = TipoSensorForm
+    template_name = "cruds/tipo_sensores/tipo_sen_update.html"
+    context_object_name = "tipo"
+    success_url = reverse_lazy("app:tiposensor_list")
+
+
+class TipoSensorDeleteView(LoginRequiredMixin, DeleteView):
+    model = TipoSensor
+    template_name = "cruds/tipo_sensores/tipo_sen_delete.html"
+    context_object_name = "tipo"
+    success_url = reverse_lazy("app:tiposensor_list")
+
+# ========= server properties ===========
+class ServerCredentialsListView(LoginRequiredMixin, ListView):
+    model = ServerCredentials
+    template_name = "cruds/servidores/servidores_list.html"
+    context_object_name = "credentials"
+
+    def get_queryset(self):
+        return ServerCredentials.objects.all().order_by('nombre')

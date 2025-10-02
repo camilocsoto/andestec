@@ -28,6 +28,7 @@ class Sensor(models.Model):
 
 class ServerCredentials(models.Model):
     nombre = models.CharField(max_length=45, null=True, blank=True, verbose_name="nombre")
+    descripcion = models.CharField(max_length=100, null=True, blank=True, verbose_name="descripcion")
     server_userId = models.CharField(max_length=10, null=True, blank=True, verbose_name="server_userId")
     server_clientId = models.CharField(max_length=45, null=True, blank=True, verbose_name="server_clientId")
     server_access_token = models.CharField(max_length=85, null=True, blank=True, verbose_name="server_access_token")

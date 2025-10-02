@@ -27,11 +27,11 @@ class CustomLoginView(LoginView):
         # redirige a la vista correspondiente según el rol del usuario
         match user.rol.pk:
             case 1:
-                return reverse_lazy('app:factoryMenu')
+                return reverse_lazy('app:menu')
             case 2:
-                return reverse_lazy('app:emp_menu')
+                return reverse_lazy('app:menu')
             case 3:
-                return reverse_lazy('app:OperatorMenu')  
+                return reverse_lazy('app:menu')  
         return super().get_success_url()
     
 class CustomLogoutView(LogoutView):

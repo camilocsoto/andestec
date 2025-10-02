@@ -1,0 +1,116 @@
+
+{% extends "layouts/base.html" %}
+{% load static %}
+{% block content %}
+<main>
+  <div class="px-4 pt-6">
+    <!-- Bienvenida con nombre de usuario (admin) -->
+    <div class="mb-8 text-center">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+        Bienvenido, {{ user_name }}
+      </h1>
+      <p class="mt-2 text-lg text-gray-600 dark:text-gray-300">
+        Panel de configuración de servicios y parámetros del sistema
+      </p>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+      <!-- Card: Sensores -->
+      <div class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex flex-col items-center text-center">
+          <svg class="w-12 h-12 text-gray-700 dark:text-gray-200" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sensores">
+            <g fill="currentColor">
+              <rect x="20" y="14" width="24" height="10" rx="1.5"/>
+              <rect x="29" y="24" width="6" height="24" rx="1.2"/>
+              <rect x="26" y="48" width="12" height="12" rx="1.5"/>
+            </g>
+            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 20a18 18 0 0 0 0 24" stroke-width="5"/>
+              <path d="M20 22a12 12 0 0 0 0 20" stroke-width="5"/>
+              <path d="M50 20a18 18 0 0 1 0 24" stroke-width="5"/>
+              <path d="M44 22a12 12 0 0 1 0 20" stroke-width="5"/>
+            </g>
+          </svg>
+
+          <h5 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Sensores</h5>
+          <p class="text-gray-500 dark:text-gray-400">Gestión y monitoreo de sensores</p>
+        </div>
+      </div>
+
+      <!-- Card: Cilindros -->
+      <div class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex flex-col items-center text-center">
+          <svg class="w-12 h-12 text-gray-700 dark:text-gray-200" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cilindro de gas">
+            <defs>
+              <mask id="band-badge-cut">
+                <rect x="0" y="0" width="64" height="64" fill="#fff"/>
+                <rect x="12" y="30" width="40" height="6" rx="3" fill="#000"/>
+                <circle cx="32" cy="30" r="7" fill="#000"/>
+              </mask>
+            </defs>
+            <path d="M22 16h20c4.4 0 8 3.6 8 8v18c0 6.6-5.4 12-12 12H26c-6.6 0-12-5.4-12-12V24c0-4.4 3.6-8 8-8Z"
+                  fill="currentColor" mask="url(#band-badge-cut)"/>
+            <rect x="20" y="12" width="24" height="6" rx="2" fill="currentColor"/>
+            <rect x="20" y="12" width="3" height="6" rx="1" fill="currentColor"/>
+            <rect x="41" y="12" width="3" height="6" rx="1" fill="currentColor"/>
+            <rect x="30" y="8" width="4" height="6" rx="1" fill="currentColor"/>
+            <rect x="27" y="8" width="10" height="2" rx="1" fill="currentColor"/>
+            <rect x="18" y="54" width="6" height="3" rx="1" fill="currentColor"/>
+            <rect x="40" y="54" width="6" height="3" rx="1" fill="currentColor"/>
+            <rect x="29" y="54" width="6" height="3" rx="1" fill="currentColor"/>
+            <circle cx="32" cy="30" r="7.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M32 24.8c1.9 1.9 3 4 3 6.1 0 2-1.4 3.8-3 3.8s-3-1.8-3-3.8c0-2.1 1.1-4.2 3-6.1Z
+                     M32 27.6c-.9 1-1.5 2.2-1.5 3.3 0 .9.7 1.7 1.5 1.7s1.5-.8 1.5-1.7c0-1.1-.6-2.3-1.5-3.3Z"
+                  fill="currentColor" opacity=".12"/>
+          </svg>
+
+          <h5 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Cilindros</h5>
+          <p class="text-gray-500 dark:text-gray-400">Inventario y estado de cilindros</p>
+        </div>
+      </div>
+
+      <!-- Card: gas propierties -->
+      <a href="{% url 'app:composiciongas_list' %}" 
+         class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg 
+                dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex flex-col items-center text-center">
+          <svg class="w-12 h-12 text-gray-500 dark:text-gray-400" viewBox="597 318 86 86" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Icono">
+            <g fill="currentColor" stroke="none">
+              <path d="M629.79 334.239 636 340.618 640.616 345.36 644.885 340.3 649.2 335.19 650.421 343.328 651.5 350.493 658.336 348.1 664.544 345.929 659.17 352.425 654.592 357.958 660.851 361.479 665.279 363.971 658.459 365.224 652.659 366.29 653.63 372.111 655.498 383.323 644.968 375.805 640.618 372.7 637.031 376.664 629.308 385.2 630.444 374.977 631.276 367.486 623.789 368.355 616.533 369.197 624.045 363.008 629.457 358.55 624.217 353.893 617.744 348.14 624.208 348.433 631.051 348.744 630.458 341.92ZM624 318 624.477 342.438 601.105 341.375 620.23 358.375 597.014 377.5 624.48 374.313 621.293 403 641.48 380.688 663.793 396.625 659.543 371.125 682.677 366.875 663.793 356.25 682.903 333.15 656.355 342.438 653.168 321.188 640.3 336.433Z"/>
+              <path d="M635.183 364.108 627.003 364.511 633.105 358.239 628.438 353.194 635.401 352.548 635.401 346.895 641.01 350.26 646.654 344 647.173 353.299 652.732 353.494 649.368 357.978 655.078 361.404 647.994 363.765 648.456 371.801 641.195 367.128 633.641 372.004 635.183 364.108Z"/>
+            </g>
+          </svg>
+          <h5 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Propiedades de gases</h5>
+          <p class="text-gray-500 dark:text-gray-400">
+            Gestión de propiedades de gases y mezclas
+          </p>
+        </div>
+      </a>
+
+      <!-- Card: otros ajustes -->
+       
+      <a href="{% url 'app:adminSettings'%}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex flex-col items-center text-center">
+          <!-- Icono rack -->
+          <svg class="w-12 h-12 text-gray-500 dark:text-gray-400" viewBox="397 213 76 76" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Icono Rack">
+            <g fill="currentColor" stroke="none">
+              <path d="M397 237 404 237 404 241 397 241Z"/> <path d="M397 229 404 229 404 233 397 233Z"/> <path d="M397 245 404 245 404 249 397 249Z"/> <path d="M397 269 404 269 404 273 397 273Z"/> <path d="M397 261 404 261 404 265 397 265Z"/> <path d="M397 253 404 253 404 257 397 257Z"/> <path d="M466 261 473 261 473 265 466 265Z"/> <path d="M466 269 473 269 473 273 466 273Z"/> <path d="M466 253 473 253 473 257 466 257Z"/> <path d="M466 229 473 229 473 233 466 233Z"/> <path d="M466 245 473 245 473 249 466 249Z"/> <path d="M466 237 473 237 473 241 466 241Z"/> <path d="M437 213 441 213 441 220 437 220Z"/> <path d="M453 213 457 213 457 220 453 220Z"/> <path d="M445 213 449 213 449 220 445 220Z"/> <path d="M429 213 433 213 433 220 429 220Z"/> <path d="M413 213 417 213 417 220 413 220Z"/> <path d="M421 213 425 213 425 220 421 220Z"/> <path d="M421 282 425 282 425 289 421 289Z"/> <path d="M413 282 417 282 417 289 413 289Z"/> <path d="M429 282 433 282 433 289 429 289Z"/> <path d="M437 282 441 282 441 289 437 289Z"/> <path d="M445 282 449 282 449 289 445 289Z"/> <path d="M453 282 457 282 457 289 453 289Z"/> <path d="M422 238 448 238 448 264 422 264Z"/> <path d="M458 224 412 224C409.791 224 408 225.791 408 228L408 274C408 276.209 409.791 278 412 278L458 278C460.209 278 462 276.209 462 274L462 228C462 225.791 460.209 224 458 224ZM452 268 418 268 418 234 452 234Z"/>
+            </g>
+          </svg>
+
+          <h5 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Otros ajustes</h5>
+          <p class="text-gray-500 dark:text-gray-400">Configura de sensores y credenciales de acceso a servidores</p>
+        </div>
+      </a>
+    </div>
+    <div class="mt-6 flex justify-center">
+      <a href="{% url 'app:menu' %}"
+        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg
+        bg-gray-200 text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300
+        dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+        ← Volver al menú
+      </a>
+    </div>
+  </div>
+</main>
+{% endblock %}

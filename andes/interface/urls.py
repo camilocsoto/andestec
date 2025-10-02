@@ -9,9 +9,10 @@ urlpatterns = [
     path('asign/', simple_form, name='asign_sensor'),
     path('load_data/', view_sensor_data),
     path('compare/', view_compare, name='compare'), 
-    path('employee_menu/', MenuEmpView.as_view(), name='emp_menu'),
-    path('factory_menu/', MenuFactView.as_view(), name='factoryMenu'),
-    path('operator_menu/', MenuOperatorView.as_view(), name='OperatorMenu'),
+    #menus
+    path("menu/", MainMenuView.as_view(), name="menu"),
+    path('admin_menu/', MenuAdminView.as_view(), name='AdminMenu'),
+    path('settings_menu/', MenuAdminSettingsView.as_view(), name='adminSettings'),
     # ticket gests
     path('ticket/', TicketListView.as_view(), name='ticketList'),
     path('ticket/create', TicketCreateView.as_view(), name='ticket_create'),
@@ -19,5 +20,17 @@ urlpatterns = [
     path("ticket/<int:pk>/add_message/", MessageCreateView.as_view(), name="ticket_add_message"),
     path("ticket/<int:pk>/update_state/", TicketEstadoUpdateView.as_view(), name="ticket_update_state"),
     path("ticket/<int:pk>/download/", TicketDownloadView.as_view(), name="ticket_download"),
+    # gas properties
+    path("composicion-gas/", ComposicionGasListView.as_view(), name="composiciongas_list"),
+    path("composicion-gas/nueva/", ComposicionGasCreateView.as_view(), name="composiciongas_create"),
+    path("composicion-gas/<int:pk>/editar/", ComposicionGasUpdateView.as_view(), name="composiciongas_update"),
+    path("composicion-gas/<int:pk>/eliminar/", ComposicionGasDeleteView.as_view(), name="composiciongas_delete"),
+    # sensor types
+    path("tipo_sensor/", TipoSensorListView.as_view(), name="tiposensor_list"),
+    path("tipo_sensor/nuevo/", TipoSensorCreateView.as_view(), name="tiposensor_create"),
+    path("tipo_sensor/<int:pk>/editar/", TipoSensorUpdateView.as_view(), name="tiposensor_update"),
+    path("tipo_sensor/<int:pk>/eliminar/", TipoSensorDeleteView.as_view(), name="tiposensor_delete"),
+    # server credentials
+    path("servers_auth/", ServerCredentialsListView.as_view(), name="servercredentials_list"),
     
 ]
