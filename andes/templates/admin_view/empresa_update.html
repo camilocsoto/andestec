@@ -1,0 +1,92 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto mt-8">
+  <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 sm:p-6">
+
+    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Editar Empresa</h2>
+
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="p-3 text-sm text-red-700 bg-red-100 rounded dark:bg-red-800 dark:text-red-200">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Nombre -->
+        <div>
+          <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">Nombre</label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}<p class="text-sm text-red-600 mt-1">{{ form.first_name.errors }}</p>{% endif %}
+        </div>
+
+        <!-- Apellido -->
+        <div>
+          <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">Apellido</label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}<p class="text-sm text-red-600 mt-1">{{ form.last_name.errors }}</p>{% endif %}
+        </div>
+
+        <!-- Tipo de documento -->
+        <div>
+          <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">Tipo de documento</label>
+          {{ form.tipo_documento }}
+          {% if form.tipo_documento.errors %}<p class="text-sm text-red-600 mt-1">{{ form.tipo_documento.errors }}</p>{% endif %}
+        </div>
+
+        <!-- Documento -->
+        <div>
+          <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">Documento</label>
+          {{ form.numDocumento }}
+          {% if form.numDocumento.errors %}<p class="text-sm text-red-600 mt-1">{{ form.numDocumento.errors }}</p>{% endif %}
+        </div>
+
+        <!-- Correo -->
+        <div class="sm:col-span-2">
+          <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">Correo</label>
+          {{ form.email }}
+          {% if form.email.errors %}<p class="text-sm text-red-600 mt-1">{{ form.email.errors }}</p>{% endif %}
+        </div>
+
+        <!-- Dirección -->
+        <div class="sm:col-span-1">
+          <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">Dirección</label>
+          {{ form.direccion }}
+          {% if form.direccion.errors %}<p class="text-sm text-red-600 mt-1">{{ form.direccion.errors }}</p>{% endif %}
+        </div>
+
+        <!-- Cantidad Operarios -->
+        <div class="sm:col-span-1">
+          <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">Cant. Operarios</label>
+          {{ form.cantidadOperarios }}
+          {% if form.cantidadOperarios.errors %}<p class="text-sm text-red-600 mt-1">{{ form.cantidadOperarios.errors }}</p>{% endif %}
+        </div>
+
+        <!-- Estado -->
+        <div class="sm:col-span-2 flex items-center gap-3">
+          {{ form.estado }}
+          <label class="text-sm font-medium text-gray-700 dark:text-gray-200">Activo</label>
+        </div>
+      </div>
+
+      <!-- Botones -->
+      <div class="flex gap-3 mt-6 justify-end">
+        <a href="{% url 'users:FactList' %}"
+          class="px-4 py-2 rounded-lg bg-gray-200 text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300
+                 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700">
+          Cancelar
+        </a>
+
+        <button type="submit"
+          class="px-4 py-2 rounded-lg bg-blue-200 text-gray-900 hover:bg-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-300
+                 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700">
+          Guardar cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

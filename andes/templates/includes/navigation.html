@@ -21,10 +21,9 @@
           </button>
           <a href="#" class="flex ml-2 md:mr-24">
             <!-- Imagen para modo claro -->
-            <img id="logo-light" src="https://tinypic.host/images/2024/09/05/andes_tec.png" class="h-8 mr-3" alt="Andes Technologies" style="display: none;" />
-
+            <img id="logo-light" src="{% static 'dist/images/icons/andes_tec.png' %}" class="h-8 mr-3 dark:hidden" alt="Andes Technologies" />
             <!-- Imagen para modo oscuro -->
-            <img id="logo-dark" src="https://tinypic.host/images/2024/09/05/andes.png" class="h-8 mr-3" alt="Andes Technologies" style="display: none;" />
+            <img id="logo-dark" src="{% static 'dist/images/icons/andes.png' %}" class="h-8 mr-3 hidden dark:block" alt="Andes Technologies" />
           </a>
           <form action="#" method="GET" class="hidden lg:block lg:pl-3.5">
             <label for="topbar-search" class="sr-only">Search</label>
@@ -296,7 +295,7 @@
                 </svg>
                 <div class="text-sm font-medium text-gray-900 dark:text-white">Billing</div>
               </a>
-              <a href="#" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
+              <a href="users:signout" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
                 <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" fill="none" stroke="currentColor"
                   viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -335,7 +334,7 @@
                 {% if request.user.profile.avatar %}
                   <img class="w-8 h-8 rounded-full" src="{{ request.user.profile.avatar.url }}" alt="user photo">
                 {% else %}
-                  <img class="w-8 h-8 rounded-full" src="{% static "dist/img/default-user.png" %}" alt="user photo">
+                  <img class="w-8 h-8 rounded-full" src="{% static "dist/users/default-user.png" %}" alt="user photo">
                 {% endif %}
               </button>
             </div>
@@ -350,7 +349,7 @@
                   </p>
                 {% else %}
                 <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
-                  ingenieria@andes-tec.com
+                  ----
                 </p>
                 {% endif %}
               </div>
@@ -362,7 +361,7 @@
                 </li>
                 <li>
                   {% if request.user.is_authenticated %}
-                    <a href="{% url 'signout' %}"
+                    <a href="{% url 'users:signout' %}"
                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                       role="menuitem">Sign Out</a>                  
                   {% else %}

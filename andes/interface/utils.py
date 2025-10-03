@@ -1,9 +1,10 @@
-from .models import Sensor, Variable, User
+from .models import Sensor, ResultsGasRestante
+from accounts.models import Usuario
 from django.shortcuts import get_object_or_404
 import json
 
 # libs to the pipeline
-from interface.sensors import process_sensor_data
+from interface.adapters import process_sensor_data
 from .maths import Math
 
 # libs to sent mails:
@@ -13,50 +14,50 @@ from django.core.mail import EmailMultiAlternatives
 
 def get_latest_data():
     # get last five registers
-    latest_variables = Variable.objects.order_by('-id')[:5]
+    latest_ResultsGasRestante = ResultsGasRestante.objects.order_by('-id')[:5]
     
     # Process the information of datetime that comes from the db.
-    processed_variables = []
-    for variable in latest_variables:
-        var_time_str = variable.var_time.strftime("%Y-%m-%d  %H:%M %p")
+    processed_ResultsGasRestante = []
+    for ResultsGasRestante in latest_ResultsGasRestante:
+        var_time_str = ResultsGasRestante.var_time.strftime("%Y-%m-%d  %H:%M %p")
         date_part, time_part = var_time_str.split("  ")
-        processed_variable = {
-            'capacidad': variable.var_current_capacity,
-            'temperatura': float(variable.var_temperature),
-            'psi': float(variable.var_presure), # psi
-            'presion': variable.var_output_capacity, # %
-            'bateria': variable.var_battery,
-            'senial': variable.var_radiofrecuency,
+        processed_ResultsGasRestante = {
+            'capacidad': ResultsGasRestante.var_current_capacity,
+            'temperatura': float(ResultsGasRestante.var_temperature),
+            'psi': float(ResultsGasRestante.var_presure), # psi
+            'presion': ResultsGasRestante.var_output_capacity, # %
+            'bateria': ResultsGasRestante.var_battery,
+            'senial': ResultsGasRestante.var_radiofrecuency,
             'fecha': date_part,
-            'litres': variable.var_litres,
+            'litres': ResultsGasRestante.var_litres,
             'hora': var_time_str,
             'minutes': time_part,
-            'position': variable.localizacion
+            'position': ResultsGasRestante.localizacion
         }
-        processed_variables.append(processed_variable)
+        processed_ResultsGasRestante.append(processed_ResultsGasRestante)
         
     #get other information to send it to the template
-    graph_data = collection_data(processed_variables) # main chart
+    graph_data = collection_data(processed_ResultsGasRestante) # main chart
     
     # at the end, clean this
-    latest_variables = 0
+    latest_ResultsGasRestante = 0
     return {
-        'objects':processed_variables,
+        'objects':processed_ResultsGasRestante,
         'charts':json.dumps(graph_data) 
         }
     
-def collection_data(processed_variables):
+def collection_data(processed_ResultsGasRestante):
     # process into lists the information required to to make the charts
     hours = []
     capacities = []
     outputs = []
     temperatures = []
 
-    for variable in processed_variables:
-        hours.append(variable['hora'])
-        capacities.append(variable['capacidad'])
-        outputs.append(variable['presion'])
-        temperatures.append(variable['temperatura'])
+    for ResultsGasRestante in processed_ResultsGasRestante:
+        hours.append(ResultsGasRestante['hora'])
+        capacities.append(ResultsGasRestante['capacidad'])
+        outputs.append(ResultsGasRestante['presion'])
+        temperatures.append(ResultsGasRestante['temperatura'])
     # oganize it as has to be
     hours.reverse()
     capacities.reverse()
@@ -98,26 +99,26 @@ def get_data_sensor():
 
 def search_last_item():
     try:
-        # connect with the db to bring the last record in variables table
-        last_object = Variable.objects.latest("id")
+        # connect with the db to bring the last record in ResultsGasRestante table
+        last_object = ResultsGasRestante.objects.latest("id")
         threted_date = str(last_object.var_time).split("+")[0]
         return threted_date
-    except Variable.DoesNotExist:
+    except ResultsGasRestante.DoesNotExist:
         # case: the sensors doesn't any keep data in the db
         # always commit the first record.
         return 0
 
 
 def compare_dates():
-    # add first register to variables table
-    is_variable = search_last_item()
-    if is_variable == 0:
+    # add first register to ResultsGasRestante table
+    is_ResultsGasRestante = search_last_item()
+    if is_ResultsGasRestante == 0:
         #when is the first register, it has to been configured by itself. 🟠
         return process_information()
 
-    # if exists data in variables table:
+    # if exists data in ResultsGasRestante table:
     sensor_date = get_data_sensor()
-    if sensor_date["heartbeatDate"] == is_variable:
+    if sensor_date["heartbeatDate"] == is_ResultsGasRestante:
         # won't keep the same register in the db
         return False
     else:
@@ -134,7 +135,7 @@ def process_information():
     """
     try: # first part of the function
         data_from_api = get_data_sensor()
-        # link the sensor where the variable belongs
+        # link the sensor where the ResultsGasRestante belongs
         sensor = get_object_or_404(Sensor, sen_serialno=data_from_api["deviceNo"])
         # extract info of the specific sensor:
         _id = int(sensor.sen_id)
@@ -169,7 +170,7 @@ def process_information():
 
 def keep_information(sensor, sensor_instance, data_from_api, current_output_force, current_percentage, current_volume):
     # Upload the database:
-    Variable.objects.create(
+    ResultsGasRestante.objects.create(
         var_temperature=data_from_api["temperature"],
         var_radiofrecuency=data_from_api["signal"],
         var_presure=data_from_api["pressure"],
@@ -191,8 +192,8 @@ def keep_information(sensor, sensor_instance, data_from_api, current_output_forc
 def get_mail(sensor):
     """
     the param sensor works to get all the info of the sensor
-    the variable user_id get the id of the user_id of its respective sensor
-    the variable user get all the info of the respective user
+    the ResultsGasRestante user_id get the id of the user_id of its respective sensor
+    the ResultsGasRestante user get all the info of the respective user
     """
     user_id = sensor.user_us_id_id
     user = User.objects.get(id=user_id)

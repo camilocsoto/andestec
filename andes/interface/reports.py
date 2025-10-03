@@ -1,10 +1,11 @@
+
 import os
 from openpyxl import Workbook
 from openpyxl.drawing.image import Image as OpenpyxlImage
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 from django.http import HttpResponse
-from .models import Variable
+from .models import ResultsGasRestante
 
 def excel_report():
     """
@@ -54,20 +55,20 @@ def excel_report():
         cell.border = thin_border
 
     # Obtener datos de la tabla Variable
-    variables = Variable.objects.select_related('sensors_sen_id').order_by('-id')
+    variables = ResultsGasRestante.objects.select_related('sensors_sen_id').order_by('-id')
 
     # Añadir los datos al Excel
-    for variable in variables:
-        sensor = variable.sensors_sen_id
+    for ResultsGasRestante in variables:
+        sensor = ResultsGasRestante.sensors_sen_id
         worksheet.append([
-            variable.id,
+            ResultsGasRestante.id,
             sensor.sen_name,
-            variable.var_time.strftime("%Y-%m-%d %H:%M:%S"),
-            variable.var_temperature,
-            variable.var_presure,
-            variable.var_output_capacity,
-            variable.var_litres,
-            variable.var_current_capacity,
+            ResultsGasRestante.var_time.strftime("%Y-%m-%d %H:%M:%S"),
+            ResultsGasRestante.var_temperature,
+            ResultsGasRestante.var_presure,
+            ResultsGasRestante.var_output_capacity,
+            ResultsGasRestante.var_litres,
+            ResultsGasRestante.var_current_capacity,
         ])
         # Aplicar estilos a las filas de datos
         for row in worksheet.iter_rows(min_row=7, max_row=worksheet.max_row, min_col=1, max_col=len(headers)):

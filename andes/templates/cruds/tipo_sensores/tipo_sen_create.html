@@ -1,0 +1,61 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto mt-8">
+  <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+
+    <!-- Header -->
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+      Crear nuevo tipo de sensor
+    </h2>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+      Completa el formulario para registrar un nuevo tipo de sensor en el sistema.
+    </p>
+
+    <!-- Formulario -->
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div>
+        <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          {{ form.nombre.label }}
+        </label>
+        {{ form.nombre }}
+        {% if form.nombre.errors %}
+          <p class="text-sm text-red-600 mt-1">{{ form.nombre.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label for="{{ form.descripcion.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          {{ form.descripcion.label }}
+        </label>
+        {{ form.descripcion }}
+        {% if form.descripcion.errors %}
+          <p class="text-sm text-red-600 mt-1">{{ form.descripcion.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Botones -->
+      <div class="flex items-center gap-4">
+        <button type="submit"
+                class="px-4 py-2 text-sm font-medium rounded-lg
+                        text-black hover:underline focus:outline-none focus:ring-2 focus:ring-gray-300
+                        dark:text-white dark:hover:underline">
+          Guardar
+        </button>
+
+        <a href="{% url 'app:tiposensor_list' %}"
+           class="px-4 py-2 text-sm font-medium rounded-lg
+                  bg-gray-200 text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300
+                  dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+          Cancelar
+        </a>
+      </div>
+    </form>
+
+  </div>
+</div>
+{% endblock %}

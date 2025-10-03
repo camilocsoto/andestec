@@ -1,0 +1,103 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center px-6 py-8 mx-auto min-h-screen dark:bg-gray-900">
+  <div class="w-full max-w-xl p-6 space-y-6 bg-white rounded-lg shadow dark:bg-gray-800">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Crear Operador</h2>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Rellena los datos del operario.</p>
+    </div>
+
+    <form method="post" class="space-y-6" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="p-3 text-sm text-red-700 bg-red-100 rounded dark:bg-red-800 dark:text-red-200">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Nombre -->
+        <div>
+          <label for="{{ form.first_name.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Nombre
+          </label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.first_name.errors }}</p>{% endif %}
+        </div>
+
+        <!-- Apellido -->
+        <div>
+          <label for="{{ form.last_name.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Apellido
+          </label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.last_name.errors }}</p>{% endif %}
+        </div>
+
+        <!-- Documento -->
+        <div>
+          <label for="{{ form.numDocumento.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Documento
+          </label>
+          {{ form.numDocumento }}
+          {% if form.numDocumento.errors %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.numDocumento.errors }}</p>{% endif %}
+        </div>
+
+        <!-- Cargo (antes 'area') -->
+        <div>
+          <label for="{{ form.cargo.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Cargo
+          </label>
+          {{ form.cargo }}
+          {% if form.cargo.errors %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.cargo.errors }}</p>{% endif %}
+        </div>
+
+        <!-- Email (full width) -->
+        <div class="sm:col-span-2">
+          <label for="{{ form.email.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Correo electrónico
+          </label>
+          {{ form.email }}
+          {% if form.email.errors %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.email.errors }}</p>{% endif %}
+        </div>
+
+        <!-- Contraseña -->
+        <div>
+          <label for="{{ form.password1.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Contraseña
+          </label>
+          {{ form.password1 }}
+          {% if form.password1.errors %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.password1.errors }}</p>{% endif %}
+        </div>
+
+        <!-- Repetir contraseña -->
+        <div>
+          <label for="{{ form.password2.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Repetir contraseña
+          </label>
+          {{ form.password2 }}
+          {% if form.password2.errors %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.password2.errors }}</p>{% endif %}
+        </div>
+      </div>
+
+      <!-- Botones (alineados a la derecha) -->
+      <div class="flex items-center justify-end gap-3">
+        <a href="{% url 'users:empList' %}"
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          Cancelar
+        </a>
+
+        <!-- Guardar: texto oscuro en light, texto blanco en dark; mismo padding/borde que cancelar -->
+        <button type="submit"
+                class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium
+                       text-gray-900 bg-green-200 hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-offset-2
+                       dark:bg-green-700 dark:hover:bg-green-800 dark:text-white">
+          Guardar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

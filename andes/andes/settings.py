@@ -33,7 +33,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+AUTH_USER_MODEL = 'accounts.Usuario'
 # Application definition
 
 INSTALLED_APPS = [
@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'interface'
+    'interface',
+    'accounts'
     # 'debug_toolbar' until I wanna activate it.
 ]
 
@@ -87,9 +88,9 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'), 
         'HOST': config('HOST'), # 🟠 IP del servidor donde está PostgreSQL
         'PORT': config('PORT'),
-        # 'OPTIONS': {
-        #   'options': '-c search_path=antec'
-        # }
+        'OPTIONS': { # debes comentarlo en prod
+           'options': '-c search_path=public'
+        }
     }
 }
 
@@ -129,9 +130,12 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#  Celeris and Redis configuration
-CELERY_BROKER_URL = 'redis://redis:6379/0'
-CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+# Celeris and Redis configuration Docker
+# CELERY_BROKER_URL = 'redis://redis:6379/0'
+# CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
 
 INTERNAL_IPS = [
     "127.0.0.1"
