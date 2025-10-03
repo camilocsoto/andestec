@@ -6,6 +6,9 @@ class ServerCredentialsForm(forms.ModelForm):
         model = ServerCredentials
         fields = [
             'nombre',
+            'user',
+            'password',
+            'authorization',
             'descripcion',
             'server_userId',
             'server_clientId',
@@ -15,6 +18,19 @@ class ServerCredentialsForm(forms.ModelForm):
             'nombre': forms.TextInput(attrs={
                 'class': 'w-full px-3 py-2 rounded border',
                 'placeholder': 'Nombre'
+            }),
+            'user': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded border',
+                'placeholder': 'Usuario'
+            }),
+            'password': forms.PasswordInput(attrs={
+                'class': 'w-full px-3 py-2 rounded border',
+                'placeholder': 'Contraseña',
+                'autocomplete': 'new-password'
+            }),
+            'authorization': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded border',
+                'placeholder': 'Autorización'
             }),
             'descripcion': forms.TextInput(attrs={
                 'class': 'w-full px-3 py-2 rounded border',
@@ -35,6 +51,9 @@ class ServerCredentialsForm(forms.ModelForm):
         }
         labels = {
             'nombre': 'Nombre',
+            'user': 'Usuario',
+            'password': 'Contraseña',
+            'authorization': 'Autorización',
             'descripcion': 'Descripción',
             'server_userId': 'Server userId',
             'server_clientId': 'Server clientId',

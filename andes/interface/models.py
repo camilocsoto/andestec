@@ -28,6 +28,9 @@ class Sensor(models.Model):
 
 class ServerCredentials(models.Model):
     nombre = models.CharField(max_length=45, null=True, blank=True, verbose_name="nombre")
+    user = models.CharField(max_length=45, null=True, blank=True, verbose_name="usuario")
+    password = models.CharField(max_length=45, null=True, blank=True, verbose_name="contraseña")
+    authorization = models.CharField(max_length=100, null=True, blank=True, verbose_name="autorización")
     descripcion = models.CharField(max_length=100, null=True, blank=True, verbose_name="descripcion")
     server_userId = models.CharField(max_length=10, null=True, blank=True, verbose_name="server_userId")
     server_clientId = models.CharField(max_length=45, null=True, blank=True, verbose_name="server_clientId")
@@ -81,8 +84,8 @@ class CaracteristicasCilindro(models.Model):
     coef_descarga_cd = models.FloatField(null=True, blank=True, verbose_name="coeficiente de descarga (cd)")
     diametro_orificio_m = models.FloatField(null=True, blank=True, verbose_name="diametro de orificio (m")
     notas = models.CharField(max_length=45, null=True, blank=True, verbose_name="notas")
-    ComposicionGas = models.ForeignKey(ComposicionGas, on_delete=models.PROTECT, verbose_name="Composición del gas")
-    GasRestante = models.ForeignKey(GasRestante, on_delete=models.CASCADE, verbose_name="sensor de gas restante")
+    ComposicionGas = models.ForeignKey(ComposicionGas, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Composición del gas")
+    GasRestante = models.ForeignKey(GasRestante, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="sensor de gas restante")
 
     class Meta:
         db_table = 'CaracteristicasCilindro'

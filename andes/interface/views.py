@@ -2,12 +2,14 @@ from django.views.generic.base import TemplateView
 from django.views.generic import ListView, DeleteView, CreateView, UpdateView, DetailView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from accounts.models import Empresa, Usuario, Operador
-from interface.models import TcketSoporte, Mensaje, ComposicionGas, ServerCredentials, TipoSensor
+from interface.models import TcketSoporte, Mensaje, ComposicionGas, ServerCredentials, TipoSensor, CaracteristicasCilindro
 from interface.forms.gas_comp import ComposicionGasForm
 from interface.forms.messages import MessageForm
 from interface.forms.tickets import TicketSoporteForm
 from interface.forms.update_ticket import EstadoTicketForm
 from interface.forms.tipo_sensor import TipoSensorForm
+from interface.forms.server_cred import ServerCredentialsForm
+from interface.forms.cylinders import CaracteristicasCilindroForm
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.contrib import messages
@@ -17,7 +19,7 @@ import mimetypes
 from .utils import get_latest_data, compare_dates
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
-from .sensors import process_sensor_data    
+from .adapters import process_sensor_data    
 # To create the reports
 from django.views import View
 from .reports import excel_report
@@ -199,8 +201,8 @@ class TicketListView(LoginRequiredMixin, ListView):
         # Roles 2 y 3: ver solo los tickets de la empresa asociada al operador (si existe)
         if rol_id in (2, 3):
             operador = Operador.objects.filter(usuario_id=user.pk).first()
-            if operador and operador.empresa_id:
-                return qs.filter(empresa_id=operador.empresa_id)
+            if operador and operador.empresa:
+                return qs.filter(empresa_id=operador.empresa.pk)
 
             # fallback: si no es operador, tal vez es el dueño de la empresa (usuario_empresa)
             empresa = Empresa.objects.filter(usuario_id=user.pk).first()
@@ -228,8 +230,6 @@ class TicketCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         # debug rápido: comprobar form.is_valid() y cleaned_data
         if not form.is_valid():
-            # esto no debería pasar porque form_valid sólo se llama si es válido,
-            # pero lo dejamos por seguridad y mostramos errores.
             messages.error(self.request, "El formulario no es válido.")
             print("FORM ERRORS:", form.errors.as_json())
             return self.form_invalid(form)
@@ -242,24 +242,20 @@ class TicketCreateView(LoginRequiredMixin, CreateView):
         if not operador:
             # mostrar info en consola y mensaje
             messages.error(self.request, "No se encontró el operario asociado al usuario.")
-            print("DEBUG: operador not found for user:", self.request.user.pk)
             return self.form_invalid(form)
 
         empresa = operador.empresa
         if not empresa:
             messages.error(self.request, "El operario no tiene una empresa asociada.")
-            print("DEBUG: operador exists but has no empresa:", operador.pk)
             return self.form_invalid(form)
 
         try:
             # Intentar guardar y capturar el ticket devuelto
-            ticket = form.save(empresa=empresa) # issue no paramenter named "empresa"
-            # Verificamos en consola que el ticket tenga pk
-            print("DEBUG: ticket after save -> pk:", getattr(ticket, "pk", None))
+            ticket = form.save(commit=False)
+            ticket.empresa = empresa
             if getattr(ticket, "pk", None) is None:
-                # no se creó (riesgo raro)
+                # no se creó
                 messages.error(self.request, "El ticket no se guardó (no se devolvió PK). Revisa logs.")
-                print("DEBUG: ticket instance (no pk):", ticket.__dict__)
                 return self.form_invalid(form)
 
             messages.success(self.request, "PQRS creado correctamente.")
@@ -279,8 +275,7 @@ class TicketDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        ticket: TcketSoporte = self.object # # issue cannot access attribute "object" for TcketSoporte
-
+        ticket: TcketSoporte = cast(TcketSoporte, self.get_object()) 
         # Nombre de la empresa (empresa.usuario es el usuario dueño)
         empresa_name = None
         try:
@@ -289,20 +284,16 @@ class TicketDetailView(LoginRequiredMixin, DetailView):
             empresa_name = str(ticket.empresa)
         context["empresa_name"] = empresa_name
         # estado legible
-        
         estado_bytes = ticket.estado  # puede ser None o bytes
         # etiqueta legible
         context["estado_label"] = ESTADO_LABELS.get(estado_bytes, "Desconocido")
-
         # valor lógico ('abierto'|'en_proceso'|'cerrado'|'pendiente')
         if estado_bytes is None:
             estado_value = 'pendiente'
         else:
             estado_value = BYTES_TO_ESTADO.get(estado_bytes, 'abierto')
-
         # añadimos al contexto la variante segura
         context['estado_value'] = estado_value
-
         # si tiene adjunto (binary) lo indicamos
         context["has_attachment"] = bool(ticket.archivos_comprimidos)
         
@@ -499,6 +490,7 @@ class TipoSensorDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy("app:tiposensor_list")
 
 # ========= server properties ===========
+
 class ServerCredentialsListView(LoginRequiredMixin, ListView):
     model = ServerCredentials
     template_name = "cruds/servidores/servidores_list.html"
@@ -506,3 +498,62 @@ class ServerCredentialsListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return ServerCredentials.objects.all().order_by('nombre')
+
+class ServerCredentialsCreateView(LoginRequiredMixin, CreateView):
+    model = ServerCredentials
+    form_class = ServerCredentialsForm
+    template_name = "cruds/servidores/servidores_create.html"
+    success_url = reverse_lazy("app:servercredentials_list")
+    
+class ServerCredentialsUpdateView(LoginRequiredMixin, UpdateView):
+    model = ServerCredentials
+    form_class = ServerCredentialsForm
+    template_name = "cruds/servidores/servidores_update.html"
+    context_object_name = "credential"
+    success_url = reverse_lazy("app:servercredentials_list")
+
+    def form_valid(self, form):
+        # Si el password viene vacío en el formulario de edición, conservamos el valor anterior en la BD.
+        password = form.cleaned_data.get('password')
+        if password in (None, ''):
+            # recuperar el objeto original desde la BD apto para pylance
+            original = cast(ServerCredentials, self.get_object()) 
+            form.instance.password = original.password
+        return super().form_valid(form)
+
+class ServerCredentialsDeleteView(LoginRequiredMixin, DeleteView):
+    model = ServerCredentials
+    template_name = "cruds/servidores/servidores_delete.html"
+    context_object_name = "credential"
+    success_url = reverse_lazy("app:servercredentials_list")
+    
+# ========= cylinder properties ===========
+
+class CaracteristicasCilindroListView(LoginRequiredMixin, ListView):
+    model = CaracteristicasCilindro
+    template_name = "cruds/cilindros/cyl_list.html"
+    context_object_name = "caracteristicas"
+
+    def get_queryset(self):
+        # ordenar por nombre (ajusta si quieres otro criterio)
+        return CaracteristicasCilindro.objects.all().order_by('nombre')
+
+class CaracteristicasCilindroCreateView(LoginRequiredMixin, CreateView):
+    model = CaracteristicasCilindro
+    form_class = CaracteristicasCilindroForm
+    template_name = "cruds/cilindros/cyl_create.html"
+    success_url = reverse_lazy("app:caracteristicas_list")
+    
+class CaracteristicasCilindroUpdateView(LoginRequiredMixin, UpdateView):
+    model = CaracteristicasCilindro
+    form_class = CaracteristicasCilindroForm
+    template_name = "cruds/cilindros/cyl_update.html"
+    context_object_name = "caracteristica"
+    success_url = reverse_lazy("app:caracteristicas_list")
+
+
+class CaracteristicasCilindroDeleteView(LoginRequiredMixin, DeleteView):
+    model = CaracteristicasCilindro
+    template_name = "cruds/cilindros/cyl_delete.html"
+    context_object_name = "caracteristica"
+    success_url = reverse_lazy("app:caracteristicas_list")

@@ -6,32 +6,13 @@ THIS FILE HAS THE CONNECTION TO THE API TO GET THE TOKEN.
 ALL THE SENSITIVE VARIABLES ARE LOCATED IN A ENVIRONMENT VARIABLES FILE
 """
 
-load_dotenv()
-
-def get_access_token():
-    #this take the token that changes currently
-    url = 'https://app.dtuip.com/oauth/token'
-    params = {
-        'grant_type': 'password',
-        'username': os.getenv('USERNAME'),
-        'password': os.getenv('PASSWORD')
-    }
-    headers = {
-        'Authorization': os.getenv('AUTHORIZATION')
-    }
-
-    response = requests.post(url, headers=headers, params=params)
-    response.raise_for_status() 
-
-    data = response.json()
-    return data.get('access_token')
-
+# =============== PARTIALY UNUSED ================
 def getSingleDeviceDatas():
     # it gives the long JSON. That we shall to extract its data
     url = 'https://app.dtuip.com/api/device/getSingleDeviceDatas'
     headers = {
         'tlinkAppId': os.getenv('TLINKAPPID'),
-        'Authorization': f"bearer {get_access_token()}" # 🟠 Bearer may change in the future.
+        'Authorization': f"bearer TOKEN" # 🟠 Bearer may change in the future.
     }
     body = {
         "userId": os.getenv('USERID'),

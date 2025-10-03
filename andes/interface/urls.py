@@ -32,5 +32,13 @@ urlpatterns = [
     path("tipo_sensor/<int:pk>/eliminar/", TipoSensorDeleteView.as_view(), name="tiposensor_delete"),
     # server credentials
     path("servers_auth/", ServerCredentialsListView.as_view(), name="servercredentials_list"),
+    path("servers_auth/nueva/", ServerCredentialsCreateView.as_view(), name="servercredentials_create"),
+    path("servers_auth/<int:pk>/editar/", ServerCredentialsUpdateView.as_view(), name="servercredentials_update"),
+    path("servers_auth/<int:pk>/eliminar/", ServerCredentialsDeleteView.as_view(), name="servercredentials_delete"),
+    # gas cylinders
+    path("car_cilindro/", CaracteristicasCilindroListView.as_view(), name="caracteristicas_list"),
+    path("car_cilindro/nuevo/", CaracteristicasCilindroCreateView.as_view(), name="caracteristicas_create"),
+    path("caracteristicas-cilindro/<int:pk>/editar/", CaracteristicasCilindroUpdateView.as_view(), name="caracteristicas_update"),
+    path("caracteristicas-cilindro/<int:pk>/eliminar/", CaracteristicasCilindroDeleteView.as_view(), name="caracteristicas_delete"),
     
 ]

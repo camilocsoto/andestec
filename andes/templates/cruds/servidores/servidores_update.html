@@ -4,8 +4,9 @@
 {% block content %}
 <div class="container mx-auto mt-8">
   <div class="w-full max-w-2xl p-6 mx-auto bg-white rounded-lg shadow dark:bg-gray-800">
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Nueva credencial de servidor</h2>
-    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Rellena los campos para registrar una nueva credencial.</p>
+
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Editar credencial de servidor</h2>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Modifica los campos de la credencial y guarda los cambios.</p>
 
     <form method="post" class="space-y-4">
       {% csrf_token %}
@@ -13,7 +14,7 @@
 
       {% for field in form %}
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+          <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
             {{ field.label }}
           </label>
           {{ field }}
@@ -36,9 +37,9 @@
 
         <button type="submit"
                 class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg
-                       bg-blue-600 text-black hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300
-                       dark:bg-blue-500 dark:text-white dark:hover:bg-blue-600">
-          Guardar
+                       text-black hover:underline focus:outline-none focus:ring-2 focus:ring-gray-300
+                       dark:text-white">
+          Guardar cambios
         </button>
       </div>
     </form>

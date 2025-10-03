@@ -1,0 +1,107 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto mt-8">
+  <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Nueva característica de cilindro</h2>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Rellena los campos para crear una nueva configuración de cilindro.</p>
+
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div>
+        <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.nombre.label }}</label>
+        {{ form.nombre }}
+        {% if form.nombre.errors %}
+          <p class="text-sm text-red-600 mt-1">{{ form.nombre.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label for="{{ form.GasRestante.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.GasRestante.label }}</label>
+        {{ form.GasRestante }}
+        {% if form.GasRestante.errors %}
+          <p class="text-sm text-red-600 mt-1">{{ form.GasRestante.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label for="{{ form.ComposicionGas.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.ComposicionGas.label }}</label>
+        {{ form.ComposicionGas }}
+        {% if form.ComposicionGas.errors %}
+          <p class="text-sm text-red-600 mt-1">{{ form.ComposicionGas.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label for="{{ form.notas.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.notas.label }}</label>
+        {{ form.notas }}
+        {% if form.notas.errors %}
+          <p class="text-sm text-red-600 mt-1">{{ form.notas.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- resto de campos -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label for="{{ form.volumen_interno_m3.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.volumen_interno_m3.label }}</label>
+          {{ form.volumen_interno_m3 }}
+          {% if form.volumen_interno_m3.errors %}
+            <p class="text-sm text-red-600 mt-1">{{ form.volumen_interno_m3.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <label for="{{ form.masa_cil_vacio_kg.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.masa_cil_vacio_kg.label }}</label>
+          {{ form.masa_cil_vacio_kg }}
+          {% if form.masa_cil_vacio_kg.errors %}
+            <p class="text-sm text-red-600 mt-1">{{ form.masa_cil_vacio_kg.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <label for="{{ form.masa_cil_lleno_kg.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.masa_cil_lleno_kg.label }}</label>
+          {{ form.masa_cil_lleno_kg }}
+          {% if form.masa_cil_lleno_kg.errors %}
+            <p class="text-sm text-red-600 mt-1">{{ form.masa_cil_lleno_kg.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <label for="{{ form.masa_gas_restant_kg.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.masa_gas_restant_kg.label }}</label>
+          {{ form.masa_gas_restant_kg }}
+          {% if form.masa_gas_restant_kg.errors %}
+            <p class="text-sm text-red-600 mt-1">{{ form.masa_gas_restant_kg.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <label for="{{ form.coef_descarga_cd.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.coef_descarga_cd.label }}</label>
+          {{ form.coef_descarga_cd }}
+          {% if form.coef_descarga_cd.errors %}
+            <p class="text-sm text-red-600 mt-1">{{ form.coef_descarga_cd.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <label for="{{ form.diametro_orificio_m.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.diametro_orificio_m.label }}</label>
+          {{ form.diametro_orificio_m }}
+          {% if form.diametro_orificio_m.errors %}
+            <p class="text-sm text-red-600 mt-1">{{ form.diametro_orificio_m.errors.0 }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- acciones -->
+      <div class="flex justify-end gap-2 mt-6">
+        <a href="{% url 'app:caracteristicas_list' %}" class="px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-white">Cancelar</a>
+        <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-black hover:bg-blue-700 dark:bg-blue-500 dark:text-white">Guardar</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+{% endblock %}

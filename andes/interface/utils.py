@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 import json
 
 # libs to the pipeline
-from interface.sensors import process_sensor_data
+from interface.adapters import process_sensor_data
 from .maths import Math
 
 # libs to sent mails:
