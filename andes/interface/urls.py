@@ -40,5 +40,11 @@ urlpatterns = [
     path("car_cilindro/nuevo/", CaracteristicasCilindroCreateView.as_view(), name="caracteristicas_create"),
     path("caracteristicas-cilindro/<int:pk>/editar/", CaracteristicasCilindroUpdateView.as_view(), name="caracteristicas_update"),
     path("caracteristicas-cilindro/<int:pk>/eliminar/", CaracteristicasCilindroDeleteView.as_view(), name="caracteristicas_delete"),
+    # sensirs
+    path("sensores/", SensorListView.as_view(), name="sensors_list"),
+    path("sensores/select_tipo/", TipoSensorSelectView.as_view(), name="select_tipo_sensor"),
+    path("sensores/create/<int:tipo_id>/", SensorCreateView.as_view(), name="sensor_create"),
+    path("sensores/<int:pk>/edit", SensorUpdateView.as_view(), name="sensor_update"),
+    path("sensores/<int:pk>/delete/", SensorDeleteView.as_view(), name="sensor_delete"),
     
 ]

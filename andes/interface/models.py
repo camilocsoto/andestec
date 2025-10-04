@@ -11,7 +11,7 @@ class TipoSensor(models.Model):
         db_table = 'tipoSensor'
 
     def __str__(self):
-        return self.nombre or f"{self.pk}-{self.nombre}"
+        return f"{self.nombre}-{self.descripcion}"
 
 
 class Sensor(models.Model):
@@ -32,10 +32,10 @@ class ServerCredentials(models.Model):
     password = models.CharField(max_length=45, null=True, blank=True, verbose_name="contraseña")
     authorization = models.CharField(max_length=100, null=True, blank=True, verbose_name="autorización")
     descripcion = models.CharField(max_length=100, null=True, blank=True, verbose_name="descripcion")
-    server_userId = models.CharField(max_length=10, null=True, blank=True, verbose_name="server_userId")
-    server_clientId = models.CharField(max_length=45, null=True, blank=True, verbose_name="server_clientId")
-    server_access_token = models.CharField(max_length=85, null=True, blank=True, verbose_name="server_access_token")
-    token_updated = models.DateTimeField(null=True, blank=True, verbose_name="token_updated")
+    server_userId = models.CharField(max_length=10, null=True, blank=True, verbose_name="id de user en el servidor")
+    server_clientId = models.CharField(max_length=45, null=True, blank=True, verbose_name="id unico de cliente en el servidor")
+    server_access_token = models.CharField(max_length=85, null=True, blank=True, verbose_name="token de acceso")
+    token_updated = models.DateTimeField(null=True, blank=True, verbose_name="ultima actualización del token")
 
     class Meta:
         db_table = 'server_credentials'
@@ -58,6 +58,9 @@ class GasRestante(models.Model):
 
     class Meta:
         db_table = 'GasRestante'
+    
+    def __str__(self):
+        return f"{self.Sensor_idSensor.nombre} - {self.server_deviceNo}"
         
 class ComposicionGas(models.Model):
     nombre = models.CharField(max_length=45, null=True, blank=True, verbose_name="nombre")

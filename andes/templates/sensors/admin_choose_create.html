@@ -1,0 +1,44 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+<main>
+  <div class="px-4 pt-6">
+    <div class="mb-8 text-center">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+        Selecciona el tipo de sensor
+      </h1>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+      {% for tipo in tipos %}
+      <a href="{% url 'app:sensor_create' tipo.id %}" 
+         class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg 
+                dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex flex-col items-center text-center">
+          <svg class="w-12 h-12 text-gray-700 dark:text-gray-200" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sensores">
+            <g fill="currentColor">
+              <rect x="20" y="14" width="24" height="10" rx="1.5"/>
+              <rect x="29" y="24" width="6" height="24" rx="1.2"/>
+              <rect x="26" y="48" width="12" height="12" rx="1.5"/>
+            </g>
+            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 20a18 18 0 0 0 0 24" stroke-width="5"/>
+              <path d="M20 22a12 12 0 0 0 0 20" stroke-width="5"/>
+              <path d="M50 20a18 18 0 0 1 0 24" stroke-width="5"/>
+              <path d="M44 22a12 12 0 0 1 0 20" stroke-width="5"/>
+            </g>
+          </svg>
+          <h5 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">{{ tipo.nombre }}</h5>
+          <p class="text-gray-500 dark:text-gray-400">
+            {{ tipo.descripcion|default:"Sin descripción" }}
+          </p>
+        </div>
+      </a>
+      {% empty %}
+        <p class="text-gray-500">No hay tipos de sensor registrados.</p>
+      {% endfor %}
+    </div>
+  </div>
+</main>
+{% endblock %}

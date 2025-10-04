@@ -1,0 +1,63 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto mt-8">
+  <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Crear sensor {{ view.nombre }}</h2>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Rellena los campos para registrar el sensor.</p>
+
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div>
+        <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.nombre.label }}</label>
+        {{ form.nombre }}
+        {% if form.nombre.errors %}<p class="text-sm text-red-600 mt-1">{{ form.nombre.errors.0 }}</p>{% endif %}
+      </div>
+
+      <div class="flex items-center gap-2">
+        {{ form.estado }} <label for="{{ form.estado.id_for_label }}" class="text-sm text-gray-700 dark:text-gray-300">{{ form.estado.label }}</label>
+        {% if form.estado.errors %}<p class="text-sm text-red-600 mt-1">{{ form.estado.errors.0 }}</p>{% endif %}
+      </div>
+
+      <div>
+        <label for="{{ form.empresa.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.empresa.label }}</label>
+        {{ form.empresa }}
+        {% if form.empresa.errors %}<p class="text-sm text-red-600 mt-1">{{ form.empresa.errors.0 }}</p>{% endif %}
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label for="{{ form.localizacion.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.localizacion.label }}</label>
+          {{ form.localizacion }}
+          {% if form.localizacion.errors %}<p class="text-sm text-red-600 mt-1">{{ form.localizacion.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label for="{{ form.bateria.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.bateria.label }}</label>
+          {{ form.bateria }}
+          {% if form.bateria.errors %}<p class="text-sm text-red-600 mt-1">{{ form.bateria.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="sm:col-span-2">
+          <label for="{{ form.server_deviceNo.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.server_deviceNo.label }}</label>
+          {{ form.server_deviceNo }}
+          {% if form.server_deviceNo.errors %}<p class="text-sm text-red-600 mt-1">{{ form.server_deviceNo.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="sm:col-span-2">
+          <label for="{{ form.server_credentials.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.server_credentials.label }}</label>
+          {{ form.server_credentials }}
+          {% if form.server_credentials.errors %}<p class="text-sm text-red-600 mt-1">{{ form.server_credentials.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 mt-6">
+        <a href="{% url 'app:sensors_list' %}" class="px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-white">Cancelar</a>
+        <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-black hover:bg-blue-700 dark:bg-blue-500 dark:text-white">Guardar</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+{% endblock %}

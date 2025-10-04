@@ -7,7 +7,7 @@ class CaracteristicasCilindroForm(forms.ModelForm):
     GasRestante = forms.ModelChoiceField(
         queryset=GasRestante.objects.all(),
         required=False,
-        label="Gas restante",
+        label="Sensor de gas",
         empty_label="(sin sensor asociado)",
         widget=forms.Select(attrs={'class': 'w-full px-3 py-2 rounded border'})
     )
