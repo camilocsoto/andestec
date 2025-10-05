@@ -16,7 +16,7 @@
 
     <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
       <!-- Card: Sensores -->
-      <div class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
+      <a href="{% url 'app:sensors_list' %}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
         <div class="flex flex-col items-center text-center">
           <svg class="w-12 h-12 text-gray-700 dark:text-gray-200" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sensores">
             <g fill="currentColor">
@@ -35,7 +35,7 @@
           <h5 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Sensores</h5>
           <p class="text-gray-500 dark:text-gray-400">Gestión y monitoreo de sensores</p>
         </div>
-      </div>
+      </a>
 
       <!-- Card: Cilindros -->
       <a href="{% url 'app:caracteristicas_list' %}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">

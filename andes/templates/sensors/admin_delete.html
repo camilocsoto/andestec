@@ -1,0 +1,20 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="container mx-auto mt-8">
+  <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Eliminar sensor</h2>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+      ¿Seguro que deseas eliminar el sensor
+      <span class="font-semibold">{{ sensor.nombre|default:sensor.pk }}</span>?
+      Esta acción eliminará también su registro asociado de <em>GasRestante</em>.
+    </p>
+
+    <form method="post" class="flex justify-end gap-2">
+      {% csrf_token %}
+      <a href="{% url 'app:sensors_list' %}" class="px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-white">Cancelar</a>
+      <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-red-600 text-white hover:bg-red-700">Eliminar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

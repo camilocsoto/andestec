@@ -1,8 +1,8 @@
 from django.views.generic.base import TemplateView
-from django.views.generic import ListView, DeleteView, CreateView, UpdateView, DetailView, View
+from django.views.generic import ListView, DeleteView, CreateView, UpdateView, DetailView, View, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from accounts.models import Empresa, Usuario, Operador
-from interface.models import TcketSoporte, Mensaje, ComposicionGas, ServerCredentials, TipoSensor, CaracteristicasCilindro
+from interface.models import TcketSoporte, Mensaje, ComposicionGas, ServerCredentials, TipoSensor, CaracteristicasCilindro, Sensor
 from interface.forms.gas_comp import ComposicionGasForm
 from interface.forms.messages import MessageForm
 from interface.forms.tickets import TicketSoporteForm
@@ -10,11 +10,15 @@ from interface.forms.update_ticket import EstadoTicketForm
 from interface.forms.tipo_sensor import TipoSensorForm
 from interface.forms.server_cred import ServerCredentialsForm
 from interface.forms.cylinders import CaracteristicasCilindroForm
+from interface.services.sensor import SensorService
+from interface.strategies.sensor import SensorStrategy
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.db.models import Case, When, Value, BooleanField
+from django.db.models.query import QuerySet
 from django.contrib import messages
 from django.utils import timezone
-from typing import cast
+from typing import cast, Optional
 import mimetypes
 from .utils import get_latest_data, compare_dates
 from django.shortcuts import render, get_object_or_404, redirect
@@ -557,3 +561,141 @@ class CaracteristicasCilindroDeleteView(LoginRequiredMixin, DeleteView):
     template_name = "cruds/cilindros/cyl_delete.html"
     context_object_name = "caracteristica"
     success_url = reverse_lazy("app:caracteristicas_list")
+    
+# ========= sensors ===========
+
+class SensorListView(LoginRequiredMixin, ListView):
+    model = Sensor
+    template_name = "sensors/admin_list.html"
+    context_object_name = "sensors"
+
+    def get_queryset(self):
+        service = SensorService()
+        return service.get_all_sensors()
+
+class TipoSensorSelectView(LoginRequiredMixin, ListView):
+    # func to choose the type of sensor before creat one
+    model = TipoSensor
+    template_name = "sensors/admin_choose_create.html"
+    context_object_name = "tipos"
+    
+    
+class SensorCreateView(LoginRequiredMixin, FormView):
+    """
+    Crea sensores con service.sensor -> strategies.sensor ->sensor_repo según tipo_id.
+    """
+    success_url = reverse_lazy("app:sensors_list")
+
+    def dispatch(self, request, *args, **kwargs):
+        self.tipo_id = int(kwargs["tipo_id"])
+        self.strategy = SensorStrategy()
+        self.cfg = self.strategy.resolve(self.tipo_id)  # {form_class, template_name, repo}
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_class(self):
+        return self.cfg["form_class"] # <- forms.Form, perfecto para FormView
+
+    def get_template_names(self):
+        return [self.cfg["template_name"]]
+
+    def form_valid(self, form):
+        service = SensorService()
+        # usa el nombre de método que ya tienes en tu service
+        sensor = service.create_tpsensor(tipo_id=self.tipo_id, data=form.cleaned_data)
+        messages.success(self.request, f"Sensor '{sensor.nombre or sensor.pk}' creado correctamente.")
+        # FormView.form_valid redirige a success_url sin intentar form.save()
+        return super().form_valid(form)
+    
+
+class SensorUpdateView(FormView):
+    """
+    Edita un sensor existente (y su GasRestante).
+    Strategy elige form y template según sensor.tipoSensor.
+    """
+    success_url = reverse_lazy("app:sensors_list")
+
+    def dispatch(self, request, *args, **kwargs):
+        self.sensor_id = int(kwargs["pk"])
+        # obtén el tipo del sensor para resolver la strategy
+        sensor = Sensor.objects.select_related("tipoSensor").get(pk=self.sensor_id)
+        self.tipo_id = sensor.tipoSensor.pk
+
+        self.strategy = SensorStrategy()
+        self.cfg = self.strategy.resolve_update(self.tipo_id)  # {form_class, template_name, repo}
+        self.service = SensorService()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_class(self):
+        return self.cfg["form_class"]
+
+    def get_template_names(self):
+        return [self.cfg["template_name"]]
+
+    def get_initial(self):
+        return self.service.get_update_initial(sensor_id=self.sensor_id)
+
+    def form_valid(self, form):
+        sensor = self.service.update(sensor_id=self.sensor_id, data=form.cleaned_data)
+        messages.success(self.request, f"Sensor '{sensor.nombre or sensor.pk}' actualizado.")
+        return super().form_valid(form)
+    
+class SensorDeleteView(DeleteView):
+    """
+    Confirma y borra un Sensor. view -> service -> repo
+    """
+    model = Sensor
+    template_name = "sensors/admin_delete.html"
+    success_url = reverse_lazy("app:sensors_list")
+    context_object_name = "sensor"
+
+    def post(self, request, *args, **kwargs):
+        # Cargamos para mostrar mensajes bonitos, pero no borramos aquí
+        self.object = self.get_object()
+        service = SensorService()
+        ok = service.delete(sensor_id=self.object.pk)
+        if ok:
+            messages.success(request, f"Sensor '{self.object.pk}' fue eliminado.")
+            return HttpResponseRedirect(self.get_success_url())
+        # Si no existía (o falló), levantamos 404 o mensaje de error
+        raise Http404("El sensor no existe o no pudo eliminarse.")
+
+class SensorMonitorListView(LoginRequiredMixin, ListView):
+    model = Sensor
+    template_name = "sensors/client_list.html"
+    context_object_name = "sensors"
+
+    def get_user_empresa(self) -> Optional[Empresa]:
+        user = self.request.user
+        try:
+            if getattr(user, "rol_id", None) == 2:
+                return getattr(user, "empresa", None)
+            if getattr(user, "rol_id", None) == 3:
+                operador = Operador.objects.filter(usuario_id=user.pk).select_related("empresa").first()
+                return operador.empresa if operador else None
+        except Exception:
+            return None
+        return None
+
+    def get_queryset(self) -> QuerySet:
+        empresa = self.get_user_empresa()
+        if not empresa:
+            return Sensor.objects.none()
+
+        qs = (
+            Sensor.objects
+            .filter(empresa=empresa)
+            .select_related("tipoSensor", "empresa__usuario")
+            .annotate(
+                is_active=Case(
+                    When(estado=b"\x01", then=Value(True)),
+                    default=Value(False),
+                    output_field=BooleanField(),
+                )
+            )
+        )
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["empresa"] = self.get_user_empresa()
+        return ctx
