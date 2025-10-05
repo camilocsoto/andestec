@@ -46,5 +46,6 @@ urlpatterns = [
     path("sensores/create/<int:tipo_id>/", SensorCreateView.as_view(), name="sensor_create"),
     path("sensores/<int:pk>/edit", SensorUpdateView.as_view(), name="sensor_update"),
     path("sensores/<int:pk>/delete/", SensorDeleteView.as_view(), name="sensor_delete"),
+    path("sensors/monitor/", SensorMonitorListView.as_view(), name="sensorMonitor"),
     
 ]

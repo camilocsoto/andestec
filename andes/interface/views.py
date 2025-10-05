@@ -14,9 +14,11 @@ from interface.services.sensor import SensorService
 from interface.strategies.sensor import SensorStrategy
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.db.models import Case, When, Value, BooleanField
+from django.db.models.query import QuerySet
 from django.contrib import messages
 from django.utils import timezone
-from typing import cast
+from typing import cast, Optional
 import mimetypes
 from .utils import get_latest_data, compare_dates
 from django.shortcuts import render, get_object_or_404, redirect
@@ -656,3 +658,44 @@ class SensorDeleteView(DeleteView):
             return HttpResponseRedirect(self.get_success_url())
         # Si no existía (o falló), levantamos 404 o mensaje de error
         raise Http404("El sensor no existe o no pudo eliminarse.")
+
+class SensorMonitorListView(LoginRequiredMixin, ListView):
+    model = Sensor
+    template_name = "sensors/client_list.html"
+    context_object_name = "sensors"
+
+    def get_user_empresa(self) -> Optional[Empresa]:
+        user = self.request.user
+        try:
+            if getattr(user, "rol_id", None) == 2:
+                return getattr(user, "empresa", None)
+            if getattr(user, "rol_id", None) == 3:
+                operador = Operador.objects.filter(usuario_id=user.pk).select_related("empresa").first()
+                return operador.empresa if operador else None
+        except Exception:
+            return None
+        return None
+
+    def get_queryset(self) -> QuerySet:
+        empresa = self.get_user_empresa()
+        if not empresa:
+            return Sensor.objects.none()
+
+        qs = (
+            Sensor.objects
+            .filter(empresa=empresa)
+            .select_related("tipoSensor", "empresa__usuario")
+            .annotate(
+                is_active=Case(
+                    When(estado=b"\x01", then=Value(True)),
+                    default=Value(False),
+                    output_field=BooleanField(),
+                )
+            )
+        )
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["empresa"] = self.get_user_empresa()
+        return ctx

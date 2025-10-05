@@ -1,0 +1,73 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto mt-8">
+  <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 sm:p-6">
+
+    <div class="flex items-start justify-between mb-4">
+      <div>
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Monitoreo de sensores</h3>
+        <span class="text-sm text-gray-500 dark:text-gray-400">Sensores de la empresa {{ empresa.usuario.get_full_name}}</span>
+      </div>
+
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+      {% for sensor in sensors %}
+      {# {% url 'app:sensor_detail' sensor.pk %} #}
+      <a href="#" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex flex-col items-start">
+          <div class="flex items-center justify-between w-full mb-3">
+            <div class="flex items-center gap-3">
+              
+              <svg class="w-12 h-12 text-gray-500 dark:text-gray-400" viewBox="0 0 67 65" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Icono">
+                <g fill="currentColor" stroke="none" transform="scale(1.01538,1)">
+                  <path d="M26.6405 22.3438 35.2605 22.3438 26.6615 7.44792C18.7013 9.30929 12.0961 14.8365 8.86031 22.3438Z"/>
+                  <path d="M41.1247 27.0833 41.1091 27.0921 42.7124 29.8682 51.3229 14.9635C46.4634 9.73287 39.6438 6.76396 32.5041 6.77083 31.5005 6.77286 30.4979 6.83306 29.5012 6.95094Z"/>
+                  <path d="M40.021 39.9479 57.1343 39.9479C59.4867 32.1566 58.0167 23.7117 53.17 17.1735Z"/>
+                  <path d="M38.3676 42.6562 29.7477 42.6562 38.3466 57.5521C46.3067 55.6908 52.9118 50.1635 56.1471 42.6562Z"/>
+                  <path d="M23.8828 37.9167 23.899 37.9079 22.2848 35.1129 13.6771 50.0263C18.5367 55.263 25.36 58.2359 32.5041 58.2292 33.5076 58.2271 34.5103 58.1669 35.5069 58.0491Z"/>
+                  <path d="M24.9661 25.0521 7.8738 25.0521C5.5234 32.8366 6.98885 41.2741 11.8266 47.8102Z"/>
+                </g>
+              </svg>
+
+              <div>
+                <h4 class="text-lg font-semibold text-gray-900 dark:text-white">{{ sensor.nombre|default:"(sin nombre)" }}</h4>
+                <div class="text-sm text-gray-500 dark:text-gray-400">{{ sensor.tipoSensor.nombre|default:"(sin tipo)" }}</div>
+              </div>
+            </div>
+
+            <div class="text-sm font-medium px-2 py-1 rounded
+                        {% if sensor.is_active %} bg-green-100 text-green-800 dark:bg-green-700 dark:text-white {% else %} bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 {% endif %}">
+              {% if sensor.is_active %}Activo{% else %}Inactivo{% endif %}
+            </div>
+          </div>
+
+          <div class="text-sm text-gray-600 dark:text-gray-300 mb-3">
+            Empresa: {% if sensor.empresa %}{{ sensor.empresa.usuario.get_full_name|default:sensor.empresa.usuario.email }}{% else %}—{% endif %}
+          </div>
+
+          <div class="text-sm text-gray-500 dark:text-gray-400">
+            <!-- puedes mostrar aquí más detalles si los tienes -->
+            ID: {{ sensor.pk }}
+          </div>
+        </div>
+      </a>
+      {% empty %}
+      <p class="text-gray-500 dark:text-gray-400">No hay sensores registrados para esta empresa.</p>
+      {% endfor %}
+    </div>
+
+    <div class="mt-6 flex justify-center">
+      <a href="{% url 'app:menu' %}"
+         class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg
+                bg-gray-200 text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300
+                dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+        ← Volver al menú
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
