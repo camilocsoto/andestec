@@ -15,8 +15,8 @@
 
     <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
       {% for sensor in sensors %}
-      {# {% url 'app:sensor_detail' sensor.pk %} #}
-      <a href="#" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
+      
+      <a href="{% url 'app:sensor_detail' sensor.pk %}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
         <div class="flex flex-col items-start">
           <div class="flex items-center justify-between w-full mb-3">
             <div class="flex items-center gap-3">

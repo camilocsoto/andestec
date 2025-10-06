@@ -1,12 +1,13 @@
 from ..repositories.sensor_repo import SensorTPRepository
-from ..strategies.sensor import SensorStrategy
+from ..strategies.sensor import SensorStrategy, SensorDetailStrategy, DetailSensor
 from ..models import Sensor, GasRestante, TipoSensor
-
-
+from typing import cast
 class SensorService:
+    
     def __init__(self):
         self.repo = SensorTPRepository() # just to list all sensors in admin menu
-        self.strategy = SensorStrategy()
+        self.create_strategy = SensorStrategy()
+        self.detail_strategy = SensorDetailStrategy()
 
     def get_all_sensors(self): 
         # list all sensors to the list view
@@ -16,7 +17,7 @@ class SensorService:
         """
         data viene de form.cleaned_data. Strategy elige form/repo/plantilla.
         """
-        cfg = self.strategy.resolve(tipo_id)
+        cfg = self.create_strategy.resolve(tipo_id)
         repo = cfg["repo"]
 
         # Mapea booleano -> BinaryField
@@ -60,7 +61,7 @@ class SensorService:
         # si form trae 'tipoSensor', lo ignoramos:
         data = {k: v for k, v in data.items() if k != "tipoSensor"}
 
-        cfg = self.strategy.resolve_update(tipo_id)
+        cfg = self.create_strategy.resolve_update(tipo_id)
         repo = cfg["repo"]
 
         estado = data.get("estado")
@@ -81,3 +82,12 @@ class SensorService:
         deleted = self.repo.delete_sensor(sensor_id)
         return deleted == 1
 
+
+    def build_detail(self, sensor_id: int) -> DetailSensor:
+        """
+        Devuelve un payload {"template_name": str, "context": dict}
+        armado por la strategy, a partir del sensor y su tipo.
+        """
+        sensor = Sensor.objects.select_related("tipoSensor").get(pk=sensor_id)
+        tipo_id = sensor.tipoSensor.pk
+        return self.detail_strategy.resolve(sensor_id=sensor_id, tipo_id=tipo_id)

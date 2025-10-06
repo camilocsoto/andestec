@@ -699,3 +699,26 @@ class SensorMonitorListView(LoginRequiredMixin, ListView):
         ctx = super().get_context_data(**kwargs)
         ctx["empresa"] = self.get_user_empresa()
         return ctx
+
+class SensorDetailView(TemplateView):
+    """
+    Muestra el detalle del sensor usando Service + Strategy.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
+        if pk is None:
+            raise Http404("Falta sensor pk")
+        self.sensor_id = int(pk)
+
+        payload = SensorService().build_detail(self.sensor_id)
+        self._template_name = payload["template_name"]
+        self._context = payload["context"]
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_template_names(self):
+        return [self._template_name]
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx.update(self._context)
+        return ctx
