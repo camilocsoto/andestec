@@ -1,1 +1,1 @@
-from .sensor_repo import SensorTPRepository
+from .sensor_repo import SensorTPRepository, SensorTPDetailRepository

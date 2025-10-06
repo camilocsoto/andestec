@@ -1,0 +1,277 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+
+  <!-- Header -->
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Detalle del sensor</h1>
+      <p class="text-sm text-gray-600 dark:text-gray-400">ID {{ sensor.pk }} • {{ tipo_sensor.nombre }}{% if tipo_sensor.descripcion %} — {{ tipo_sensor.descripcion }}{% endif %}</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="{% url 'app:sensorMonitor' %}"
+         class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+        ← Volver
+      </a>
+    </div>
+  </div>
+
+  <!-- Top grid: Sensor resume + Gas details -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+    <!-- Card: Sensor resumen -->
+    <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div class="flex items-start gap-4">
+        <!-- Icono de sensor -->
+        <div class="shrink-0">
+          <svg class="w-12 h-12 text-gray-500 dark:text-gray-400" viewBox="0 0 67 65" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Icono sensor">
+            <g fill="currentColor" stroke="none" transform="scale(1.01538,1)">
+              <path d="M26.6405 22.3438 35.2605 22.3438 26.6615 7.44792C18.7013 9.30929 12.0961 14.8365 8.86031 22.3438Z"/>
+              <path d="M41.1247 27.0833 41.1091 27.0921 42.7124 29.8682 51.3229 14.9635C46.4634 9.73287 39.6438 6.76396 32.5041 6.77083 31.5005 6.77286 30.4979 6.83306 29.5012 6.95094Z"/>
+              <path d="M40.021 39.9479 57.1343 39.9479C59.4867 32.1566 58.0167 23.7117 53.17 17.1735Z"/>
+              <path d="M38.3676 42.6562 29.7477 42.6562 38.3466 57.5521C46.3067 55.6908 52.9118 50.1635 56.1471 42.6562Z"/>
+              <path d="M23.8828 37.9167 23.899 37.9079 22.2848 35.1129 13.6771 50.0263C18.5367 55.263 25.36 58.2359 32.5041 58.2292 33.5076 58.2271 34.5103 58.1669 35.5069 58.0491Z"/>
+              <path d="M24.9661 25.0521 7.8738 25.0521C5.5234 32.8366 6.98885 41.2741 11.8266 47.8102Z"/>
+            </g>
+          </svg>
+        </div>
+
+        <div class="flex-1">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Sensor</h2>
+          <div class="mt-3 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+            <p><span class="font-medium text-gray-600 dark:text-gray-400">Nombre:</span> {{ sensor.nombre|default:"--" }}</p>
+            <p><span class="font-medium text-gray-600 dark:text-gray-400">Estado:</span>
+              <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium
+                {% if estado_legible == 'Activo' %} bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200
+                {% elif estado_legible == 'Inactivo' %} bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200
+                {% else %} bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 {% endif %}">
+                {{ estado_legible|default:"--" }}
+              </span>
+            </p>
+            <p><span class="font-medium text-gray-600 dark:text-gray-400">Empresa:</span> {{ empresa_nombre|default:"--" }}</p>
+            <p><span class="font-medium text-gray-600 dark:text-gray-400">Tipo de sensor:</span> {{ tipo_sensor.nombre }}{% if tipo_sensor.descripcion %} — {{ tipo_sensor.descripcion }}{% endif %}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Card: Detalles de gas (parte del sensor) -->
+    <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div class="flex items-start gap-4">
+        <!-- Icono cilindro -->
+        <div class="shrink-0">
+          <svg
+            class="w-12 h-12 text-gray-500 dark:text-gray-400"
+            viewBox="371 396 62 74"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-label="Icono cilindro"
+          >
+            <g fill="currentColor" stroke="none">
+              <path d="M402 396C387.23 396 371.333 399.859 371.333 408.333L371.333 457.667C371.333 466.141 387.23 470 402 470 416.77 470 432.667 466.141 432.667 457.667L432.667 408.333C432.667 399.859 416.77 396 402 396ZM402 402C418.023 402 426.667 406.5 426.667 408.333 426.667 410.166 418.023 414.667 402 414.667 385.977 414.667 377.333 410.167 377.333 408.333 377.333 406.499 385.977 402 402 402ZM402 464C385.977 464 377.333 459.5 377.333 457.667L377.333 416.057C383.303 419.188 392.865 420.667 402 420.667 411.135 420.667 420.7 419.188 426.667 416.057L426.667 457.667C426.667 459.5 418.023 464 402 464Z"/>
+              <path d="M385.408 449.167 385.889 451.108C387.099 450.808 388.389 450.541 389.734 450.308L389.4 448.341C388.009 448.577 386.667 448.855 385.408 449.167Z"/>
+              <path d="M392.615 447.877 392.853 449.862C394.13 449.709 395.453 449.588 396.783 449.501L396.653 447.501C395.287 447.594 393.928 447.719 392.615 447.877Z"/>
+              <path d="M378.419 451.651 379.332 453.431C380.479 452.856 381.668 452.367 382.889 451.97L382.257 450.07C380.94 450.5 379.657 451.028 378.419 451.651Z"/>
+              <path d="M399.891 447.36 399.94 449.36C401.24 449.328 402.586 449.326 403.892 449.36L403.94 447.36C402.6 447.324 401.226 447.326 399.891 447.36Z"/>
+              <path d="M420.956 451.919C422.179 452.311 423.373 452.792 424.526 453.358L425.426 451.57C424.184 450.96 422.9 450.441 421.582 450.019Z"/>
+              <path d="M414.1 450.285C415.437 450.509 416.732 450.772 417.948 451.069L418.422 449.125C417.159 448.818 415.815 448.544 414.43 448.313Z"/>
+              <path d="M407.051 449.491C408.381 449.574 409.704 449.691 410.983 449.843L411.216 447.857C409.901 447.703 408.542 447.581 407.177 447.495Z"/>
+            </g>
+          </svg>
+        </div>
+
+        <div class="flex-1">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Detalles de sensor de cant. de gas</h2>
+          {% if gas %}
+            <dl class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+              <div>
+                <dt class="text-gray-500 dark:text-gray-400">Batería</dt>
+                <dd class="text-gray-800 dark:text-gray-200">{{ gas.bateria }} %</dd>
+              </div>
+              <div>
+                <dt class="text-gray-500 dark:text-gray-400">Identificador de</dt>
+                <dd class="text-gray-800 dark:text-gray-200">{{ gas.server_deviceNo }}</dd>
+              </div>
+              <div class="sm:col-span-2">
+                <dt class="text-gray-500 dark:text-gray-400">Credenciales del servidor</dt>
+                <dd class="text-gray-800 dark:text-gray-200">{{ gas.server_credentials }}</dd>
+              </div>
+            </dl>
+          {% else %}
+            <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">No hay datos de gas asociados.</p>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Lista de cilindros -->
+  <section class="mb-10">
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Cilindros y último resultado</h2>
+
+    {% if cilindros %}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {% for c in cilindros %}
+          <article class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="flex items-start gap-4">
+              <!-- Icono cilindro pequeño para cada tarjeta -->
+              <div class="shrink-0">
+                <svg
+                  class="w-10 h-10 text-gray-500 dark:text-gray-400"
+                  viewBox="371 396 62 74"
+                  xmlns="http://www.w3.org/2000/svg"
+                  role="img"
+                  aria-label="Icono cilindro"
+                >
+                  <g fill="currentColor" stroke="none">
+                    <path d="M402 396C387.23 396 371.333 399.859 371.333 408.333L371.333 457.667C371.333 466.141 387.23 470 402 470 416.77 470 432.667 466.141 432.667 457.667L432.667 408.333C432.667 399.859 416.77 396 402 396ZM402 402C418.023 402 426.667 406.5 426.667 408.333 426.667 410.166 418.023 414.667 402 414.667 385.977 414.667 377.333 410.167 377.333 408.333 377.333 406.499 385.977 402 402 402ZM402 464C385.977 464 377.333 459.5 377.333 457.667L377.333 416.057C383.303 419.188 392.865 420.667 402 420.667 411.135 420.667 420.7 419.188 426.667 416.057L426.667 457.667C426.667 459.5 418.023 464 402 464Z"/>
+                  </g>
+                </svg>
+              </div>
+
+              <div class="flex-1">
+                <header class="mb-4">
+                  <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+                    {{ c.nombre }} <span class="text-gray-400 dark:text-gray-500 font-normal">(#{{ c.id }})</span>
+                  </h3>
+                </header>
+
+                <!-- Características -->
+                <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm mb-5">
+                  <div>
+                    <dt class="text-gray-500 dark:text-gray-400">Volumen interno (m³)</dt>
+                    <dd class="text-gray-800 dark:text-gray-200">{{ c.volumen_interno_m3 }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-gray-500 dark:text-gray-400">Masa cil. vacío (Kg)</dt>
+                    <dd class="text-gray-800 dark:text-gray-200">{{ c.masa_cil_vacio_kg }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-gray-500 dark:text-gray-400">Masa cil. lleno (Kg)</dt>
+                    <dd class="text-gray-800 dark:text-gray-200">{{ c.masa_cil_lleno_kg }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-gray-500 dark:text-gray-400">Gas restante (Kg)</dt>
+                    <dd class="text-gray-800 dark:text-gray-200">{{ c.masa_gas_restant_kg }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-gray-500 dark:text-gray-400">Coef. descarga (cd)</dt>
+                    <dd class="text-gray-800 dark:text-gray-200">{{ c.coef_descarga_cd }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-gray-500 dark:text-gray-400">Diám. orificio (m)</dt>
+                    <dd class="text-gray-800 dark:text-gray-200">{{ c.diametro_orificio_m }}</dd>
+                  </div>
+                  <div class="sm:col-span-2">
+                    <dt class="text-gray-500 dark:text-gray-400">Notas</dt>
+                    <dd class="text-gray-800 dark:text-gray-200">{{ c.notas }}</dd>
+                  </div>
+                </dl>
+
+                <!-- Composición del gas -->
+                {% if c.composicion_gas %}
+                  <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                    <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Composición del gas</h4>
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Nombre</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.composicion_gas.nombre }}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Descripción</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.composicion_gas.descripcion }}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Masa molar</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.composicion_gas.masa_molar }}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">y entropía</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.composicion_gas.y_entropia }}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Z factor</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.composicion_gas.z_factor }}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Densidad</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.composicion_gas.densidad }}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                {% endif %}
+
+                <!-- Último resultado -->
+                <div class="mt-5 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                  <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Última medición</h4>
+                  {% if c.ultimo_resultado %}
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Timestamp</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.ultimo_resultado.timestamp }}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Estado de fase</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.ultimo_resultado.estado_fase }}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Presión (gauge) Pa</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.ultimo_resultado.presion_gauge_pa }}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Presión (abs) Pa</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.ultimo_resultado.presion_abs_pa }}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Temperatura (K)</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.ultimo_resultado.temperature_k }}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Caudal de masa (Kg/s)</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.ultimo_resultado.caudal_masa_kg_s }}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Masa removida (Kg)</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.ultimo_resultado.masa_remov_kg }}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Masa restante (Kg)</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.ultimo_resultado.masa_restante_kg }}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Moles restantes (Kg)</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.ultimo_resultado.moles_restantes_kg }}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Método</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.ultimo_resultado.metodo_calculo }}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Masa balanza (Kg)</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.ultimo_resultado.masa_balanza_kg }}</dd>
+                      </div>
+                      <div class="sm:col-span-2">
+                        <dt class="text-gray-500 dark:text-gray-400">Válido</dt>
+                        <dd class="text-gray-800 dark:text-gray-200">{{ c.ultimo_resultado.valido }}</dd>
+                      </div>
+                    </dl>
+                  {% else %}
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Sin resultados para este cilindro.</p>
+                  {% endif %}
+                </div>
+
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-sm text-gray-600 dark:text-gray-400">No hay cilindros asociados.</p>
+    {% endif %}
+  </section>
+
+</div>
+{% endblock %}
