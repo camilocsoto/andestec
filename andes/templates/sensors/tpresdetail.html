@@ -95,7 +95,7 @@
                 <dd class="text-gray-800 dark:text-gray-200">{{ gas.server_deviceNo }}</dd>
               </div>
               <div class="sm:col-span-2">
-                <dt class="text-gray-500 dark:text-gray-400">Credenciales del servidor</dt>
+                <dt class="text-gray-500 dark:text-gray-400">Tipo de conexión</dt>
                 <dd class="text-gray-800 dark:text-gray-200">{{ gas.server_credentials }}</dd>
               </div>
             </dl>
@@ -272,6 +272,14 @@
       <p class="text-sm text-gray-600 dark:text-gray-400">No hay cilindros asociados.</p>
     {% endif %}
   </section>
+  <div class="mt-6 flex justify-center">
+    <a href="{% url 'app:gas_sens_dashboard' sensor.pk %}"
+      class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg
+            bg-gray-200 text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300
+            dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+      Ver dashboard
+    </a>
+  </div>
 
 </div>
 {% endblock %}

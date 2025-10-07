@@ -6,7 +6,6 @@ urlpatterns = [
     path('device/<int:id>', MainView.as_view(), name='device_view'),
     path('download/', ExportExcelView.as_view()),
     path('maps/', view_map, name='view_map' ),
-    path('asign/', simple_form, name='asign_sensor'),
     path('load_data/', view_sensor_data),
     path('compare/', view_compare, name='compare'), 
     #menus
@@ -47,6 +46,7 @@ urlpatterns = [
     path("sensores/<int:pk>/edit", SensorUpdateView.as_view(), name="sensor_update"),
     path("sensores/<int:pk>/delete/", SensorDeleteView.as_view(), name="sensor_delete"),
     path("sensores/monitor/", SensorMonitorListView.as_view(), name="sensorMonitor"),
-     path("sensores/monitor/<int:pk>/", SensorDetailView.as_view(), name="sensor_detail"),
-    
+    path("sensores/monitor/<int:pk>/", SensorDetailView.as_view(), name="sensor_detail"),
+    # dashboard
+    path("sensores/monitor/<int:pk>/gas_dashboard", GasSensorDashboard.as_view(), name="gas_sens_dashboard"),
 ]

@@ -1,0 +1,633 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'dist/main.css' %}">
+
+{% block content %}
+
+<main>
+  <div class="px-4 pt-6">
+    <div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+      <!--Main widget: comportamiento del gas en el tiempo-->
+      <div
+        class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex-shrink-0"> 
+            <span class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">{{dashboard.data.charts.series.porc_masa_gas_restant|last |default:"--"}} %</span>
+            <h3 class="text-base font-light text-gray-500 dark:text-gray-400">Cantidad de kg en gas restante</h3>
+          </div>
+          <div 
+            class="flex items-center justify-end flex-1 text-base font-medium text-green-500 dark:text-green-400">
+            0 <!--cant. debe cambiar-->
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd"
+                d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z"
+                clip-rule="evenodd"></path>
+            </svg>
+          </div>
+        </div>
+        <div id="main-chart"></div>
+        <!-- Card Footer -->
+        <div
+          class="flex items-center justify-between pt-3 mt-4 border-t border-gray-200 sm:pt-6 dark:border-gray-700">
+          <div>
+            <button
+              class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-500 rounded-lg hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+              type="button" data-dropdown-toggle="weekly-sales-dropdown">Last 7 days <svg class="w-4 h-4 ml-2"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg></button>
+            <!-- Dropdown menu -->
+            <div
+              class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600"
+              id="weekly-sales-dropdown">
+              <div class="px-4 py-3" role="none">
+                <p class="text-sm font-medium text-gray-900 truncate dark:text-white" role="none">
+                  Sep 16, 2021 - Sep 22, 2021
+                </p>
+              </div>
+              <ul class="py-1" role="none">
+                <li>
+                  <a href="#"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
+                    role="menuitem">Ayer</a>
+                </li>
+                <li>
+                  <a href="#"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
+                    role="menuitem">Hoy</a>
+                </li>
+                <li>
+                  <a href="#"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
+                    role="menuitem">Últimos 7 días</a>
+                </li>
+                <li>
+                  <a href="#"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
+                    role="menuitem">Últimos 30 días</a>
+                </li>
+                <li>
+                  <a href="#"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
+                    role="menuitem">Últimos 90 días</a>
+                </li>
+              </ul>
+              <div class="py-1" role="none">
+                <a href="#"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
+                  role="menuitem">Custom...</a>
+              </div>
+            </div>
+          </div>
+          <div class="flex-shrink-0">
+            <a href="#"
+              class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
+              Reporte gráfico
+              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      <!--Tabs widget -->
+      <div
+        class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+        <h3 class="flex items-center mb-4 text-lg font-semibold text-gray-900 dark:text-white">Últimos datos capturados
+
+          <button data-popover-target="popover-description" data-popover-placement="bottom-end" type="button"><svg
+              class="w-4 h-4 ml-2 text-gray-400 hover:text-gray-500" aria-hidden="true" fill="currentColor"
+              viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"> <path fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                clip-rule="evenodd"></path>
+            </svg><span class="sr-only">Mostrar información</span></button>
+        </h3>
+        <!-- take this to show in forms -->
+        <div data-popover id="popover-description" role="tooltip" 
+          class="absolute z-10 invisible inline-block text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400">
+          <div class="p-3 space-y-2">
+            <h3 class="font-semibold text-gray-900 dark:text-white">Información obtenida por el sensor</h3>
+            <p>Los datos caputados por el sensor son sometidos a una serie de calculos físicos y químicos para determinar la cantidad de gas.</p>
+            <a href="#"
+              class="flex items-center font-medium text-primary-600 dark:text-primary-500 dark:hover:text-primary-600 hover:text-primary-700">Leer más 
+              <svg class="w-4 h-4 ml-1" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clip-rule="evenodd"></path>
+              </svg>
+            </a>
+          </div>
+          <div data-popper-arrow></div>
+        </div>
+        <div class="sm:hidden">
+          <label for="tabs" class="sr-only">Seleccionar sección</label>
+          <select id="tabs"
+            class="bg-gray-50 border-0 border-b border-gray-200 text-gray-900 text-sm rounded-t-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+            <option>Últimos datos capturados</option>
+            <option>Cilindros</option>
+            <option>PQRS</option>
+          </select>
+        </div>
+        <ul
+          class="hidden text-sm font-medium text-center text-gray-500 divide-x divide-gray-200 rounded-lg sm:flex dark:divide-gray-600 dark:text-gray-400"
+          id="fullWidthTab" data-tabs-toggle="#fullWidthTabContent" role="tablist">
+          <li class="w-full">
+            <button id="faq-tab" data-tabs-target="#faq" type="button" role="tab" aria-controls="faq"
+              aria-selected="true"
+              class="inline-block w-full p-4 rounded-tl-lg bg-gray-50 hover:bg-gray-100 focus:outline-none dark:bg-gray-700 dark:hover:bg-gray-600">Información del cilindro</button>
+          </li>
+          <li class="w-full">
+            <button id="about-tab" data-tabs-target="#about" type="button" role="tab" aria-controls="about"
+              aria-selected="false"
+              class="inline-block w-full p-4 rounded-tr-lg bg-gray-50 hover:bg-gray-100 focus:outline-none dark:bg-gray-700 dark:hover:bg-gray-600">Alertas</button>
+          </li>
+        </ul>
+        <div id="fullWidthTabContent" class="border-t border-gray-200 dark:border-gray-600">
+          <div class="hidden pt-4" id="faq" role="tabpanel" aria-labelledby="faq-tab">
+            <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
+              <li class="py-3 sm:py-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center min-w-0">
+
+                    <svg class="flex-shrink-0 w-10 h-10 text-gray-500 dark:text-gray-400" viewBox="693 193 32 90" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Icono">
+                      <g fill="currentColor" stroke="none">
+                        <path d="M705 276.3C698.5 276.3 692.8 271.7 691.4 265.4 689.9 259 693.1 252.5 699 249.7L699 205.7C699 202.4 701.7 199.7 705 199.7 708.3 199.7 711 202.4 711 205.7L711 249.7C716.9 252.5 720 259 718.6 265.4 717.1 271.7 711.5 276.2 705 276.3ZM717 246.3 717 205.7C717 199.1 711.6 193.7 705 193.7 698.4 193.7 693 199 693 205.7L693 246.3C686.1 251.5 683.3 260.5 686 268.6 688.7 276.8 696.4 282.3 705 282.3 713.6 282.3 721.3 276.8 724 268.6 726.7 260.5 723.9 251.5 717 246.3Z"/>
+                        <path d="M707 252.5 707 228.3 703 228.3 703 252.5C698 253.5 694.5 258.2 695.1 263.3 695.6 268.4 699.9 272.3 705 272.3 710.1 272.3 714.4 268.4 714.9 263.3 715.5 258.2 712 253.5 707 252.5Z"/>
+                      </g>
+                    </svg>
+
+                    <div class="ml-3">
+                      <p class="font-medium text-gray-900 truncate dark:text-white">
+                        Temperatura
+                      </p>
+                      <div
+                        class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
+                        
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"F
+                          xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <path clip-rule="evenodd" fill-rule="evenodd"
+                            d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
+                          </path>
+                        </svg>
+                        
+                        0.1%
+                        <span class="ml-2 text-gray-500">vs último registro</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                    {{dashboard.data.charts.series.temperature_k|last |default:"--"}} °K
+                  </div>
+                </div>
+              </li>
+              <li class="py-3 sm:py-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center min-w-0">
+                    
+                    <svg class="flex-shrink-0 w-10 h-10 text-gray-500 dark:text-gray-400" viewBox="1100 237 84 59" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Icono">
+                      <g fill="currentColor" stroke="none">
+                        <path d="M1150 277C1149.92 277 1149.84 277.018 1149.75 277.025 1149.67 277.032 1149.59 277 1149.51 277L1116 277C1114.34 277 1113 278.343 1113 280 1113 281.657 1114.34 283 1116 283L1149.51 283C1149.59 283 1149.67 282.982 1149.75 282.975 1149.83 282.968 1149.91 283 1150 283 1151.66 283.001 1153 284.345 1153 286.002 1153 287.659 1151.65 289.001 1150 289 1148.91 288.999 1147.9 288.407 1147.37 287.452 1146.59 285.99 1144.78 285.437 1143.31 286.217 1141.85 286.996 1141.3 288.814 1142.08 290.276 1142.09 290.305 1142.11 290.335 1142.13 290.364 1144.54 294.711 1150.02 296.281 1154.36 293.871 1158.71 291.461 1160.28 285.983 1157.87 281.636 1156.28 278.775 1153.27 277 1150 277Z"/>
+                        <path d="M1111 259 1139 259C1145.08 258.999 1150 254.074 1150 247.999 1150 241.923 1145.07 236.999 1139 237 1133.47 237.001 1128.8 241.103 1128.09 246.585 1127.88 248.229 1129.04 249.732 1130.68 249.944 1132.33 250.156 1133.83 248.995 1134.04 247.351 1134.4 244.613 1136.91 242.684 1139.65 243.042 1142.39 243.401 1144.32 245.911 1143.96 248.649 1143.63 251.138 1141.51 253 1139 253L1111 253C1109.34 253 1108 254.343 1108 256 1108 257.657 1109.34 259 1111 259Z"/>
+                        <path d="M1169 241C1160.71 241.007 1153.99 247.733 1154 256.024 1154 257.277 1154.16 258.525 1154.47 259.739 1154.88 261.344 1156.52 262.311 1158.12 261.899 1159.73 261.487 1160.69 259.852 1160.28 258.247 1159.04 253.434 1161.94 248.526 1166.75 247.285 1171.56 246.044 1176.47 248.94 1177.71 253.753 1178.95 258.566 1176.06 263.474 1171.24 264.715 1170.51 264.904 1169.76 265 1169 265L1103 265C1101.34 265 1100 266.343 1100 268 1100 269.657 1101.34 271 1103 271L1169 271C1177.28 271 1184 264.284 1184 256 1184 247.716 1177.28 241 1169 241Z"/>
+                      </g>
+                    </svg>
+
+                    <div class="ml-3">
+                      <p class="font-medium text-gray-900 truncate dark:text-white">
+                        Presión manométrica
+                      </p>
+                      <div
+                        class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"
+                          xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <path clip-rule="evenodd" fill-rule="evenodd"
+                            d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
+                          </path>
+                        </svg>
+                        -0.1% <!--this has to be dynamic-->
+                        <span class="ml-2 text-gray-500">vs último registro</span>
+                      </div>  
+                    </div>
+                  </div>
+                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                    {{dashboard.data.charts.series.presion_gauge_pa|last |default:"--"}} Pa
+                  </div>
+                </div>
+              </li>
+              <li class="py-3 sm:py-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center min-w-0">
+                    
+                    <svg class="flex-shrink-0 w-10 h-10 text-gray-500 dark:text-gray-400" viewBox="1050 601 73 91" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Icono">
+                      <g fill="currentColor" stroke="none">
+                        <path d="M1118.49 636.786 1118.49 629.063C1118.55 626.434 1113.42 624.133 1105.83 622.953L1105.83 629.038C1108.12 629.373 1110.35 629.99 1112.49 630.876L1112.49 631.26C1109.12 632.073 1105.7 632.618 1102.26 632.89 1102.56 632.326 1102.72 631.695 1102.73 631.053L1102.73 615.989C1102.76 615.989 1102.8 616 1102.83 616 1103.66 616 1104.33 615.328 1104.33 614.5L1104.33 606.5C1104.33 605.672 1103.66 605 1102.83 605 1102.01 605 1101.33 605.672 1101.33 606.5L1100.33 606.5 1100.33 604.5C1100.33 603.672 1099.66 603 1098.83 603 1098.01 603 1097.33 603.672 1097.33 604.5L1097.33 606.5 1096.33 606.5 1096.33 602.5C1096.33 601.672 1095.66 601 1094.83 601 1094.01 601 1093.33 601.672 1093.33 602.5L1093.33 606.5 1092.33 606.5 1092.33 604.5C1092.33 603.672 1091.66 603 1090.83 603 1090.01 603 1089.33 603.672 1089.33 604.5L1089.33 606.5 1088.33 606.5C1088.33 605.672 1087.66 605 1086.83 605 1086.01 605 1085.33 605.672 1085.33 606.5L1085.33 608.5 1052.94 608.5C1051.94 608.478 1051.06 609.179 1050.86 610.164 1050.68 611.253 1051.41 612.286 1052.5 612.472 1052.61 612.491 1052.72 612.5 1052.83 612.5L1085.33 612.5 1085.33 614.5C1085.33 615.328 1086.01 616 1086.83 616 1087.66 616 1088.33 615.328 1088.33 614.5L1089.33 614.5 1089.33 616.5C1089.33 617.328 1090.01 618 1090.83 618 1090.85 618 1090.87 618 1090.89 618L1090.89 625.88C1090.86 626.959 1091.66 627.879 1092.74 628 1093.53 628.058 1094.28 627.643 1094.65 626.941 1094.68 626.894 1094.74 626.879 1094.79 626.907 1094.81 626.923 1094.83 626.951 1094.83 626.982L1094.83 631.058C1094.83 631.832 1095.06 632.589 1095.49 633.234 1088.91 633.395 1082.34 632.738 1075.92 631.28L1075.92 630.913C1077.76 630.024 1081.9 628.891 1087.83 628.385L1087.83 622.361C1077.5 623.167 1069.93 625.873 1069.93 629.061L1069.9 636.842C1067.08 638.116 1065.44 639.625 1065.44 641.242L1065.34 683.766C1065.33 688.293 1078.31 692 1094.17 692 1110.03 692 1123 688.293 1123 683.762L1123 641.238C1123.04 639.6 1121.37 638.072 1118.49 636.786ZM1114.15 656.834C1107.64 658.576 1100.91 659.397 1094.17 659.273 1087.45 659.399 1080.76 658.589 1074.27 656.866 1072.57 656.359 1071.41 654.794 1071.41 653.021L1071.43 642.783C1071.66 642.649 1071.97 642.489 1072.37 642.311L1075.88 640.723 1075.9 637.423C1081.9 638.669 1088.03 639.278 1094.16 639.237 1095.03 639.237 1095.9 639.226 1096.76 639.203 1096.98 639.493 1097.17 639.814 1097.3 640.156 1097.61 640.989 1097.76 641.869 1097.76 642.756 1097.8 646.163 1097.02 647.47 1095.69 649.726 1095.21 650.429 1094.93 651.251 1094.88 652.102 1094.88 654.254 1096.62 655.998 1098.77 656L1098.79 656C1100.94 655.997 1102.68 654.252 1102.68 652.1 1102.63 651.249 1102.35 650.427 1101.87 649.724 1100.54 647.468 1099.76 646.161 1099.8 642.754 1099.8 641.867 1099.95 640.987 1100.26 640.154 1100.43 639.731 1100.67 639.341 1100.97 639.002 1104.85 638.76 1108.69 638.232 1112.49 637.422L1112.49 640.678 1116.04 642.264C1116.44 642.444 1116.76 642.605 1117 642.74L1117 653C1117 654.767 1115.84 656.325 1114.15 656.834Z"/>
+                      </g>
+                    </svg>
+                      
+                    <div class="ml-3">
+                      <p class="font-medium text-gray-900 truncate dark:text-white">
+                        Cantidad gas restante
+                      </p>
+                      <div
+                        class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"F
+                          xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <path clip-rule="evenodd" fill-rule="evenodd"
+                            d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
+                          </path>
+                        </svg>
+                        0% <!--⛔ this is dynamic-->
+                        <span class="ml-2 text-gray-500">vs último registro</span>
+                      </div>  
+                    </div>
+                  </div>
+                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                    <!-- aquí debe ir un if para cambiar la estrategia-->
+                    {% with last_reg=dashboard.data.ultimos_5|last %}
+                      {{ last_reg.masa_restante_kg|default:"--" }} Kg
+                    {% endwith %}
+                  </div>
+                </div>
+              </li>
+              <li class="py-3 sm:py-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center min-w-0">                    
+                    <svg class="flex-shrink-0 w-10 h-10 text-gray-500 dark:text-gray-400" viewBox="1020 433 95 86" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Icono">
+                      <g fill="currentColor" stroke="none">
+                        <path d="M1090.4 448C1088.1 451.2 1082.5 455 1075.1 458 1086.1 463.5 1092.4 472.1 1096.1 479.7 1090.8 479 1083.7 477.6 1074.4 475 1074.4 475 1069.1 476.6 1067.5 487.8 1067.3 489.2 1067.3 490.1 1067.3 490.1 1075.3 495.6 1080.8 500.1 1084.7 503.7 1076.5 505.7 1065.8 506.4 1054.6 501.4 1057.1 509 1057.6 515.7 1056.6 519.6 1082.1 525.3 1092.8 512.6 1092.8 512.6 1092.8 512.6 1101.2 501.3 1099.9 497.6 1097.2 496 1094.7 494.4 1092.4 492.9 1095.1 493.6 1097.8 494.6 1100.8 495.7 1104.5 494.3 1107.9 480.7 1107.9 480.7 1107.9 480.7 1110.9 464 1090.4 448ZM1096.5 499.2C1094.5 500.2 1091.8 501.4 1088.5 502.5 1084.3 498.4 1078.9 494.1 1072.6 489.6 1075.4 489.6 1079.4 489.8 1084.4 490.8 1087.5 493.4 1091.6 496.3 1096.5 499.2ZM1104.6 479.5 1104.3 480.5C1103.1 480.5 1101.7 480.4 1099.9 480.3 1096.8 473.1 1091.4 464.7 1082.2 458.4 1085.6 456.6 1088.5 454.6 1090.7 452.6 1105.7 465.5 1104.9 477.7 1104.6 479.5Z"/>
+                        <path d="M1063.2 457C1056.7 453.5 1047.1 451.5 1039 450.4 1044.2 445 1050.2 440.1 1055.1 440 1048.9 434.3 1040.1 433 1040.1 433 1031.3 436.4 1024.1 449 1024.1 449 1023 457.4 1027.1 465 1027.1 465 1029.4 464.5 1031.7 464.3 1034.1 464.3 1038.3 464.3 1042.4 465 1046.2 465.9 1040.5 470.4 1035 476.9 1032.1 486 1032.2 485.6 1045.1 490 1045.1 490 1045.1 490 1050 476.9 1062.1 472 1062.1 472 1066.6 462.4 1063.2 457ZM1034.1 460.3C1032.9 460.3 1031.6 460.4 1030.5 460.5 1031.9 458.6 1033.7 456.4 1035.8 454.1 1045 455.2 1052.5 456.9 1058 459 1055.9 459.9 1053.3 461.2 1050.5 463 1045.5 461.5 1039.8 460.3 1034.1 460.3Z"/>
+                        <path d="M1082.1 434 1071.2 438.1 1067.1 449 1078 444.9Z"/>
+                        <path d="M1027.1 499 1031.2 509.9 1042.1 514 1038 503.1Z"/>
+                      </g>
+                    </svg>
+                    <div class="ml-3">
+                      <p class="font-medium text-gray-900 truncate dark:text-white">
+                        Fase del gas
+                      </p>
+                      <div
+                        class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"F
+                          xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <path clip-rule="evenodd" fill-rule="evenodd"
+                            d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
+                          </path>
+                        </svg>
+                        0% <!--⛔ this is dynamic-->
+                        <span class="ml-2 text-gray-500">vs último registro</span>
+                      </div>  
+                    </div>
+                  </div>
+                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                    {% with last_reg=dashboard.data.ultimos_5|last %}
+                      {{ last_reg.estado_fase|default:"--" }}
+                    {% endwith %}
+                  </div>
+                </div>
+              </li>
+              <li class="py-3 sm:py-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center min-w-0">                 
+                    <svg class="flex-shrink-0 w-10 h-10 text-gray-500 dark:text-gray-400" viewBox="403 272 76 76" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Icono reloj">
+                      <g fill="currentColor" stroke="none">
+                        <path d="M441 342C423.4 342 409 327.6 409 310 409 292.4 423.4 278 441 278 458.6 278 473 292.4 473 310 473 327.6 458.6 342 441 342ZM441 272C420 272 403 289 403 310 403 331 420 348 441 348 462 348 479 331 479 310 479 289 462 272 441 272Z"/>
+                        <path d="M443 290 439 290 439 310C439 310.6 439.2 311.1 439.6 311.4L453.7 325.5 456.5 322.7 443 309.2 443 290Z"/>
+                        <path d="M443 284C443 285.105 442.105 286 441 286 439.895 286 439 285.105 439 284 439 282.895 439.895 282 441 282 442.105 282 443 282.895 443 284Z"/>
+                        <path d="M443 336C443 337.105 442.105 338 441 338 439.895 338 439 337.105 439 336 439 334.895 439.895 334 441 334 442.105 334 443 334.895 443 336Z"/>
+                        <path d="M417 310C417 311.105 416.105 312 415 312 413.895 312 413 311.105 413 310 413 308.895 413.895 308 415 308 416.105 308 417 308.895 417 310Z"/>
+                        <path d="M469 310C469 311.105 468.105 312 467 312 465.895 312 465 311.105 465 310 465 308.895 465.895 308 467 308 468.105 308 469 308.895 469 310Z"/>
+                      </g>
+                    </svg>
+                      <div class="ml-3">
+                      <p class="font-medium text-gray-900 truncate dark:text-white">
+                        Última actualización
+                      </p>
+                      <div
+                        class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"F
+                          xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <path clip-rule="evenodd" fill-rule="evenodd"
+                            d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
+                          </path>
+                        </svg>
+                        0% <!--⛔ this is dynamic-->
+                        <span class="ml-2 text-gray-500">vs último registro</span>
+                      </div>  
+                    </div>
+                  </div>
+                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                    {% with last_reg=dashboard.data.ultimos_5|last %}
+                      {{ last_reg.timestamp|default:"--" }} 
+                    {% endwith %}
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div> 
+          <!--⛔ it's not finished-->
+          <div class="hidden pt-4" id="about" role="tabpanel" aria-labelledby="about-tab">
+            <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
+              <li class="py-3 sm:py-4">
+                <div class="flex items-center space-x-4">
+                  <div class="flex-shrink-0">
+                    
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"F
+                      xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path clip-rule="evenodd" fill-rule="evenodd"
+                          d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
+                        </path>
+                    </svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="font-medium text-gray-900 truncate dark:text-white">
+                      Temperature
+                    </p>
+                    <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                      min: -20°C - max: 50 °C
+                    </p>
+                  </div>
+                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                    <!--{{objects.0.temperatura}} °C-->
+                    
+                  </div>
+                </div>
+              </li>
+              <li class="py-3 sm:py-4">
+                <div class="flex items-center space-x-4">
+                  <div class="flex-shrink-0">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"F
+                      xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path clip-rule="evenodd" fill-rule="evenodd"
+                          d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
+                        </path>
+                    </svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="font-medium text-gray-900 truncate dark:text-white">
+                      Pressure
+                    </p>
+                    <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                      min: 1 %- max: 100 %
+                    </p>
+                  </div>
+                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                    
+                    <!--{{objects.0.presion}} %-->
+                  </div>
+                </div>
+              </li>
+              <li class="py-3 sm:py-4">
+                <div class="flex items-center space-x-4">
+                  <div class="flex-shrink-0">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"F
+                      xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path clip-rule="evenodd" fill-rule="evenodd"
+                          d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
+                        </path>
+                    </svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="font-medium text-gray-900 truncate dark:text-white">
+                      battery
+                    </p>
+                    <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                      min: 10% - max: 100%
+                    </p>
+                  </div>
+                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                    
+                    <!--{{objects.0.bateria}} %-->
+                  </div>
+                </div>
+              </li>
+              <li class="py-3 sm:py-4">
+                <div class="flex items-center space-x-4">
+                  <div class="flex-shrink-0">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"F
+                      xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path clip-rule="evenodd" fill-rule="evenodd"
+                          d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
+                        </path>
+                    </svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="font-medium text-gray-900 truncate dark:text-white">
+                      Sensor signal
+                    </p>
+                    <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                      min: 0 dBm - max: 25 dBm
+                    </p>
+                  </div>
+                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                    <!--{{objects.0.senial}} dBm-->
+                  </div>
+                </div>
+              </li>
+              <li class="py-3 sm:py-4">
+                <div class="flex items-center space-x-4">
+                  <div class="flex-shrink-0">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"F
+                      xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path clip-rule="evenodd" fill-rule="evenodd"
+                          d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
+                        </path>
+                    </svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="font-medium text-gray-900 truncate dark:text-white">
+                      Time
+                    </p>
+                    <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+
+                    </p>
+                  </div>
+                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                    <!--{{objects.0.hora}}-->
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- Card Footer -->
+        <div
+          class="flex items-center justify-between pt-3 mt-5 border-t border-gray-200 sm:pt-6 dark:border-gray-700">
+          <div class="flex-shrink-0">
+            <a href="#"
+              class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
+              Full Report
+              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--End of tabs widget -->
+    <div class="grid w-full grid-cols-1 gap-4 mt-4 xl:grid-cols-2 2xl:grid-cols-3">
+      <div
+        class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+        <div class="w-full">
+          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Still don't decided</h3>
+          <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">
+          <!-- {{objects.0.capacidad}} Kg -->
+          </span>
+        </div>
+        <div class="w-full" id="new-products-chart"></div>
+      </div>
+      <div
+        class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+        <div class="w-full">
+          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Still don't decided</h3>
+          <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">$ <!-- {{objects.0.presion}} --> </span>
+        </div>
+        <div class="w-full" id="week-signups-chart"></div>
+      </div>
+      <!--last chart!!!! -->
+      <div
+        class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+        <div class="w-full">
+          <h3 class="mb-2 text-base font-normal text-gray-500 dark:text-gray-400">Still don't decided</h3>
+          <div class="flex items-center mb-2">
+            <div class="w-16 text-sm font-medium dark:text-white">M1</div> <!-- {{objects.0.fecha}} -->
+            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{objects.0.temperatura}}%"></div>
+            </div>
+          </div>
+          <div class="flex items-center mb-2">
+            <div class="w-16 text-sm font-medium dark:text-white">M2</div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{objects.1.temperatura}}%"></div>
+            </div>
+          </div>
+          <div class="flex items-center mb-2">
+            <div class="w-16 text-sm font-medium dark:text-white">M3</div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{objects.2.temperatura}}%"></div>
+            </div>
+          </div>
+          <div class="flex items-center mb-2">
+            <div class="w-16 text-sm font-medium dark:text-white">All</div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{objects.3.temperatura}}%"></div>
+            </div>
+          </div>
+        </div>
+        <div id="traffic-channels-chart" class="w-full"></div>
+      </div>
+    </div>
+    <!-- Aqui va la tabla-->
+    <div
+    class="p-4 bg-white border mt-4 border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+    <!-- Card header -->
+    <div class="items-center justify-between lg:flex">
+      <div class="mb-4 lg:mb-0">
+        <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Registros de {{dashboard.cilindro.nombre}}</h3>
+        <span class="text-base font-normal text-gray-500 dark:text-gray-400">A continuación encontrará los últimos 5 registros del cilindro. </span>
+      </div>
+    </div>
+<!-- Table -->
+  <!-- Tabla de últimos 5 registros -->
+<div class="flex flex-col mt-6">
+  <div class="overflow-x-auto rounded-lg">
+    <div class="inline-block min-w-full align-middle">
+      <div class="overflow-hidden shadow sm:rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+          <thead class="bg-gray-50 dark:bg-gray-700">
+            <tr>
+              <th scope="col"
+                class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                Sensor
+              </th>
+              <th scope="col"
+                class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                Fecha y hora
+              </th>
+              <th scope="col"
+                class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                Temperatura (K)
+              </th>
+              <th scope="col"
+                class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                Presión interna (Pa)
+              </th>
+              <th scope="col"
+                class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                Masa restante (Kg)
+              </th>
+              <th scope="col"
+                class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
+                % Masa gas restante
+              </th>
+            </tr>
+          </thead>
+
+          <tbody class="bg-white dark:bg-gray-800">
+            {% for reg in dashboard.data.ultimos_5 %}
+            <tr class="{% cycle '' 'bg-gray-50 dark:bg-gray-700' %}">
+              <!-- Nombre o ID del sensor -->
+              <td class="p-4 text-sm font-normal text-gray-900 whitespace-nowrap dark:text-white">
+                <span class="font-semibold">
+                  {{ dashboard.data.cilindro.nombre|default:"Sensor sin nombre" }}
+                </span>
+              </td>
+
+              <!-- Fecha y hora -->
+              <td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
+                {{ reg.timestamp|date:"Y-m-d H:i:s"|default:"--" }}
+              </td>
+
+              <!-- Temperatura -->
+              <td class="p-4 text-sm font-semibold text-gray-900 whitespace-nowrap dark:text-white">
+                {{ reg.temperature_k|default:"--" }} K
+              </td>
+
+              <!-- Presión interna -->
+              <td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
+                {{ reg.presion_abs_pa|default:"--" }} Pa
+              </td>
+
+              <!-- Masa restante -->
+              <td class="inline-flex items-center p-4 space-x-2 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
+                <span>{{ reg.masa_restante_kg|default:"--" }} Kg</span>
+              </td>
+
+              <!-- Porcentaje de gas restante -->
+              <td class="p-4 text-sm font-semibold text-gray-900 whitespace-nowrap dark:text-white">
+                <span>{{ reg.porc_masa_gas_restant|default:"--" }} %</span>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                No hay registros disponibles.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  </div>
+  <!-- este div transporta la info-->
+  <div id="data-container-charts" style="display:none;" 
+     data-charts="{{charts}}">
+  </div>
+
+</main>
+{% endblock content %}
+
+{% block extra_js %}
+<script type="text/javascript">
+    setInterval(function() {
+        location.reload();
+    }, 15000);
+</script>
+{% endblock %}

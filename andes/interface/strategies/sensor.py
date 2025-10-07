@@ -1,8 +1,8 @@
-from typing import TypedDict, Type, Optional, List, Dict, Any
+from typing import TypedDict, Type, Optional, List, Dict, Any, cast
 from django import forms
 from django.db.models import QuerySet
 from interface.forms.tp_sensor import SensorTPForm
-from ..repositories.sensor_repo import SensorTPRepository, SensorTPDetailRepository
+from ..repositories.sensor_repo import SensorTPRepository, SensorTPDetailRepository, GasDashboardRepository
 from ..models import Sensor, GasRestante, TipoSensor, CaracteristicasCilindro, ComposicionGas, ResultsGasRestante
 
 class SensorConfig(TypedDict):
@@ -163,3 +163,22 @@ class SensorDetailStrategy:
             "template_name": "sensors/tpresdetail.html",
             "context": context,
         }
+
+
+class SelectpDataStrategy:
+    """
+    Selecciona qué dataset armar según la 'estrategia' solicitada.
+    """
+    def __init__(self):
+        self.repo = GasDashboardRepository()
+
+    def run(self, *, sensor_id: int, strategy: str, extra: Dict[str, Any] | None = None) -> Dict[str, Any]:
+        """
+        Retorna un dict de contexto que la vista usará para el dashboard.
+        """
+        match strategy:
+            case "latest_5_reg":
+                return self.repo.latest_5_reg(sensor_id=sensor_id)
+            case _:
+                # fallback por si llegan estrategias futuras
+                return self.repo.latest_5_reg(sensor_id=sensor_id)

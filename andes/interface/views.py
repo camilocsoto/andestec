@@ -102,10 +102,6 @@ def view_map(request):
     mapa_html = mapa._repr_html_()
     # Renderiza la plantilla con el mapa
     return render(request, 'dashboard/maps.html', {'mapa': mapa_html})
-    
-def simple_form(request):
-    # it's wrong!
-    return render(request, './forms/asign_sensor.html')
 
 # ====== api views ========
 
@@ -187,7 +183,7 @@ class MenuAdminSettingsView(LoginRequiredMixin, TemplateView):
 
 class TicketListView(LoginRequiredMixin, ListView):
     model = TcketSoporte
-    template_name = "tickets/ticket_list.html"
+    template_name = "cruds/tickets/ticket_list.html"
     context_object_name = "tickets"
 
     def get_queryset(self):
@@ -222,7 +218,7 @@ class TicketListView(LoginRequiredMixin, ListView):
 
 class TicketCreateView(LoginRequiredMixin, CreateView):
     form_class = TicketSoporteForm
-    template_name = "tickets/ticket_form.html"
+    template_name = "cruds/tickets/ticket_form.html"
     success_url = reverse_lazy("app:ticketList")  # deja como estaba
 
     def dispatch(self, request, *args, **kwargs):
@@ -274,7 +270,7 @@ class TicketCreateView(LoginRequiredMixin, CreateView):
         
 class TicketDetailView(LoginRequiredMixin, DetailView):
     model = TcketSoporte
-    template_name = "tickets/ticket_detail.html"
+    template_name = "cruds/tickets/ticket_detail.html"
     context_object_name = "ticket"
 
     def get_context_data(self, **kwargs):
@@ -721,4 +717,25 @@ class SensorDetailView(TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx.update(self._context)
+        return ctx
+
+# ========= Dashboard ===========
+
+class GasSensorDashboard(TemplateView):
+    template_name = "dashboard/gas_index.html"
+    context_object_name = "dashboard"
+
+    default_strategy = "latest_5_reg"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        pk = self.kwargs.get("pk")
+        if pk is None:
+            raise Http404("Falta pk del sensor")
+
+        service = SensorService()
+        payload = service.build_gas_dashboard(sensor_id=int(pk), strategy=self.default_strategy)
+
+        # ctx['dashboard'] dict con {sensor_id, strategy, data:{...}}
+        ctx[self.context_object_name] = payload
         return ctx
