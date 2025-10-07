@@ -1,9 +1,9 @@
 from ..models import Sensor, GasRestante, TipoSensor, CaracteristicasCilindro, ComposicionGas, ResultsGasRestante
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, List, Optional
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import OuterRef, Subquery, QuerySet
 from django.db import transaction
-
+import json
 class SensorTPRepository:
     
     def get_all(self):
@@ -106,3 +106,96 @@ class SensorTPDetailRepository:
         latest_results = ResultsGasRestante.objects.in_bulk(ids) if ids else {}
 
         return cilindros_qs, latest_results
+    
+    
+class GasDashboardRepository:
+    def _get_gas_by_sensor(self, sensor_id: int) -> Optional[GasRestante]:
+        try:
+            return (GasRestante.objects.select_related("Sensor_idSensor", "server_credentials").get(Sensor_idSensor_id=sensor_id))
+        except GasRestante.DoesNotExist:
+            return None
+
+    def _get_primary_cylinder(self, gas: GasRestante) -> Optional[CaracteristicasCilindro]:
+        return (CaracteristicasCilindro.objects.select_related("ComposicionGas", "GasRestante").filter(GasRestante=gas).order_by("pk").first())
+
+    def latest_5_reg(self, *, sensor_id: int) -> Dict[str, Any]:
+        """
+        Construye el contexto para la estrategia 'latest_5_reg':
+        - Un cilindro 'principal' asociado al sensor.
+        - Su ComposicionGas .
+        - Últimos 5 ResultsGasRestante del cilindro.
+        """
+        gas = self._get_gas_by_sensor(sensor_id)
+        cyl = self._get_primary_cylinder(gas) if gas else None
+
+        # Composición | None
+        comp = cyl.ComposicionGas if cyl else None
+        comp_ctx: Optional[Dict[str, Any]] = None
+        if comp:
+            comp_ctx = {
+                "nombre": comp.nombre,
+                "descripcion": comp.descripcion,
+                "masa_molar": comp.masa_molar,
+                "y_entropia": comp.y_entropia,
+                "z_factor": comp.z_factor,
+                "densidad": comp.densidad,
+            }
+        # Últimos 5 regs o menos
+        results_qs: QuerySet[ResultsGasRestante] = ResultsGasRestante.objects.none()
+        if cyl:
+            results_qs = (ResultsGasRestante.objects.select_related("CaracterísticasCilindro").filter(CaracterísticasCilindro=cyl).order_by("-timestamp")[:5])
+        results_ctx: List[Dict[str, Any]] = [
+            {
+                "timestamp": r.timestamp,
+                "presion_gauge_pa": r.presion_gauge_pa,
+                "presion_abs_pa": r.presion_abs_pa,
+                "temperature_k": r.temperature_k,
+                "estado_fase": r.estado_fase,
+                "caudal_masa_kg_s": r.caudal_masa_kg_s,
+                "masa_remov_kg": r.masa_remov_kg,
+                "masa_restante_kg": r.masa_restante_kg,
+                "moles_restantes_kg": r.moles_restantes_kg,
+                "metodo_calculo": r.metodo_calculo,
+                "masa_balanza_kg": r.masa_balanza_kg,
+                "porc_masa_gas_restant":r.porc_masa_gas_restant,
+                "valido": r.valido,
+            }
+            for r in results_qs
+        ]
+        # order results_ctx for charts
+        results_sorted = sorted(results_ctx, key=lambda x: x["timestamp"] or 0)
+
+        labels = [ (v["timestamp"].isoformat() if v["timestamp"] else None) for v in results_sorted ]
+        charts_payload = {
+            "labels": labels,
+            "series": {
+                # agrega/ajusta las series que vayas a graficar
+                "presion_gauge_pa": [ v["presion_gauge_pa"] for v in results_sorted ],
+                "presion_abs_pa":   [ v["presion_abs_pa"]   for v in results_sorted ],
+                "temperature_k":    [ v["temperature_k"]    for v in results_sorted ],
+                "caudal_masa_kg_s": [ v["caudal_masa_kg_s"] for v in results_sorted ],
+                "masa_remov_kg":    [ v["masa_remov_kg"]    for v in results_sorted ],
+                "masa_restante_kg": [ v["masa_restante_kg"] for v in results_sorted ],
+                "porc_masa_gas_restant": [v["porc_masa_gas_restant"] for v in results_sorted],                
+            },
+        }
+        charts_json = json.dumps(charts_payload, default=str)  # default=str para serializar datetimes
+        
+        return {
+            "sensor_id": sensor_id,
+            "gas": {
+                "ubicacion": getattr(gas, "localizacion", None) if gas else None, 
+                "bateria": getattr(gas, "bateria", None) if gas else None,
+                "server_deviceNo": getattr(gas, "server_deviceNo", None) if gas else None,
+            } if gas else None,
+            "cilindro": {
+                "id": getattr(cyl, "pk", None),
+                "nombre": getattr(cyl, "nombre", None) if cyl else None,
+                "notas": getattr(cyl, "notas", None) if cyl else None
+            } if cyl else None,
+            "composicion_gas": comp_ctx,
+            "list_info": results_ctx,      # lista (0..5)
+            "charts": charts_payload, 
+            "charts_json": charts_json,    # string JSON
+        }
+        

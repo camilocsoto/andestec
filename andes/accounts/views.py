@@ -53,7 +53,7 @@ class CustomProfileView(TemplateView):
 # operator crud views:
 
 class OperadorListView(LoginRequiredMixin, ListView):
-    template_name = "operario/empresa-emp.html"
+    template_name = "cruds/operario/empresa-emp.html"
     model = Operador
     context_object_name = "operadores"
 
@@ -68,7 +68,7 @@ class OperadorListView(LoginRequiredMixin, ListView):
     
     
 class OperadorCreateView(LoginRequiredMixin, CreateView):
-    template_name = "operario/create_op.html"
+    template_name = "cruds/operario/create_op.html"
     model = Usuario
     form_class = OperadorCreateForm
 
@@ -97,7 +97,7 @@ class OperadorCreateView(LoginRequiredMixin, CreateView):
 class OperadorUpdateView(LoginRequiredMixin, UpdateView):
     model = Operador
     form_class = OperadorUpdateForm
-    template_name = "operario/update_op.html"
+    template_name = "cruds/operario/update_op.html"
     context_object_name = "operador"
 
     def get_form_kwargs(self):
@@ -111,7 +111,7 @@ class OperadorUpdateView(LoginRequiredMixin, UpdateView):
 
 class OperadorDeleteView(LoginRequiredMixin, DeleteView):
     model = Usuario
-    template_name = "operario/confirm_delete.html"
+    template_name = "cruds/operario/confirm_delete.html"
     pk_url_kwarg = "pk"  # se pasará el pk del Usuario (op.usuario.pk)
     # ajusta el success_url al nombre de tu lista
     success_url = reverse_lazy("users:empList")
@@ -141,7 +141,7 @@ class OperadorDeleteView(LoginRequiredMixin, DeleteView):
 # factory crud views:
 
 class EmpresaListView(LoginRequiredMixin, ListView):
-    template_name = "admin_view/empresaList.html"
+    template_name = "cruds/empresa/empresaList.html"
     model = Empresa
     context_object_name = "empresas"
     paginate_by = 25  # opcional
@@ -152,7 +152,7 @@ class EmpresaListView(LoginRequiredMixin, ListView):
 
 class EmpresaUpdateView(LoginRequiredMixin, UpdateView):
     model = Empresa
-    template_name = "admin_view/empresa_update.html"
+    template_name = "cruds/empresa/empresa_update.html"
     form_class = EmpresaUpdateForm
     context_object_name = "empresa"
     pk_url_kwarg = "pk"
@@ -175,7 +175,7 @@ class EmpresaDeleteView(LoginRequiredMixin, DeleteView):
     Al borrar el Usuario, la Empresa se eliminará por cascade (Empresa.usuario on_delete=CASCADE).
     """
     model = Usuario
-    template_name = "admin_view/confirm_delete_empresa.html"
+    template_name = "cruds/empresa/confirm_delete_empresa.html"
     pk_url_kwarg = "pk"
     success_url = reverse_lazy("users:FactList")  # ajusta namespace si es distinto
 

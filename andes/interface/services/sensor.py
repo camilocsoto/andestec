@@ -1,7 +1,8 @@
 from ..repositories.sensor_repo import SensorTPRepository
-from ..strategies.sensor import SensorStrategy, SensorDetailStrategy, DetailSensor
+from ..strategies.sensor import SensorStrategy, SensorDetailStrategy, DetailSensor, SelectpDataStrategy
 from ..models import Sensor, GasRestante, TipoSensor
-from typing import cast
+from typing import cast, Dict, Any
+
 class SensorService:
     
     def __init__(self):
@@ -91,3 +92,21 @@ class SensorService:
         sensor = Sensor.objects.select_related("tipoSensor").get(pk=sensor_id)
         tipo_id = sensor.tipoSensor.pk
         return self.detail_strategy.resolve(sensor_id=sensor_id, tipo_id=tipo_id)
+    
+    def build_gas_dashboard(self, *, sensor_id: int, strategy: str = "latest_5_reg", **extra) -> Dict[str, Any]:
+        """ Orquesta la construcción del contexto del dashboard de gas. """
+        
+        # valida existencia básica del sensor, si no está 404
+        Sensor.objects.only("id").get(pk=sensor_id)
+
+        selector = SelectpDataStrategy()
+        data = selector.run(sensor_id=sensor_id, strategy=strategy, extra=extra or None)
+
+        # Puedes enriquecer el contexto aquí si quieres (títulos, flags, etc.)
+        return {
+            "sensor_id": sensor_id,
+            "strategy": strategy,
+            "data": data,   # <- datos del sensor
+        }
+
+    

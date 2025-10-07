@@ -83,7 +83,7 @@ class CaracteristicasCilindro(models.Model):
     volumen_interno_m3 = models.FloatField(null=True, blank=True, verbose_name="volumen interno (m3)")
     masa_cil_vacio_kg = models.FloatField(null=True, blank=True, verbose_name="masa cilindro al vacío (Kg)")
     masa_cil_lleno_kg = models.FloatField(null=True, blank=True, verbose_name="masa cilindro lleno (Kg")
-    masa_gas_restant_kg = models.FloatField(null=True, blank=True, verbose_name="cant. gas restante (Kg")
+    masa_gas_restant_kg = models.FloatField(null=True, blank=True, verbose_name="cant. gas restante (Kg")    
     coef_descarga_cd = models.FloatField(null=True, blank=True, verbose_name="coeficiente de descarga (cd)")
     diametro_orificio_m = models.FloatField(null=True, blank=True, verbose_name="diametro de orificio (m")
     notas = models.CharField(max_length=45, null=True, blank=True, verbose_name="notas")
@@ -115,6 +115,7 @@ class ResultsGasRestante(models.Model):
     moles_restantes_kg = models.FloatField(null=True, blank=True, verbose_name="cant. de moles restantes (Kg)")
     metodo_calculo = models.CharField(max_length=45, null=True, blank=True, verbose_name="método del cálculo")
     masa_balanza_kg = models.FloatField(null=True, blank=True, verbose_name="nuevo peso de la balanza (Kg)")
+    porc_masa_gas_restant = models.FloatField(null=True, blank=True, verbose_name="porc. masa gas restante (%)")
     valido = models.SmallIntegerField(null=True, blank=True, verbose_name="cálculos válidos")
     CaracterísticasCilindro = models.ForeignKey(CaracteristicasCilindro, on_delete=models.CASCADE, verbose_name="Cilindro a monitorear")
     class Meta:
