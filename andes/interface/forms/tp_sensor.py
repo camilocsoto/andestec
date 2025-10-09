@@ -28,6 +28,10 @@ class SensorTPForm(forms.Form):
         max_length=45, required=False, label="Batería",
         widget=forms.TextInput(attrs= W | {"placeholder": "Ej. 85%"})
     )
+    toleranciaMins = forms.IntegerField(
+        required=False, label="Tolerancia de tiempo (mins)",
+        widget=forms.NumberInput(attrs= W | {"placeholder": "Tolerancia en minutos"})
+    )
     server_deviceNo = forms.CharField(
         max_length=85, required=False, label="Device No (servidor)",
         widget=forms.TextInput(attrs= W | {"placeholder": "Número de dispositivo en servidor"})

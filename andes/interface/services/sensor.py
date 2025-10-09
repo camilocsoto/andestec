@@ -1,83 +1,54 @@
 from ..repositories.sensor_repo import SensorTPRepository
-from ..strategies.sensor import SensorStrategy, SensorDetailStrategy, DetailSensor, SelectpDataStrategy
+from ..strategies.sensor import SensorStrategy, SensorDetailStrategy, DetailSensor, SelectpDataStrategy, ConnectionEvalStrategy
 from ..models import Sensor, GasRestante, TipoSensor
 from typing import cast, Dict, Any
+from django.db.models import QuerySet
 
 class SensorService:
-    
+    """
+    class used for orchestration of sensor operations such as:
+    - 
+    """
     def __init__(self):
         self.repo = SensorTPRepository() # just to list all sensors in admin menu
-        self.create_strategy = SensorStrategy()
+        self.strategy = SensorStrategy()
         self.detail_strategy = SensorDetailStrategy()
+    
+    def __post_init__(self):
+        self.conn_strategy = ConnectionEvalStrategy()
 
     def get_all_sensors(self): 
-        # list all sensors to the list view
+        # list all sensors to the admins view
         return self.repo.get_all()
     
-    def create_tpsensor(self, *, tipo_id: int, data: dict) -> Sensor:
+    def create_sensor(self, *, tipo_id: int, data: dict) -> Sensor:
         """
         data viene de form.cleaned_data. Strategy elige form/repo/plantilla.
         """
-        cfg = self.create_strategy.resolve(tipo_id)
+        cfg = self.strategy.resolve(tipo_id)
         repo = cfg["repo"]
-
-        # Mapea booleano -> BinaryField
-        estado = data.get("estado")
-        estado_bytes = None if estado is None else (b"\x01" if estado else b"\x00")
-
-        sensor = repo.create_gas_tp_sensor(
-            nombre=data.get("nombre"),
-            estado_bytes=estado_bytes,
-            empresa=data.get("empresa"),
-            tipo_id=tipo_id,
-            localizacion=data.get("localizacion"),
-            bateria=data.get("bateria"),
-            server_deviceNo=data.get("server_deviceNo"),
-            server_credentials=data.get("server_credentials"),
-        )
+        sensor = repo(tipo_id=tipo_id, data=data)
         return sensor
+    
     # update
+    def _resolve_cfg_by_sensor(self, sensor_id: int):
+        sensor = Sensor.objects.select_related("tipoSensor").get(pk=sensor_id)
+        tipo_id = sensor.tipoSensor.pk
+        cfg = self.strategy.resolve_update(tipo_id)
+        return cfg
+
+    # --- UPDATE: initial ---
     def get_update_initial(self, *, sensor_id: int) -> dict:
-        sensor = self.repo.get_sensor_with_related(sensor_id)
-        try:
-            gas = GasRestante.objects.get(Sensor_idSensor_id=sensor_id)
-        except GasRestante.DoesNotExist:
-            gas = None
-
-        return {
-            "nombre": sensor.nombre,
-            "estado": (sensor.estado == b"\x01") if sensor.estado is not None else None,
-            "empresa": sensor.empresa.usuario.pk if sensor.empresa and sensor.empresa.usuario else None,
-            "localizacion": gas.localizacion if gas else "",
-            "bateria": gas.bateria if gas else "",
-            "server_deviceNo": gas.server_deviceNo if gas else "",
-            "server_credentials": gas.server_credentials.pk if gas else None,
-            # si en el form aparece tipoSensor, lo ignoraremos en update()
-        }
-
-    def update(self, *, sensor_id: int, data: dict) -> Sensor:
-        sensor = self.repo.get_sensor_with_related(sensor_id)
-        tipo_id = sensor.tipoSensor.pk  # para resolver strategy
-
-        # si form trae 'tipoSensor', lo ignoramos:
-        data = {k: v for k, v in data.items() if k != "tipoSensor"}
-
-        cfg = self.create_strategy.resolve_update(tipo_id)
+        cfg = self._resolve_cfg_by_sensor(sensor_id)
         repo = cfg["repo"]
+        return repo.get_update_initial_data(sensor_id=sensor_id)
 
-        estado = data.get("estado")
-        estado_bytes = None if estado is None else (b"\x01" if estado else b"\x00")
-
-        return repo.update_gas_tpsensor(
-            sensor_id=sensor_id,
-            nombre=data.get("nombre"),
-            estado_bytes=estado_bytes,
-            empresa=data.get("empresa"),
-            localizacion=data.get("localizacion"),
-            bateria=data.get("bateria"),
-            server_deviceNo=data.get("server_deviceNo"),
-            server_credentials=data.get("server_credentials"),
-        )
+    # --- UPDATE: submit ---
+    def update(self, *, sensor_id: int, data: dict) -> Sensor:
+        cfg = self._resolve_cfg_by_sensor(sensor_id)
+        repo = cfg["repo"]
+        # delega todo al repo
+        return repo.update_from_form(sensor_id=sensor_id, data=data)
         
     def delete(self, *, sensor_id: int) -> bool:
         deleted = self.repo.delete_sensor(sensor_id)
@@ -92,6 +63,7 @@ class SensorService:
         sensor = Sensor.objects.select_related("tipoSensor").get(pk=sensor_id)
         tipo_id = sensor.tipoSensor.pk
         return self.detail_strategy.resolve(sensor_id=sensor_id, tipo_id=tipo_id)
+    
     
     def build_gas_dashboard(self, *, sensor_id: int, strategy: str = "latest_5_reg", **extra) -> Dict[str, Any]:
         """ Orquesta la construcción del contexto del dashboard de gas. """
@@ -108,5 +80,16 @@ class SensorService:
             "strategy": strategy,
             "data": data,   # <- datos del sensor
         }
+        
+    def eval_conn(self) -> None:
+        """
+        Itera todos los sensores y evalúa su estado de conexión.
+        """
+        qs: QuerySet[Sensor] = Sensor.objects.select_related("tipoSensor").all()
+        for sensor in qs:
+            tipo_id = sensor.tipoSensor.pk
+            evaluator = self.conn_strategy.resolve_eval_callable(tipo_id=tipo_id)
+            # cada evaluador recibe el objeto sensor
+            evaluator(sensor)
 
     

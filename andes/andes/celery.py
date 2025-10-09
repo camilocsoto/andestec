@@ -24,4 +24,8 @@ app.conf.beat_schedule = {
         "schedule": crontab(minute='0'), 
         "args": (1,),  # cred.pk=1
     },
+    "eval_connection_every_3_min": {
+        "task": "interface.tasks.eval_conn.eval_connection",
+        "schedule": crontab(minute="*/3"),
+    },
 }

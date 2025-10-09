@@ -53,6 +53,7 @@ class GasRestante(models.Model):
     )
     localizacion = models.CharField(max_length=45, null=True, blank=True, verbose_name="localizacion")
     bateria = models.CharField(max_length=45, null=True, blank=True, verbose_name="bateria")
+    toleranciaMins = models.IntegerField(null=True, blank=True, verbose_name="tolerancia de tiempo en mins")
     server_deviceNo = models.CharField(max_length=85, null=True, blank=True, verbose_name="server deviceNo")
     server_credentials = models.ForeignKey(ServerCredentials, on_delete=models.CASCADE, verbose_name="credenciales del servidor")
 

@@ -597,7 +597,7 @@ class SensorCreateView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         service = SensorService()
         # usa el nombre de método que ya tienes en tu service
-        sensor = service.create_tpsensor(tipo_id=self.tipo_id, data=form.cleaned_data)
+        sensor = service.create_sensor(tipo_id=self.tipo_id, data=form.cleaned_data)
         messages.success(self.request, f"Sensor '{sensor.nombre or sensor.pk}' creado correctamente.")
         # FormView.form_valid redirige a success_url sin intentar form.save()
         return super().form_valid(form)
@@ -678,10 +678,7 @@ class SensorMonitorListView(LoginRequiredMixin, ListView):
             return Sensor.objects.none()
 
         qs = (
-            Sensor.objects
-            .filter(empresa=empresa)
-            .select_related("tipoSensor", "empresa__usuario")
-            .annotate(
+            Sensor.objects.filter(empresa=empresa).select_related("tipoSensor", "empresa__usuario").annotate(
                 is_active=Case(
                     When(estado=b"\x01", then=Value(True)),
                     default=Value(False),
