@@ -3,11 +3,8 @@ from .views import *
 
 app_name = 'app'
 urlpatterns = [
-    path('device/<int:id>', MainView.as_view(), name='device_view'),
     path('download/', ExportExcelView.as_view()),
     path('maps/', view_map, name='view_map' ),
-    path('load_data/', view_sensor_data),
-    path('compare/', view_compare, name='compare'), 
     #menus
     path("menu/", MainMenuView.as_view(), name="menu"),
     path('admin_menu/', MenuAdminView.as_view(), name='AdminMenu'),
