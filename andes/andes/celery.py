@@ -3,8 +3,6 @@ import os
 from celery import Celery
 from celery.schedules import crontab
 
-
-
 # Configura el módulo de configuración predeterminado para Celery
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'andes.settings')
 
@@ -27,5 +25,9 @@ app.conf.beat_schedule = {
     "eval_connection_every_3_min": {
         "task": "interface.tasks.eval_conn.eval_connection",
         "schedule": crontab(minute="*/3"),
+    },
+    "connect_sensor_each_1_min": {
+        "task": "interface.tasks.conn_sen.connect_sensor",
+        "schedule": crontab(minute="*/1")
     },
 }

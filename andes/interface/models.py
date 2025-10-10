@@ -75,7 +75,7 @@ class ComposicionGas(models.Model):
         db_table = 'ComposicionGas'
 
     def __str__(self):
-        return self.nombre or f"el gas{self.nombre} tiene {self.descripcion}"
+        return f'el gas{self.nombre} tiene {self.descripcion}'
 
         
 

@@ -13,8 +13,6 @@ class SensorService:
         self.repo = SensorTPRepository() # just to list all sensors in admin menu
         self.strategy = SensorStrategy()
         self.detail_strategy = SensorDetailStrategy()
-    
-    def __post_init__(self):
         self.conn_strategy = ConnectionEvalStrategy()
 
     def get_all_sensors(self): 
