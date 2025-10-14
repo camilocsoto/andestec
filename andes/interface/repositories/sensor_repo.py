@@ -405,6 +405,7 @@ class GasDashboardRepository:
                 "metodo_calculo": r.metodo_calculo,
                 "masa_balanza_kg": r.masa_balanza_kg,
                 "porc_masa_gas_restant": r.porc_masa_gas_restant,
+                "porc_masa_gas_extracted": r.porc_masa_gas_extracted,
                 "valido": r.valido,
             }
             for r in results_qs
@@ -423,7 +424,8 @@ class GasDashboardRepository:
                 "caudal_masa_kg_s": [ v["caudal_masa_kg_s"] for v in results_sorted ],
                 "masa_remov_kg":    [ v["masa_remov_kg"]    for v in results_sorted ],
                 "masa_restante_kg": [ v["masa_restante_kg"] for v in results_sorted ],
-                "porc_masa_gas_restant": [v["porc_masa_gas_restant"] for v in results_sorted],                
+                "porc_masa_gas_restant": [v["porc_masa_gas_restant"] for v in results_sorted],  
+                "porc_masa_gas_extracted": [v["porc_masa_gas_extracted"] for v in results_sorted],        
             },
         }
         charts_json = json.dumps(charts_payload, default=str)  # default=str para serializar datetimes

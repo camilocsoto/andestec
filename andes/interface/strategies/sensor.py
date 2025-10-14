@@ -92,5 +92,5 @@ class SelectpDataStrategy:
             case "latest_5_reg":
                 return self.repo.latest_5_reg(sensor_id=sensor_id)
             case _:
-                # fallback por si llegan estrategias futuras
+                # default fallback por si llegan estrategias futuras
                 return self.repo.latest_5_reg(sensor_id=sensor_id)

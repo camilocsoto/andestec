@@ -46,6 +46,17 @@ def norm_temperature_to_K(t: Optional[float]) -> float:
         return t + 273.15
     return t
 
+def clamp01pct(x: Optional[float]) -> Optional[float]:
+    if x is None:
+        return None
+    return max(0.0, min(100.0, x))
+
+def pct_used_from_rest(pct_rest: Optional[float]) -> Optional[float]:
+    if pct_rest is None:
+        return None
+    # 100 - restante, limitado a [0,100]
+    return clamp01pct(100.0 - pct_rest)
+
 @dataclass
 class StaticParams:
     # De CaracteristicasCilindro
@@ -151,10 +162,8 @@ class GasMaths:
 
         P_gauge_psi = safe_float(info.get("pressure"))
         T0_K = safe_float(info.get("temperature"))
-
-        # Normaliza temperatura si falta
-        if T0_K is None or T0_K <= 0.0:
-            T0_K = 290.0
+        T0_K_raw = safe_float(info.get("temperature"))
+        T0_K = norm_temperature_to_K(T0_K_raw) 
 
         # Si presión < 5 psi => rama "low pressure"
         if P_gauge_psi is None or P_gauge_psi < 5.0:
@@ -163,7 +172,7 @@ class GasMaths:
                 "reason": "low_pressure_or_none",
                 "sensor_id": sensor_id,
                 "p2_pa": sp.p_atm_pa,
-                "P_gauge_psi": P_gauge_psi,               # puede ser 0, <5, o None
+                "P_gauge_psi": P_gauge_psi,
                 "p0_abs_pa": (P_gauge_psi or 0.0) * PSI_TO_PA + sp.p_atm_pa,
                 "T0_K": T0_K,
                 "cilindro": sp.cilindro,
@@ -209,8 +218,8 @@ class GasMaths:
         Guarda un registro minimal cuando pressure < 5 psi, con reglas:
         - No guarda si previo gauge==0 psi y actual gauge==0 psi.
         - Guarda con:
-          estado_fase=None, masa_remov_kg=0, masa_restante_kg=(prev o cil),
-          moles_restantes=(prev o masa/M), y NO actualiza el cilindro.
+        estado_fase=None, masa_remov_kg=0, masa_restante_kg=(prev o cil),
+        moles_restantes=(prev o masa/M), y NO actualiza el cilindro.
         """
         cil: CaracteristicasCilindro = ctx["cilindro"]
         last = self._last_result(cil)
@@ -230,7 +239,6 @@ class GasMaths:
         moles_restantes = None
         if last and last.masa_restante_kg is not None:
             masa_restante_kg = last.masa_restante_kg
-            # preferimos conservar moles previos si existen
             if last.moles_restantes_kg is not None:
                 moles_restantes = last.moles_restantes_kg
         if masa_restante_kg is None:
@@ -240,24 +248,29 @@ class GasMaths:
                 if M_kg_mol:
                     moles_restantes = masa_restante_kg / M_kg_mol
 
-        # Temperatura
+        # Temperatura (guardar en Kelvin)
         T0_K_raw = safe_float(info.get("temperature"))
         T0_K = norm_temperature_to_K(T0_K_raw)
+
+        # Porcentajes
+        porc_rest = None if masa_restante_kg is None else self._porc_from_cil(cil, masa_restante_kg)
+        porc_used = None if porc_rest is None else max(0.0, min(100.0, 100.0 - porc_rest))
 
         # Crear fila
         row = ResultsGasRestante.objects.create(
             timestamp=timezone.now(),
             presion_gauge_pa=curr_gauge_pa,
             presion_abs_pa=curr_abs_pa,
-            temperature_k=T0_K,
-            estado_fase=None,            # solicitado
-            caudal_masa_kg_s=None,       # no se calcula en esta rama
-            masa_remov_kg=0.0,           # solicitado
+            temperature_k=T0_K,                 # Kelvin
+            estado_fase=None,                   # solicitado
+            caudal_masa_kg_s=None,              # no se calcula en esta rama
+            masa_remov_kg=0.0,                  # solicitado
             masa_restante_kg=masa_restante_kg,
             moles_restantes_kg=moles_restantes,
             metodo_calculo="skip_low_pressure",
             masa_balanza_kg=None,
-            porc_masa_gas_restant=None if masa_restante_kg is None else self._porc_from_cil(cil, masa_restante_kg),
+            porc_masa_gas_restant=porc_rest,
+            porc_masa_gas_extracted=porc_used,
             caracteristicas_cilindro=cil,
             valido=1,
         )
@@ -370,21 +383,29 @@ class GasMaths:
     
     
     # ---------- Guardado en ResultsGasRestante ----------
-    
     @transaction.atomic
     def save_results(self, *, info: Dict[str, Any], calc: Dict[str, Any], metodo: str):
         cil: CaracteristicasCilindro = calc["cilindro"]
+
+        # Presiones
         P_gauge_psi = safe_float(info.get("pressure"))
-        T0_K = safe_float(info.get("temperature")) or 290.0
         presion_gauge_pa = psi_to_pa(P_gauge_psi) if P_gauge_psi is not None else None
         presion_abs_pa = calc.get("p0_abs_pa")
 
+        # Temperatura en K (para guardar en K)
+        T0_K_calc = calc.get("T0_K")
+        if T0_K_calc is None:
+            T0_K_calc = norm_temperature_to_K(safe_float(info.get("temperature")))
+
+        # Magnitudes calculadas
         masa_restante_kg = calc.get("masa_restante_kg")
         masa_remov_kg = calc.get("masa_removida_kg")
         mdot = calc.get("mdot_kg_s")
-        estado_fase = calc.get("estado_fase", None) 
+        estado_fase = calc.get("estado_fase", None)
         porc_rest = calc.get("porc_masa_gas_restant")
+        porc_used = pct_used_from_rest(porc_rest)   # <<< derivado
 
+        # Moles
         M_kg_mol = calc.get("M_kg_mol", 0.04901)
         moles_restantes = (masa_restante_kg / M_kg_mol) if (masa_restante_kg is not None and M_kg_mol) else None
 
@@ -392,7 +413,7 @@ class GasMaths:
             timestamp=timezone.now(),
             presion_gauge_pa=presion_gauge_pa,
             presion_abs_pa=presion_abs_pa,
-            temperature_k=T0_K,
+            temperature_k=T0_K_calc,        # Kelvin
             estado_fase=estado_fase,
             caudal_masa_kg_s=mdot,
             masa_remov_kg=masa_remov_kg,
@@ -401,11 +422,12 @@ class GasMaths:
             metodo_calculo=metodo,
             masa_balanza_kg=None,
             porc_masa_gas_restant=porc_rest,
+            porc_masa_gas_extracted=porc_used,   # <<< NUEVO
             caracteristicas_cilindro=cil,
             valido=1,
         )
 
-        # Solo en cálculos normales actualizamos el estado en Cilindro
+        # Persistir estado en cilindro sólo en modos normales
         try:
             if masa_restante_kg is not None and metodo in ("choked", "no_choked"):
                 cil.masa_gas_restant_kg = masa_restante_kg
