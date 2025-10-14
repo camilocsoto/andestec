@@ -615,11 +615,11 @@
 </div>
 
 
-  </div>
-  <!-- este div transporta la info-->
-  <div id="data-container-charts" style="display:none;" 
-     data-charts="{{charts}}">
-  </div>
+</div>
+<!-- Dentro de templates/dashboard/gas_index.html -->
+<div id="data-container-charts" style="display:none;"
+    data-charts="{{ dashboard.data.charts_json}}">
+</div>
 
 </main>
 {% endblock content %}

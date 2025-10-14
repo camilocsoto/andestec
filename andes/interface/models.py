@@ -4,8 +4,8 @@ from accounts.models import Empresa, Usuario
 
 
 class TipoSensor(models.Model):
-    nombre = models.CharField(max_length=45, verbose_name="nombreTipoSensor")
-    descripcion = models.CharField(max_length=45, null=True, blank=True, verbose_name="descripcion")
+    nombre = models.CharField(max_length=45, verbose_name="nombre del tipo de sensor")
+    descripcion = models.CharField(max_length=45, null=True, blank=True, verbose_name="descripción del tipo de sensor")
 
     class Meta:
         db_table = 'tipoSensor'
@@ -15,10 +15,10 @@ class TipoSensor(models.Model):
 
 
 class Sensor(models.Model):
-    nombre = models.CharField(max_length=45, null=True, blank=True, verbose_name="nombre")
-    estado = models.BinaryField(null=True, blank=True, verbose_name="estado")
-    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True, verbose_name="empresa")
-    tipoSensor = models.ForeignKey(TipoSensor, on_delete=models.PROTECT, verbose_name="tipoSensor")
+    nombre = models.CharField(max_length=45, null=True, blank=True, verbose_name="nombre del sensor")
+    estado = models.BinaryField(null=True, blank=True, verbose_name="estado del sensor")
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True, verbose_name="empresa del sensor")
+    tipoSensor = models.ForeignKey(TipoSensor, on_delete=models.PROTECT, verbose_name="tipo del sensor")
 
     class Meta:
         db_table = 'Sensor'
@@ -51,8 +51,8 @@ class GasRestante(models.Model):
         primary_key=True,
         verbose_name="Sensor_idSensor"
     )
-    localizacion = models.CharField(max_length=45, null=True, blank=True, verbose_name="localizacion")
-    bateria = models.CharField(max_length=45, null=True, blank=True, verbose_name="bateria")
+    localizacion = models.CharField(max_length=45, null=True, blank=True, verbose_name="localización del sensor")
+    bateria = models.CharField(max_length=45, null=True, blank=True, verbose_name="batería restante")
     toleranciaMins = models.IntegerField(null=True, blank=True, verbose_name="tolerancia de tiempo en mins")
     server_deviceNo = models.CharField(max_length=85, null=True, blank=True, verbose_name="server deviceNo")
     server_credentials = models.ForeignKey(ServerCredentials, on_delete=models.CASCADE, verbose_name="credenciales del servidor")
@@ -117,6 +117,7 @@ class ResultsGasRestante(models.Model):
     metodo_calculo = models.CharField(max_length=45, null=True, blank=True, verbose_name="método del cálculo")
     masa_balanza_kg = models.FloatField(null=True, blank=True, verbose_name="nuevo peso de la balanza (Kg)")
     porc_masa_gas_restant = models.FloatField(null=True, blank=True, verbose_name="porc. masa gas restante (%)")
+    porc_masa_gas_extracted = models.FloatField(null=True, blank=True, verbose_name="porc. masa gas utilizada (%)")
     valido = models.SmallIntegerField(null=True, blank=True, verbose_name="cálculos válidos")
     caracteristicas_cilindro = models.ForeignKey(CaracteristicasCilindro, on_delete=models.CASCADE, verbose_name="Cilindro a monitorear")
     class Meta:
@@ -167,15 +168,15 @@ class TcketSoporte(models.Model):
         ('Media', 'Media'),
         ('Alta', 'Alta')
     )
-    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, verbose_name="empresa")
-    TipoPeticion = models.ForeignKey(TipoPeticion, on_delete=models.PROTECT, verbose_name="TipoPeticion")
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, verbose_name="mensaje de la empresa")
+    TipoPeticion = models.ForeignKey(TipoPeticion, on_delete=models.PROTECT, verbose_name="Tipo de peticion")
     asunto = models.CharField(max_length=100, null=True, blank=True, verbose_name="asunto")
-    NivelImportancia = models.CharField(choices = IMPORTANCIA, default='Baja', verbose_name="NivelImportancia")
+    NivelImportancia = models.CharField(choices = IMPORTANCIA, default='Baja', verbose_name="Nivel de importancia")
     estado = models.BinaryField(null=True, blank=True, verbose_name="estado")
-    descripcion = models.TextField(null=True, blank=True, verbose_name="descripcion")
-    fecha_creacion = models.DateTimeField(null=True, blank=True, verbose_name="fecha_creacion")
-    fecha_actualizacion = models.DateTimeField(null=True, blank=True, verbose_name="fecha_actualizacion")
-    archivos_comprimidos = models.BinaryField(null=True, blank=True, verbose_name="archivos_comprimidos")
+    descripcion = models.TextField(null=True, blank=True, verbose_name="descripción")
+    fecha_creacion = models.DateTimeField(null=True, blank=True, verbose_name="fecha de creacion")
+    fecha_actualizacion = models.DateTimeField(null=True, blank=True, verbose_name="fecha de actualizacion")
+    archivos_comprimidos = models.BinaryField(null=True, blank=True, verbose_name="archivos comprimidos")
 
     class Meta:
         db_table = 'TcketSoporte'
@@ -185,7 +186,7 @@ class TcketSoporte(models.Model):
     
 class Mensaje(models.Model):
     mensajes = models.TextField(null=True, blank=True, verbose_name="mensaje")
-    timestamp = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name="timestamp")
+    timestamp = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name="hora y fecha del comentario")
     Usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, verbose_name="usuario")
     TcketSoporte = models.ForeignKey(TcketSoporte, on_delete=models.CASCADE, verbose_name="ticket soporte")
 
@@ -194,4 +195,3 @@ class Mensaje(models.Model):
 
     def __str__(self):
         return f"Mensaje de {self.Usuario} dice {self.mensajes}"
-

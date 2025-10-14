@@ -68,7 +68,7 @@ class ToprieInfoAdapter:
             name = s.get("sensorName")
             val  = s.get("value")
             if name == "压力":         # presión
-                processed["pressure"] = 82.5 #val just to simulate.
+                processed["pressure"] = 255.5 #val just to simulate.
             elif name == "温度":       # temperatura
                 processed["temperature"] = val
             elif name == "电量":       # batería

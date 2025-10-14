@@ -10,176 +10,142 @@ let outputData = chartsData.output;
 let temperature = chartsData.temp;
 
 const getMainChartOptions = (chartsData) => {
-    let mainChartColors = {}
-
-    if (document.documentElement.classList.contains('dark')) {
-        mainChartColors = {
-            borderColor: '#374151',
-            labelColor: '#9CA3AF',
-            opacityFrom: 0,
-            opacityTo: 0.15,
-        };
-    } else {
-        mainChartColors = {
-            borderColor: '#F3F4F6',
-            labelColor: '#6B7280',
-            opacityFrom: 0.45,
-            opacityTo: 0,
-        }
-    }
-
-    return {
-        chart: {
-            height: 420,
-            type: 'area',
-            fontFamily: 'Inter, sans-serif',
-            foreColor: mainChartColors.labelColor,
-            toolbar: {
-                show: false
-            }
-        },
-        fill: {
-            type: 'gradient',
-            gradient: {
-                enabled: true,
-                opacityFrom: mainChartColors.opacityFrom,
-                opacityTo: mainChartColors.opacityTo
-            }
-        },
-        dataLabels: {
-            enabled: false
-        },
-        tooltip: {
-            style: {
-                fontSize: '14px',
-                fontFamily: 'Inter, sans-serif',
-            },
-        },
-        grid: {
-            show: true,
-            borderColor: mainChartColors.borderColor,
-            strokeDashArray: 1,
-            padding: {
-                left: 35,
-                bottom: 15
-            }
-        },
-        series: [
-            {
-                name: 'gallons of bottled gas (%)',
-                // Usamos los datos pasados como argumento
-                data: chartsData.capacitiy,
-                color: '#1A56DB'
-            },
-            {
-                name: 'gallons of gas drained gas',
-                // Usamos los datos pasados como argumento
-                data: chartsData.output,
-                color: '#00b8ff'
-            }
-        ],
-        markers: {
-            size: 5,
-            strokeColors: '#ffffff',
-            hover: {
-                size: undefined,
-                sizeOffset: 3
-            }
-        },
-        xaxis: {
-             // Usamos los datos pasados como argumento
-            categories: chartsData.hour,
-            labels: {
-                style: {
-                    colors: [mainChartColors.labelColor],
-                    fontSize: '14px',
-                    fontWeight: 500,
-                },
-            },
-            axisBorder: {
-                color: mainChartColors.borderColor,
-            },
-            axisTicks: {
-                color: mainChartColors.borderColor,
-            },
-            crosshairs: {
-                show: true,
-                position: 'back',
-                stroke: {
-                    color: mainChartColors.borderColor,
-                    width: 1,
-                    dashArray: 10,
-                },
-            },
-        },
-        yaxis: {
-            labels: {
-                style: {
-                    colors: [mainChartColors.labelColor],
-                    fontSize: '14px',
-                    fontWeight: 500,
-                },
-                formatter: function (value) {
-                    return value + '%';
-                }
-            },
-            tickAmount: 10,
-            min: 0,
-            max: 100,
-            forceNiceScale: true,
-        },
-        legend: {
-            fontSize: '14px',
-            fontWeight: 500,
-            fontFamily: 'Inter, sans-serif',
-            labels: {
-                colors: [mainChartColors.labelColor]
-            },
-            itemMargin: {
-                horizontal: 10
-            }
-        },
-        responsive: [
-            {
-                breakpoint: 1024,
-                options: {
-                    xaxis: {
-                        labels: {
-                            show: false
-                        }
-                    }
-                }
-            }
-        ]
+  let mainChartColors = {};
+  if (document.documentElement.classList.contains('dark')) {
+    mainChartColors = {
+      borderColor: '#374151',
+      labelColor: '#9CA3AF',
+      opacityFrom: 0,
+      opacityTo: 0.15,
     };
-}
-// ▼▼▼ ENVOLTURA PRINCIPAL: Todo el código que interactúa con el DOM va aquí dentro ▼▼▼
-window.addEventListener('load', function() {
-    
-    // 1. La extracción de datos del DOM se mueve aquí dentro.
-    // Esto asegura que #data-container-charts exista antes de intentar leerlo.
-    const dataContainer = document.getElementById('data-container-charts');
-    if (!dataContainer) return; // Salir si el contenedor de datos no existe
-    
-    let chartsData = JSON.parse(dataContainer.getAttribute('data-charts'));
+  } else {
+    mainChartColors = {
+      borderColor: '#F3F4F6',
+      labelColor: '#6B7280',
+      opacityFrom: 0.45,
+      opacityTo: 0,
+    };
+  }
 
-    // 2. La lógica para renderizar el gráfico también se mueve aquí dentro.
-    if (document.getElementById('main-chart')) {
-        // Le pasamos los datos a la función para que los use
-        const options = getMainChartOptions(chartsData);
-        const chart = new ApexCharts(document.getElementById('main-chart'), options);
-        chart.render();
+  return {
+    chart: {
+      height: 420,
+      type: 'area',
+      fontFamily: 'Inter, sans-serif',
+      foreColor: mainChartColors.labelColor,
+      toolbar: { show: false },
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        enabled: true,
+        opacityFrom: mainChartColors.opacityFrom,
+        opacityTo: mainChartColors.opacityTo,
+      },
+    },
+    dataLabels: { enabled: false },
+    tooltip: {
+      style: { fontSize: '14px', fontFamily: 'Inter, sans-serif' },
+      y: { formatter: (v) => (v == null ? '--' : `${v}%`) },
+    },
+    grid: {
+      show: true,
+      borderColor: mainChartColors.borderColor,
+      strokeDashArray: 1,
+      padding: { left: 35, bottom: 15 },
+    },
+    series: [
+      {
+        name: 'Gas restante (%)',
+        data: chartsData.series.porc_masa_gas_restant,
+        color: '#1A56DB',
+      },
+      {
+        name: 'Gas utilizado (%)',
+        data: chartsData.series.porc_masa_gas_extracted,
+        color: '#00b8ff',
+      },
+    ],
+    markers: {
+      size: 5,
+      strokeColors: '#ffffff',
+      hover: { sizeOffset: 3 },
+    },
+    xaxis: {
+      categories: chartsData.labels, // timestamps ISO8601
+      labels: {
+        rotate: -15,
+        style: {
+          colors: [mainChartColors.labelColor],
+          fontSize: '12px',
+          fontWeight: 500,
+        },
+      },
+      axisBorder: { color: mainChartColors.borderColor },
+      axisTicks: { color: mainChartColors.borderColor },
+      crosshairs: {
+        show: true,
+        position: 'back',
+        stroke: {
+          color: mainChartColors.borderColor,
+          width: 1,
+          dashArray: 10,
+        },
+      },
+    },
+    yaxis: {
+      labels: {
+        style: {
+          colors: [mainChartColors.labelColor],
+          fontSize: '14px',
+          fontWeight: 500,
+        },
+        formatter: (value) => (value == null ? '--' : `${value}%`),
+      },
+      tickAmount: 10,
+      min: 0,
+      max: 100,
+      forceNiceScale: true,
+    },
+    legend: {
+      fontSize: '14px',
+      fontWeight: 500,
+      fontFamily: 'Inter, sans-serif',
+      labels: { colors: [mainChartColors.labelColor] },
+      itemMargin: { horizontal: 10 },
+    },
+    responsive: [
+      {
+        breakpoint: 1024,
+        options: {
+          xaxis: { labels: { show: false } },
+        },
+      },
+    ],
+  };
+};
 
-        // 3. El listener para el modo oscuro también debe configurarse después de crear el gráfico.
-        document.addEventListener('dark-mode', function () {
-            // Pasamos los datos de nuevo al actualizar, por si acaso
-            chart.updateOptions(getMainChartOptions(chartsData));
-        });
-    }
+// Envoltura principal
+window.addEventListener('load', function () {
+  const dataContainer = document.getElementById('data-container-charts');
+  if (!dataContainer) return;
+
+  const chartsData = JSON.parse(dataContainer.getAttribute('data-charts') || '{}');
+  if (document.getElementById('main-chart')) {
+    const options = getMainChartOptions(chartsData);
+    const chart = new ApexCharts(document.getElementById('main-chart'), options);
+    chart.render();
+
+    document.addEventListener('dark-mode', function () {
+      chart.updateOptions(getMainChartOptions(chartsData));
+    });
+  }
 });
 
 
-//  current capacity chart 🔥
+
+
+//  current capacity chart
 if (document.getElementById('new-products-chart')) {
 	// data for this chart
 	let capacity_serie = hoursData.map((time, index) => {
