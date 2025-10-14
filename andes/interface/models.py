@@ -101,15 +101,15 @@ class CaracteristicasCilindro(models.Model):
 
 class ResultsGasRestante(models.Model):
     ESTATUS_FASE = (
-        ('bifasico', 'bifásico'),
-        ('vapor', 'solo vapor'),
-        ('descon.', 'desconocido')
+        (None, 'Ninguno'),
+        ('choked', 'Ahogado'),
+        ('no_choked', 'No ahogado'),
     )
     timestamp = models.DateTimeField(null=True, blank=True, verbose_name="última actualización", default=timezone.now)
     presion_gauge_pa = models.FloatField(null=True, blank=True, verbose_name="presión manómetro (Pa)")
     presion_abs_pa = models.FloatField(null=True, blank=True, verbose_name="presión abs. (Pa)")
     temperature_k = models.FloatField(null=True, blank=True, verbose_name="temperatura (k)")
-    estado_fase = models.CharField(choices = ESTATUS_FASE, default = 'bifasico', max_length=20, null=True, blank=True, verbose_name="estado de fase del gas")
+    estado_fase = models.CharField(choices = ESTATUS_FASE, default = 'None', max_length=20, null=True, blank=True, verbose_name="estado de fase del gas")
     caudal_masa_kg_s = models.FloatField(null=True, blank=True, verbose_name="caudal de masa (Kg/s)")
     masa_remov_kg = models.FloatField(null=True, blank=True, verbose_name="masa de gas removida (Kg)")
     masa_restante_kg = models.FloatField(null=True, blank=True, verbose_name="masa de gas restante (Kg)")
@@ -118,7 +118,7 @@ class ResultsGasRestante(models.Model):
     masa_balanza_kg = models.FloatField(null=True, blank=True, verbose_name="nuevo peso de la balanza (Kg)")
     porc_masa_gas_restant = models.FloatField(null=True, blank=True, verbose_name="porc. masa gas restante (%)")
     valido = models.SmallIntegerField(null=True, blank=True, verbose_name="cálculos válidos")
-    CaracterísticasCilindro = models.ForeignKey(CaracteristicasCilindro, on_delete=models.CASCADE, verbose_name="Cilindro a monitorear")
+    caracteristicas_cilindro = models.ForeignKey(CaracteristicasCilindro, on_delete=models.CASCADE, verbose_name="Cilindro a monitorear")
     class Meta:
         db_table = 'ResultsGasRestante'
 

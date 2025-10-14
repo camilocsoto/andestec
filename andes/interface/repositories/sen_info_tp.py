@@ -19,7 +19,7 @@ class SentpRepository:
         return (CaracteristicasCilindro.objects.select_related("GasRestante").filter(GasRestante=gas).order_by("pk").first())
 
     def _latest_result_ts_for_cyl(self, cyl: CaracteristicasCilindro) -> Optional[datetime]:
-        last = (ResultsGasRestante.objects.filter(CaracterísticasCilindro=cyl, timestamp__isnull=False).order_by("-timestamp").only("timestamp").first())
+        last = (ResultsGasRestante.objects.filter(caracteristicas_cilindro=cyl, timestamp__isnull=False).order_by("-timestamp").only("timestamp").first())
         return last.timestamp if last else None
 
     def _parse_heartbeat_tzaware(self, raw: str | None) -> Optional[datetime]:
@@ -41,7 +41,9 @@ class SentpRepository:
         """
         # 1) Navega relaciones: Sensor -> GasRestante -> ServerCredentials
         gas = self._get_gas_by_sensor(sensor_id)
+        print(f"DEBUG: sensor_id={sensor_id}, gas={gas}")  # Diagnostic log
         if gas is None or gas.server_credentials.pk is None:
+            print(f"DEBUG: sensor_id={sensor_id}, no gas or no server_credentials")  # Diagnostic log
             return None
 
         creds: ServerCredentials = gas.server_credentials
@@ -49,8 +51,10 @@ class SentpRepository:
         authorization   = getattr(creds, "server_access_token", None)
         server_userId   = getattr(creds, "server_userId", None)
         device_no       = getattr(gas,   "server_deviceNo", None)
+        print(f"DEBUG: sensor_id={sensor_id}, creds: clientId={server_clientId}, auth={authorization[:10] if authorization else None}..., userId={server_userId}, deviceNo={device_no}")  # Diagnostic log
 
         if not (server_clientId and authorization and server_userId and device_no):
+            print(f"DEBUG: sensor_id={sensor_id}, missing required credentials")  # Diagnostic log
             return None
 
         # 2) Llama adapter y transforma
@@ -61,20 +65,28 @@ class SentpRepository:
             server_deviceNo=device_no,
         )
         processed = adapter.transform_info()
+        print(f"DEBUG: sensor_id={sensor_id}, processed from adapter={processed}")  # Diagnostic log
         if not processed:
+            print(f"DEBUG: sensor_id={sensor_id}, no processed data from adapter")  # Diagnostic log
             return None
 
         # 3) Compara heartbeatDate con último Results.timestamp
         cyl = self._get_primary_cylinder(gas)
+        print(f"DEBUG: sensor_id={sensor_id}, cylinder={cyl}")  # Diagnostic log
         if cyl is None:
+            print(f"DEBUG: sensor_id={sensor_id}, no cylinder")  # Diagnostic log
             return None
 
         last_ts = self._latest_result_ts_for_cyl(cyl)   # datetime | None
         hb_ts   = self._parse_heartbeat_tzaware(processed.get("heartbeatDate"))
+        print(f"DEBUG: sensor_id={sensor_id}, last_ts={last_ts}, hb_ts={hb_ts}")  # Diagnostic log
 
-        # Regla: si no hay último (None) o es IGUAL al heartbeat => NO hay novedad
-        if last_ts is None or (hb_ts is not None and last_ts == hb_ts):
+        # Regla: si no hay último (None) => HAY novedad (primera vez)
+        # Si hay último pero es IGUAL al heartbeat => NO hay novedad
+        if last_ts is not None and hb_ts is not None and last_ts == hb_ts:
+            print(f"DEBUG: sensor_id={sensor_id}, no novelty: last_ts={last_ts}, hb_ts={hb_ts}")  # Diagnostic log
             return None
 
         # Hay novedad -> retorna dict uniforme (processed_data)
+        print(f"DEBUG: sensor_id={sensor_id}, novelty detected, returning processed data")  # Diagnostic log
         return processed
