@@ -14,9 +14,11 @@ class SensorInfoStrategy:
         data: Dict[str, Any] | None = None
         if tipo_id == 2:
             data = self.repo_tp.read_info(tipo_sensor=tipo_id, sensor_id=sensor_id)
-            
+            print(f"DEBUG: sensor_id={sensor_id}, data from repo={data}")  # Diagnostic log
+
             if not data:
                 # estructura uniforme aunque no hayan warnings
+                print(f"DEBUG: No data for sensor_id={sensor_id}, returning None structure")  # Diagnostic log
                 return {
                     "sensor_id": sensor_id,
                     "tipo_id": tipo_id,
@@ -27,7 +29,9 @@ class SensorInfoStrategy:
             # si retorna info, añade el sensor.pk al dict
             data["sensor_id"] = sensor_id
             # ejecuta calculos
-            bucket = self.maths.gas_maths_strategy(info=data) 
+            bucket = self.maths.gas_maths_strategy(info=data)
+            print(f"DEBUG: sensor_id={sensor_id}, math_bucket={bucket}")  # Diagnostic log
+            print(f"DEBUG: sensor_id={sensor_id}, returning data structure with data and bucket")  # Diagnostic log
 
             return {
                 "sensor_id": sensor_id,

@@ -183,17 +183,10 @@ class SensorTPDetailRepository:
             return CaracteristicasCilindro.objects.none(), {}
 
         latest_result_subq = (
-            ResultsGasRestante.objects
-            .filter(CaracterísticasCilindro=OuterRef('pk'))
-            .order_by('-timestamp')
-            .values('id')[:1]
+            ResultsGasRestante.objects.filter(caracteristicas_cilindro=OuterRef('pk')).order_by('-timestamp').values('id')[:1]
         )
 
-        cilindros_qs = (
-            CaracteristicasCilindro.objects
-            .select_related('ComposicionGas', 'GasRestante')
-            .filter(GasRestante=gas)
-            .annotate(latest_result_id=Subquery(latest_result_subq))
+        cilindros_qs = (CaracteristicasCilindro.objects.select_related('ComposicionGas', 'GasRestante').filter(GasRestante=gas).annotate(latest_result_id=Subquery(latest_result_subq))
         )
 
         # Extraer los ids anotados sin acceder a atributos dinámicos en instancias
@@ -344,7 +337,7 @@ class SensorTPEvalConnRepository:
             # sin cilindro → no hay resultados
             return
 
-        last = (ResultsGasRestante.objects.filter(CaracterísticasCilindro=cyl, timestamp__isnull=False).order_by("-timestamp").first())
+        last = (ResultsGasRestante.objects.filter(caracteristicas_cilindro=cyl, timestamp__isnull=False).order_by("-timestamp").first())
         if last is None:
             # nunca hubo resultados → no evaluamos
             return
@@ -397,7 +390,7 @@ class GasDashboardRepository:
         # Últimos 5 regs o menos
         results_qs: QuerySet[ResultsGasRestante] = ResultsGasRestante.objects.none()
         if cyl:
-            results_qs = (ResultsGasRestante.objects.select_related("CaracterísticasCilindro").filter(CaracterísticasCilindro=cyl).order_by("-timestamp")[:5])
+            results_qs = (ResultsGasRestante.objects.select_related("caracteristicas_cilindro").filter(caracteristicas_cilindro=cyl).order_by("-timestamp")[:5])
         results_ctx: List[Dict[str, Any]] = [
             {
                 "timestamp": r.timestamp,
