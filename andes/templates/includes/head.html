@@ -13,11 +13,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-<link rel="apple-touch-icon" sizes="180x180" href="./../../static/dist/images/icons/180.png">
-<link rel="icon" type="image/png" sizes="32x32" href="./../../static/dist/images/icons/32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="./../../static/dist/images/icons/16.png">
-<link rel="icon" type="image/png" href="./../../static/dist/images/icons/andes_tec.ico">
-<link rel="mask-icon" href="./../../static/dist/images/icons/andes_tec.svg" color="#5bbad5">
+<link rel="apple-touch-icon" sizes="180x180" href="{% static "dist/images/icons/180.png" %}" alt="logo">
+<link rel="icon" type="image/png" sizes="32x32" href="{% static "dist/images/icons/32.png" %}" alt="logo">
+<link rel="icon" type="image/png" sizes="16x16" href="{% static "dist/images/icons/16.png" %}" alt="logo">
+<link rel="icon" type="image/png" href="{% static "dist/images/icons/andes_tec.ico" %}" alt="logo">
 <meta name="msapplication-TileColor" content="#ffffff">
 <meta name="theme-color" content="#ffffff">
 
@@ -28,7 +27,7 @@
 <meta name="twitter:title" content="Dashboard for gas devices">
 <meta name="twitter:description"
   content="Monitoring your gas devices - Andes Technologies.">
-<meta name="twitter:image" content="https://tinypic.host/images/2024/09/06/construction.png">
+<meta name="twitter:image" content="{% static "dist/images/illustrations/construction.png" %}">
 
 <!-- Facebook -->
 <meta property="og:url" content="https://andes-tec.com">
@@ -36,7 +35,7 @@
 <meta property="og:description"
   content="Monitoring your gas devices - Andes Technologies.">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://tinypic.host/images/2024/09/06/construction.png">
+<meta property="og:image" content="{% static "dist/images/illustrations/construction.png" %}">
 <meta property="og:image:type" content="image/png">
 
 <link rel="stylesheet" href="{% static 'dist/main.css' %}">
