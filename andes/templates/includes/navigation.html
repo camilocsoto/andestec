@@ -302,7 +302,7 @@
                     d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1">
                   </path>
                 </svg>
-                <div class="text-sm font-medium text-gray-900 dark:text-white">Logout</div>
+                <div class="text-sm font-medium text-gray-900 dark:text-white">Cerrar sesión</div>
               </a>
             </div>
           </div>
@@ -334,11 +334,10 @@
                 {% if request.user.profile.avatar %}
                   <img class="w-8 h-8 rounded-full" src="{{ request.user.profile.avatar.url }}" alt="user photo">
                 {% else %}
-                  <img class="w-8 h-8 rounded-full" src="{% static "dist/users/default-user.png" %}" alt="user photo">
+                  <img class="w-8 h-8 rounded-full" src="{% static "dist/images/users/default-user.png" %}" alt="user photo">
                 {% endif %}
               </button>
             </div>
-
             <div
               class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600"
               id="dropdown-2">

@@ -281,6 +281,7 @@ class TicketDetailView(LoginRequiredMixin, DetailView):
 
         return context
 
+
 class MessageCreateView(LoginRequiredMixin, View):
     """
     Vista que crea el mensaje con Usuario=request.user y TcketSoporte=ticket,

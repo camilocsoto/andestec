@@ -1,5 +1,6 @@
 {% extends "layouts/base.html" %}
 {% load static %}
+{% load tz%}
 <link rel="stylesheet" href="{% static 'dist/main.css' %}">
 
 {% block content %}
@@ -12,7 +13,7 @@
         class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="flex items-center justify-between mb-4">
           <div class="flex-shrink-0"> 
-            <span class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">{{dashboard.data.charts.series.porc_masa_gas_restant|last |default:"--"}} %</span>
+            <span class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">{{dashboard.data.charts.series.porc_masa_gas_restant|last |floatformat:2|default:"--"}} %</span>
             <h3 class="text-base font-light text-gray-500 dark:text-gray-400">Cantidad de kg en gas restante</h3>
           </div>
           <div 
@@ -212,7 +213,11 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {{dashboard.data.charts.series.presion_gauge_pa|last |default:"--"}} Pa
+                    {% if dashboard.data.list_info and dashboard.data.list_info.0.presion_gauge_pa is not None %}
+                      {{ dashboard.data.list_info.0.presion_gauge_pa|floatformat:2 }} Pa
+                    {% else %}
+                      --
+                    {% endif %}
                   </div>
                 </div>
               </li>
@@ -244,10 +249,11 @@
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    <!-- aquí debe ir un if para cambiar la estrategia-->
-                    {% with last_reg=dashboard.data.ultimos_5|last %}
-                      {{ last_reg.masa_restante_kg|default:"--" }} Kg
-                    {% endwith %}
+                     {% if dashboard.data.list_info and dashboard.data.list_info.0.masa_restante_kg is not None %}
+                      {{ dashboard.data.list_info.0.masa_restante_kg|floatformat:2 }} Kg
+                    {% else %}
+                      --
+                    {% endif %}
                   </div>
                 </div>
               </li>
@@ -274,16 +280,26 @@
                             d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
                           </path>
                         </svg>
-                        0% <!--⛔ this is dynamic-->
+                        0% 
                         <span class="ml-2 text-gray-500">vs último registro</span>
                       </div>  
                     </div>
                   </div>
-                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {% with last_reg=dashboard.data.ultimos_5|last %}
-                      {{ last_reg.estado_fase|default:"--" }}
-                    {% endwith %}
-                  </div>
+                    <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                      {% if dashboard.data.list_info and dashboard.data.list_info.0.estado_fase %}
+                        {% with fase=dashboard.data.list_info.0.estado_fase %}
+                          {% if fase == "choked" %}
+                            Estado crítico
+                          {% elif fase == "no_choked" %}
+                            Subcrítico
+                          {% else %}
+                            {{ fase }}
+                          {% endif %}
+                        {% endwith %}
+                      {% else %}
+                        Cilindro cerrado
+                      {% endif %}
+                    </div>
                 </div>
               </li>
               <li class="py-3 sm:py-4">
@@ -305,21 +321,18 @@
                       </p>
                       <div
                         class="flex items-center justify-end flex-1 text-sm text-green-500 dark:text-green-400">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"F
-                          xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                          <path clip-rule="evenodd" fill-rule="evenodd"
-                            d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z">
-                          </path>
-                        </svg>
-                        0% <!--⛔ this is dynamic-->
-                        <span class="ml-2 text-gray-500">vs último registro</span>
+                        <span class="ml-2 text-gray-500">último registro</span>
                       </div>  
                     </div>
                   </div>
                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {% with last_reg=dashboard.data.ultimos_5|last %}
-                      {{ last_reg.timestamp|default:"--" }} 
-                    {% endwith %}
+                    {% if dashboard.data.list_info and dashboard.data.list_info.0.timestamp %}
+                      {% with ts=dashboard.data.list_info.0.timestamp %}
+                        {{ ts|timezone:"America/Bogota"|date:"g:i a, d/m/Y" }}
+                      {% endwith %}
+                    {% else %}
+                      --
+                    {% endif %}
                   </div>
                 </div>
               </li>
