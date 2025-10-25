@@ -464,19 +464,15 @@
           </div>
         </div>
         <!-- Card Footer -->
-        <div
-          class="flex items-center justify-between pt-3 mt-5 border-t border-gray-200 sm:pt-6 dark:border-gray-700">
-          <div class="flex-shrink-0">
-            <a href="#"
-              class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
-              Full Report
-              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-              </svg>
-            </a>
-          </div>
+      <div class="flex items-center justify-between pt-3 mt-5 border-t border-gray-200 sm:pt-6 dark:border-gray-700">
+        <div class="flex-shrink-0">
+          <a href="{% url 'app:download_sens' dashboard.sensor_id %}"
+            class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-primary-700 sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700">
+            Reporte completo
+          </a>
         </div>
+      </div>
+
       </div>
     </div>
     <!--End of tabs widget -->
@@ -484,9 +480,9 @@
       <div
         class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="w-full">
-          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Still don't decided</h3>
+          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Gas extraído (%)</h3>
           <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">
-          <!-- {{objects.0.capacidad}} Kg -->
+          {{dashboard.data.list_info.0.porc_masa_gas_extracted | floatformat:2 }} %
           </span>
         </div>
         <div class="w-full" id="new-products-chart"></div>
@@ -494,56 +490,55 @@
       <div
         class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="w-full">
-          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Still don't decided</h3>
-          <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">$ <!-- {{objects.0.presion}} --> </span>
+          <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Gas extraído (kg)</h3>
+          <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">$ 
+            {{dashboard.data.list_info.0.masa_remov_kg | floatformat:2 }} Kg
+          </span>
         </div>
         <div class="w-full" id="week-signups-chart"></div>
       </div>
-      <!--last chart!!!! -->
-      <div
-        class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+      <!-- temperature chart -->
+      <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div class="w-full">
-          <h3 class="mb-2 text-base font-normal text-gray-500 dark:text-gray-400">Still don't decided</h3>
-          <div class="flex items-center mb-2">
-            <div class="w-16 text-sm font-medium dark:text-white">M1</div> <!-- {{objects.0.fecha}} -->
-            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{objects.0.temperatura}}%"></div>
+          <h3 class="mb-2 text-base font-normal text-gray-500 dark:text-gray-400">Temperatura del gas</h3>
+          {% for item in dashboard.data.temp_c %}
+            <div class="flex items-center gap-3 mb-3">
+              <!-- Etiquetas-->
+              <div class="w-16 text-sm font-semibold dark:text-white">
+                {{ item.label }}
+              </div>
+              <!-- Barra: 100°C -->
+              <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                <div
+                  class="h-2.5 rounded-full bg-primary-600 dark:bg-primary-500"
+                  style="width: {% if item.value_c is not None %}{% widthratio item.value_c 100 100 %}{% else %}0{% endif %}%;">
+                </div>
+              </div>
+              <!-- Valor en °C -->
+              <div class="w-20 text-right text-sm dark:text-white">
+                {% if item.value_c is not None %}
+                  {{ item.value_c }}&nbsp;°C
+                {% else %}
+                  --
+                {% endif %}
+              </div>
             </div>
-          </div>
-          <div class="flex items-center mb-2">
-            <div class="w-16 text-sm font-medium dark:text-white">M2</div>
-            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{objects.1.temperatura}}%"></div>
-            </div>
-          </div>
-          <div class="flex items-center mb-2">
-            <div class="w-16 text-sm font-medium dark:text-white">M3</div>
-            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{objects.2.temperatura}}%"></div>
-            </div>
-          </div>
-          <div class="flex items-center mb-2">
-            <div class="w-16 text-sm font-medium dark:text-white">All</div>
-            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div class="bg-primary-600 h-2.5 rounded-full dark:bg-primary-500" style="width: {{objects.3.temperatura}}%"></div>
-            </div>
-          </div>
+          {% endfor %}
         </div>
-        <div id="traffic-channels-chart" class="w-full"></div>
       </div>
-    </div>
+      </div>
     <!-- Aqui va la tabla-->
     <div
     class="p-4 bg-white border mt-4 border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
     <!-- Card header -->
     <div class="items-center justify-between lg:flex">
       <div class="mb-4 lg:mb-0">
-        <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Registros de {{dashboard.cilindro.nombre}}</h3>
+        <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Registros de {{dashboard.data.cilindro.nombre}}</h3>
         <span class="text-base font-normal text-gray-500 dark:text-gray-400">A continuación encontrará los últimos 5 registros del cilindro. </span>
       </div>
     </div>
 <!-- Table -->
-  <!-- Tabla de últimos 5 registros -->
+<!-- Tabla de últimos 5 registros -->
 <div class="flex flex-col mt-6">
   <div class="overflow-x-auto rounded-lg">
     <div class="inline-block min-w-full align-middle">
@@ -553,7 +548,7 @@
             <tr>
               <th scope="col"
                 class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
-                Sensor
+                Sensor | Cilindro
               </th>
               <th scope="col"
                 class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
@@ -565,7 +560,7 @@
               </th>
               <th scope="col"
                 class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
-                Presión interna (Pa)
+                Presión absoluta (Pa)
               </th>
               <th scope="col"
                 class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white">
@@ -579,7 +574,7 @@
           </thead>
 
           <tbody class="bg-white dark:bg-gray-800">
-            {% for reg in dashboard.data.ultimos_5 %}
+            {% for reg in dashboard.data.list_info %}
             <tr class="{% cycle '' 'bg-gray-50 dark:bg-gray-700' %}">
               <!-- Nombre o ID del sensor -->
               <td class="p-4 text-sm font-normal text-gray-900 whitespace-nowrap dark:text-white">
@@ -590,27 +585,33 @@
 
               <!-- Fecha y hora -->
               <td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
-                {{ reg.timestamp|date:"Y-m-d H:i:s"|default:"--" }}
+                {% if reg.timestamp %}{{ reg.timestamp|date:"Y-m-d H:i:s" }}{% else %}--{% endif %}
               </td>
 
               <!-- Temperatura -->
               <td class="p-4 text-sm font-semibold text-gray-900 whitespace-nowrap dark:text-white">
-                {{ reg.temperature_k|default:"--" }} K
+                {{ reg.temperature_k|floatformat:2 }} K
               </td>
 
               <!-- Presión interna -->
               <td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
-                {{ reg.presion_abs_pa|default:"--" }} Pa
+                {% if reg.presion_abs_pa is not None %}
+                  {{ reg.presion_abs_pa|floatformat:2 }} Pa
+                {% else %}--{% endif %}
               </td>
 
               <!-- Masa restante -->
               <td class="inline-flex items-center p-4 space-x-2 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
-                <span>{{ reg.masa_restante_kg|default:"--" }} Kg</span>
+                <span>
+                  {% if reg.masa_restante_kg is not None %}
+                    {{ reg.masa_restante_kg|floatformat:2 }} Kg
+                  {% else %}--{% endif %}
+                </span>
               </td>
 
               <!-- Porcentaje de gas restante -->
               <td class="p-4 text-sm font-semibold text-gray-900 whitespace-nowrap dark:text-white">
-                <span>{{ reg.porc_masa_gas_restant|default:"--" }} %</span>
+                <span>{{ reg.porc_masa_gas_restant|floatformat:2 }} %</span>
               </td>
             </tr>
             {% empty %}
@@ -627,6 +628,12 @@
   </div>
 </div>
 
+<!-- botón de mapa-->
+<div class="mt-4">
+  <a href="{% url 'app:localization_sens' dashboard.sensor_id %}" class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 dark:bg-blue-500 dark:hover:bg-blue-600 shadow focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-300" aria-label="Ver ubicación del sensor en el mapa">
+    Ver en el mapa
+  </a>
+</div>
 
 </div>
 <!-- Dentro de templates/dashboard/gas_index.html -->

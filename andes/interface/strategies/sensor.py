@@ -94,3 +94,7 @@ class SelectpDataStrategy:
             case _:
                 # default fallback por si llegan estrategias futuras
                 return self.repo.latest_5_reg(sensor_id=sensor_id)
+    
+    def build_export_dataset(self, *, gas_pk: int) -> Dict[str, Any]:
+        # dataset para exportar por gas_pk (GasRestante.pk)
+        return self.repo.export_dataset_by_gas(gas_pk=gas_pk)

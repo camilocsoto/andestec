@@ -4,7 +4,6 @@ from .views import *
 app_name = 'app'
 urlpatterns = [
     path('download/', ExportExcelView.as_view()),
-    path('maps/', view_map, name='view_map' ),
     #menus
     path("menu/", MainMenuView.as_view(), name="menu"),
     path('admin_menu/', MenuAdminView.as_view(), name='AdminMenu'),
@@ -46,4 +45,6 @@ urlpatterns = [
     path("sensores/monitor/<int:pk>/", SensorDetailView.as_view(), name="sensor_detail"),
     # dashboard
     path("sensores/monitor/<int:pk>/gas_dashboard", GasSensorDashboard.as_view(), name="gas_sens_dashboard"),
+    path("sensores/monitor/<int:pk>/gas_dashboard/localizacion", LocalizationView.as_view(), name="localization_sens"),
+    path("sensores/monitor/<int:pk>/gas_dashboard/download", ExportExcelView.as_view(), name="download_sens"),
 ]

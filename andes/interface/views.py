@@ -2,7 +2,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic import ListView, DeleteView, CreateView, UpdateView, DetailView, View, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from accounts.models import Empresa, Usuario, Operador
-from interface.models import TcketSoporte, Mensaje, ComposicionGas, ServerCredentials, TipoSensor, CaracteristicasCilindro, Sensor
+from interface.models import TcketSoporte, Mensaje, ComposicionGas, ServerCredentials, TipoSensor, CaracteristicasCilindro, Sensor, GasRestante
 from interface.forms.gas_comp import ComposicionGasForm
 from interface.forms.messages import MessageForm
 from interface.forms.tickets import TicketSoporteForm
@@ -18,6 +18,7 @@ from django.db.models import Case, When, Value, BooleanField
 from django.db.models.query import QuerySet
 from django.contrib import messages
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from typing import cast, Optional
 import mimetypes
 from django.shortcuts import render, get_object_or_404, redirect
@@ -44,53 +45,7 @@ ESTADO_LABELS = {
     b'\x02': "En proceso",
     b'\x01': "Cerrado",
 }
-
-class ExportExcelView(View):
-    # create a report of the database
-    def get(self, request, *args, **kwargs):
-        # create the report
-        return excel_report()
     
-def view_map(request):
-    """
-    # Llama a la función get_latest_data()
-    latest_data = get_latest_data()
-    # if it has registers
-    if latest_data['objects']:
-        first_object = latest_data['objects'][0]
-        position = first_object['position']  # There you've got the location
-        #convert it to numbers
-        lat, lng = map(float, position.split(' '))
-        # Crete the map
-        mapa = folium.Map(location=[lat, lng], zoom_start=13)
-        # Add a flag
-        folium.Marker([lat, lng], popup="Ubicación del Sensor").add_to(mapa)
-        # Generate the html
-        mapa_html = mapa._repr_html_()
-        # Renderiza la plantilla con el mapa
-        return render(request, 'dashboard/maps.html', {'mapa': mapa_html})
-    else:
-        # Manejar el caso donde no hay datos en 'objects'
-        mapa = folium.Map(location=[4.690347, -74.067436], zoom_start=13)
-        # Add a flag
-        folium.Marker([4.690347, -74.067436], popup="Andes's offices").add_to(mapa)
-        # Generate the html
-        mapa_html = mapa._repr_html_()
-        return render(request, 'dashboard/maps.html', {'mapa': mapa_html})
-    """
-    
-        # Crete the map
-    lat = 4.698446
-    lng = -74.105120
-    mapa = folium.Map(location=[lat, lng], zoom_start=13)
-    # Add a flag
-    folium.Marker([lat, lng], popup="Ubicación del Sensor").add_to(mapa)
-    # Generate the html
-    mapa_html = mapa._repr_html_()
-    # Renderiza la plantilla con el mapa
-    return render(request, 'dashboard/maps.html', {'mapa': mapa_html})
-
-
 # ========= Menu views ============
 
 class MainMenuView(LoginRequiredMixin, TemplateView):
@@ -709,3 +664,84 @@ class GasSensorDashboard(TemplateView):
         # ctx['dashboard'] dict con {sensor_id, strategy, data:{...}}
         ctx[self.context_object_name] = payload
         return ctx
+    
+class LocalizationView(TemplateView):
+    """
+    Muestra un mapa Folium con la localización de un GasRestante dado (pk).
+    dado el formato 'lat lon' en el campo localizacion.
+    """
+    template_name = "dashboard/maps.html"
+
+    def _parse_coords(self, raw: str | None):
+        if not raw:
+            return None
+        s = raw.strip()
+        # Acepta "lat lon"
+        if "," in s:
+            parts = [p.strip() for p in s.split(",")]
+        else:
+            parts = s.split()
+
+        if len(parts) != 2:
+            return None
+
+        try:
+            lat = float(parts[0])
+            lng = float(parts[1])
+        except (TypeError, ValueError):
+            return None
+
+        # Rango simple de validación
+        if not (-90.0 <= lat <= 90.0 and -180.0 <= lng <= 180.0):
+            return None
+
+        return (lat, lng)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        pk = self.kwargs.get("pk")
+        if pk is None:
+            raise Http404("Falta pk")
+
+        try:
+            gas = GasRestante.objects.select_related("Sensor_idSensor").get(pk=pk)
+        except GasRestante.DoesNotExist:
+            raise Http404("GasRestante no existe")
+
+        coords = self._parse_coords(getattr(gas, "localizacion", None))
+        center = coords
+
+        # Construir mapa
+        m = folium.Map(location=center, zoom_start=14, tiles="OpenStreetMap")
+        folium.Marker(
+            location=center,
+            popup=f"Sensor: {getattr(gas.Sensor_idSensor.pk, 'nombre', '') or gas.Sensor_idSensor.pk}",
+            tooltip="Ubicación del sensor",
+        ).add_to(m)
+
+        # HTML incrustable (iframe). Lo marcamos como safe en el template.
+        mapa_html = m._repr_html_()
+        if center is not None:
+            ctx["sensor_pk"] = gas.Sensor_idSensor.pk
+            ctx["mapa"] = mark_safe(mapa_html)
+            ctx["coords"] = {"lat": center[0], "lng": center[1]}
+            ctx["sensor_name"] = getattr(gas.Sensor_idSensor, "nombre", None)
+        return ctx
+    
+class ExportExcelView(View):
+    def get(self, request, pk: int):
+        sensor_id = int(pk)
+
+        try:
+            gas = (GasRestante.objects.select_related("Sensor_idSensor").get(Sensor_idSensor_id=sensor_id))
+            xlsx_bytes, filename = SensorService().build_export_workbook_by_gas(gas_pk=gas.pk)
+        except GasRestante.DoesNotExist:
+            # Descarga “vacía” pero válida para no romper la UX
+            xlsx_bytes, filename = SensorService().build_empty_export(sensor_id=sensor_id)
+
+        resp = HttpResponse(
+            xlsx_bytes,
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+        return resp

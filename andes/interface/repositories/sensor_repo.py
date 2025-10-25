@@ -413,6 +413,25 @@ class GasDashboardRepository:
         # order results_ctx for charts
         results_sorted = sorted(results_ctx, key=lambda x: x["timestamp"] or 0)
 
+        # ------- Temperatura en °C (simple, sin normalizar) -------
+        def _to_celsius_value(k):
+            if k is None:
+                return None
+            try:
+                return round(float(k) - 273.15, 1)
+            except (TypeError, ValueError):
+                return None
+
+        # Lista sencilla para el template: [{"label": "M1", "value_c": 18.7}, ...]
+        temp_c_list = [
+            {
+                "label": f"M{idx+1}",
+                "value_c": _to_celsius_value(v.get("temperature_k")),
+            }
+            for idx, v in enumerate(results_sorted)
+        ]
+
+
         labels = [ (v["timestamp"].isoformat() if v["timestamp"] else None) for v in results_sorted ]
         charts_payload = {
             "labels": labels,
@@ -421,6 +440,7 @@ class GasDashboardRepository:
                 "presion_gauge_pa": [ v["presion_gauge_pa"] for v in results_sorted ],
                 "presion_abs_pa":   [ v["presion_abs_pa"]   for v in results_sorted ],
                 "temperature_k":    [ v["temperature_k"]    for v in results_sorted ],
+                "temperature_c":    [_to_celsius_value(v.get("temperature_k")) for v in results_sorted],
                 "caudal_masa_kg_s": [ v["caudal_masa_kg_s"] for v in results_sorted ],
                 "masa_remov_kg":    [ v["masa_remov_kg"]    for v in results_sorted ],
                 "masa_restante_kg": [ v["masa_restante_kg"] for v in results_sorted ],
@@ -446,5 +466,59 @@ class GasDashboardRepository:
             "list_info": results_ctx,      # lista (0..5)
             "charts": charts_payload, 
             "charts_json": charts_json,    # string JSON
+            "temp_c": temp_c_list, # temp chart
         }
-        
+    
+    
+    def export_dataset_by_gas(self, *, gas_pk: int) -> Dict[str, Any]:
+        """
+        Construye un dataset exportable a partir de un GasRestante (pk).
+        Toma el 'cilindro principal' (el primero) y trae TODOS los ResultsGasRestante.
+        Retorna:
+        {
+          "sensor_name": str | None,
+          "cylinder_id": int | None,
+          "cylinder_name": str | None,
+          "rows": [ {<todas las columnas de ResultsGasRestante>}, ... ]
+        }
+        """
+        try:
+            gas = (GasRestante.objects.select_related("Sensor_idSensor").get(pk=gas_pk))
+        except GasRestante.DoesNotExist:
+            return {"sensor_name": None, "cylinder_id": None, "cylinder_name": None, "rows": []}
+
+        sensor_name = getattr(gas.Sensor_idSensor, "nombre", None)
+
+        cyl: Optional[CaracteristicasCilindro] = ( CaracteristicasCilindro.objects .filter(GasRestante=gas) .order_by("pk") .first() )
+
+        if not cyl:
+            return {"sensor_name": sensor_name, "cylinder_id": None, "cylinder_name": None, "rows": []}
+
+        # Trae TODOS los resultados ordenados por timestamp ascendente
+        results_qs: QuerySet[ResultsGasRestante] = ( ResultsGasRestante.objects .filter(caracteristicas_cilindro=cyl) .order_by("timestamp") )
+
+        rows: List[Dict[str, Any]] = []
+        for r in results_qs:
+            rows.append({
+                "timestamp": r.timestamp,
+                "presion_gauge_pa": r.presion_gauge_pa,
+                "presion_abs_pa": r.presion_abs_pa,
+                "temperature_k": r.temperature_k,
+                "estado_fase": r.estado_fase,
+                "caudal_masa_kg_s": r.caudal_masa_kg_s,
+                "masa_remov_kg": r.masa_remov_kg,
+                "masa_restante_kg": r.masa_restante_kg,
+                "moles_restantes_kg": r.moles_restantes_kg,
+                "metodo_calculo": r.metodo_calculo,
+                "masa_balanza_kg": r.masa_balanza_kg,
+                "porc_masa_gas_restant": r.porc_masa_gas_restant,
+                "porc_masa_gas_extracted": r.porc_masa_gas_extracted,
+                "valido": r.valido,
+            })
+
+        return {
+            "sensor_name": sensor_name,
+            "cylinder_id": cyl.pk,
+            "cylinder_name": getattr(cyl, "nombre", None),
+            "rows": rows,
+        }

@@ -1,13 +1,21 @@
 import ApexCharts from 'apexcharts';
 // extract the data from the array
 const dataContainer = document.getElementById('data-container-charts');
-let chartsData = JSON.parse(dataContainer.getAttribute('data-charts'));
-//main chart
-let hoursData = chartsData.hour;
-let capacitiesData = chartsData.capacitiy;
-let outputData = chartsData.output;
-// second chart
-let temperature = chartsData.temp;
+
+let chartsData = {};
+try {
+  chartsData = JSON.parse(dataContainer?.getAttribute('data-charts') || '{}');
+} catch (e) {
+  console.error('[charts] JSON inválido en data-charts:', e);
+  chartsData = { labels: [], series: {} };
+}
+
+// Normaliza accesos
+const labels = chartsData.labels || [];
+const series = chartsData.series || {};
+const serieExtracted = series.porc_masa_gas_extracted || []; // current capacity chart
+const serieRemovedKg = series.masa_remov_kg || []; // visitors chart
+
 
 const getMainChartOptions = (chartsData) => {
   let mainChartColors = {};
@@ -26,6 +34,12 @@ const getMainChartOptions = (chartsData) => {
       opacityTo: 0,
     };
   }
+
+  // ✅ Accesos seguros (por si viene vacío)
+  const labels = chartsData?.labels ?? [];
+  const series = chartsData?.series ?? {};
+  const sRestant   = series?.porc_masa_gas_restant   ?? [];
+  const sExtracted = series?.porc_masa_gas_extracted ?? [];
 
   return {
     chart: {
@@ -46,7 +60,7 @@ const getMainChartOptions = (chartsData) => {
     dataLabels: { enabled: false },
     tooltip: {
       style: { fontSize: '14px', fontFamily: 'Inter, sans-serif' },
-      y: { formatter: (v) => (v == null ? '--' : `${v}%`) },
+      y: { formatter: (v) => (v == null ? '--' : `${v}%`) }, // ambas series en %
     },
     grid: {
       show: true,
@@ -57,12 +71,12 @@ const getMainChartOptions = (chartsData) => {
     series: [
       {
         name: 'Gas restante (%)',
-        data: chartsData.series.porc_masa_gas_restant,
+        data: sRestant,
         color: '#1A56DB',
       },
       {
         name: 'Gas utilizado (%)',
-        data: chartsData.series.porc_masa_gas_extracted,
+        data: sExtracted,
         color: '#00b8ff',
       },
     ],
@@ -72,7 +86,7 @@ const getMainChartOptions = (chartsData) => {
       hover: { sizeOffset: 3 },
     },
     xaxis: {
-      categories: chartsData.labels, // timestamps ISO8601
+      categories: labels, // timestamps ISO8601
       labels: {
         rotate: -15,
         style: {
@@ -86,11 +100,7 @@ const getMainChartOptions = (chartsData) => {
       crosshairs: {
         show: true,
         position: 'back',
-        stroke: {
-          color: mainChartColors.borderColor,
-          width: 1,
-          dashArray: 10,
-        },
+        stroke: { color: mainChartColors.borderColor, width: 1, dashArray: 10 },
       },
     },
     yaxis: {
@@ -115,12 +125,7 @@ const getMainChartOptions = (chartsData) => {
       itemMargin: { horizontal: 10 },
     },
     responsive: [
-      {
-        breakpoint: 1024,
-        options: {
-          xaxis: { labels: { show: false } },
-        },
-      },
+      { breakpoint: 1024, options: { xaxis: { labels: { show: false } } } },
     ],
   };
 };
@@ -130,10 +135,18 @@ window.addEventListener('load', function () {
   const dataContainer = document.getElementById('data-container-charts');
   if (!dataContainer) return;
 
-  const chartsData = JSON.parse(dataContainer.getAttribute('data-charts') || '{}');
-  if (document.getElementById('main-chart')) {
+  let chartsData = {};
+  try {
+    chartsData = JSON.parse(dataContainer.getAttribute('data-charts') || '{}');
+  } catch (e) {
+    console.error('[main-chart] JSON inválido:', e);
+    chartsData = {};
+  }
+
+  const mainEl = document.getElementById('main-chart');
+  if (mainEl) {
     const options = getMainChartOptions(chartsData);
-    const chart = new ApexCharts(document.getElementById('main-chart'), options);
+    const chart = new ApexCharts(mainEl, options);
     chart.render();
 
     document.addEventListener('dark-mode', function () {
@@ -143,251 +156,181 @@ window.addEventListener('load', function () {
 });
 
 
-
-
-//  current capacity chart
+// chart for extracted capacity of gas
 if (document.getElementById('new-products-chart')) {
-	// data for this chart
-	let capacity_serie = hoursData.map((time, index) => {
-		return {x: time, y: capacitiesData[index]};
-	});
-	const options = {
-		colors: ['#1A56DB', '#FDBA8C'],
-		series: [
-			{
-				name: 'Quantity of gas',
-				color: '#1A56DB',
-				data: capacity_serie
-			}
-		],
-		chart: {
-			type: 'bar',
-			height: '140px',
-			fontFamily: 'Inter, sans-serif',
-			foreColor: '#4B5563',
-			toolbar: {
-				show: false
-			}
-		},
-		plotOptions: {
-			bar: {
-				columnWidth: '90%',
-				borderRadius: 3
-			}
-		},
-		tooltip: {
-			shared : false,
-			intersect: false,
-			style: {
-				fontSize: '14px',
-				fontFamily: 'Inter, sans-serif'
-			},
-		},
-		states: {
-			hover: {
-				filter: {
-					type: 'darken',
-					value: 1
-				}
-			}
-		},
-		stroke: {
-			show: true,
-			width: 5,
-			colors: ['transparent']
-		},
-		grid: {
-			show: false
-		},
-		dataLabels: {
-			enabled: false
-		},
-		legend: {
-			show: false
-		},
-		xaxis: {
-			floating: false,
-			labels: {
-				show: false
-			},
-			axisBorder: {
-				show: false
-			},
-			axisTicks: {
-				show: false
-			},
-		},
-		yaxis: {
-			labels: false
-		},
-		fill: {
-			opacity: 1
-		}
-	};
+  // Empaqueta como [{x, y}] con timestamps en X y % extraído en Y
+  const capacitySerie = labels.map((time, idx) => ({
+    x: time,
+    y: (idx < serieExtracted.length ? serieExtracted[idx] : null),
+  }));
 
-	const chart = new ApexCharts(document.getElementById('new-products-chart'), options);
-	chart.render();
+  const options = {
+    colors: ['#1A56DB'],
+    series: [
+      {
+        name: 'Gas utilizado (%)',
+        color: '#1A56DB',
+        data: capacitySerie,
+      }
+    ],
+    chart: {
+      type: 'bar',
+      height: '140px',
+      fontFamily: 'Inter, sans-serif',
+      foreColor: '#4B5563',
+      toolbar: { show: false },
+    },
+    plotOptions: {
+      bar: {
+        columnWidth: '90%',
+        borderRadius: 3,
+      }
+    },
+    tooltip: {
+      shared: false,
+      intersect: false,
+      style: { fontSize: '14px', fontFamily: 'Inter, sans-serif' },
+      y: { formatter: (v) => (v == null ? '--' : `${v}%`) },
+    },
+    states: {
+      hover: { filter: { type: 'darken', value: 1 } }
+    },
+    stroke: { show: true, width: 5, colors: ['transparent'] },
+    grid: { show: false },
+    dataLabels: { enabled: false },
+    legend: { show: false },
+    xaxis: {
+      type: 'category',
+      categories: labels,
+      floating: false,
+      labels: { show: false },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+    },
+    yaxis: { labels: false },
+    fill: { opacity: 1 },
+  };
+
+  const chart = new ApexCharts(document.getElementById('new-products-chart'), options);
+  chart.render();
+
+  // Dark mode re-render
+  document.addEventListener('dark-mode', function () {
+    chart.updateOptions(options);
+  });
 }
 
-// current output of gas 🔥
+// chart to show kg of gas removed
 const getVisitorsChartOptions = () => {
-	let visitorsChartColors = {}
+  let visitorsChartColors = {};
+  if (document.documentElement.classList.contains('dark')) {
+    visitorsChartColors = { fillGradientShade: 'dark', fillGradientShadeIntensity: 0.45 };
+  } else {
+    visitorsChartColors = { fillGradientShade: 'light', fillGradientShadeIntensity: 1 };
+  }
 
-	if (document.documentElement.classList.contains('dark')) {
-		visitorsChartColors = {
-			fillGradientShade: 'dark',
-			fillGradientShadeIntensity: 0.45,
-		};
-	} else {
-		visitorsChartColors = {
-			fillGradientShade: 'light',
-			fillGradientShadeIntensity: 1,
-		}
-	}
+  return {
+    series: [{
+      name: 'Gas removido (kg)',
+      data: serieRemovedKg,
+    }],
+    labels: labels,
+    chart: {
+      type: 'area',
+      height: '305px',
+      fontFamily: 'Inter, sans-serif',
+      sparkline: { enabled: true },
+      toolbar: { show: false },
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shade: visitorsChartColors.fillGradientShade,
+        shadeIntensity: visitorsChartColors.fillGradientShadeIntensity,
+      },
+    },
+    plotOptions: { area: { fillTo: 'end' } },
+    theme: { monochrome: { enabled: true, color: '#1A56DB' } },
+    tooltip: {
+      style: { fontSize: '14px', fontFamily: 'Inter, sans-serif' },
+      y: { formatter: (v) => (v == null ? '--' : `${v}`) },
+    },
+  };
+};
 
-	return {
-		series: [{
-			name: 'Pressure',
-			data: outputData
-		}],
-		labels: hoursData,
-		chart: {
-			type: 'area',
-			height: '305px',
-			fontFamily: 'Inter, sans-serif',
-			sparkline: {
-				enabled: true
-			},
-			toolbar: {
-				show: false
-			}
-		},
-		fill: {
-			type: 'gradient',
-			gradient: {
-				shade: visitorsChartColors.fillGradientShade,
-				shadeIntensity: visitorsChartColors.fillGradientShadeIntensity
-			},
-		},
-		plotOptions: {
-			area: {
-				fillTo: 'end'
-			}
-		},
-		theme: {
-			monochrome: {
-				enabled: true,
-				color: '#1A56DB',
-			}
-		},
-		tooltip: {
-			style: {
-				fontSize: '14px',
-				fontFamily: 'Inter, sans-serif'
-			},
-		},
-	}
-}
-
+// WEEK SIGNUPS CHART (barras)
 const getSignupsChartOptions = () => {
-	let signupsChartColors = {}
+  let signupsChartColors = {};
+  if (document.documentElement.classList.contains('dark')) {
+    signupsChartColors = { backgroundBarColors: ['#374151','#374151','#374151','#374151','#374151','#374151','#374151'] };
+  } else {
+    signupsChartColors = { backgroundBarColors: ['#E5E7EB','#E5E7EB','#E5E7EB','#E5E7EB','#E5E7EB','#E5E7EB','#E5E7EB'] };
+  }
 
-	if (document.documentElement.classList.contains('dark')) {
-		signupsChartColors = {
-			backgroundBarColors: ['#374151', '#374151', '#374151', '#374151', '#374151', '#374151', '#374151']
-		};
-	} else {
-		signupsChartColors = {
-			backgroundBarColors: ['#E5E7EB', '#E5E7EB', '#E5E7EB', '#E5E7EB', '#E5E7EB', '#E5E7EB', '#E5E7EB']
-		};
-	}
+  return {
+    series: [{
+      name: 'Internal pressure of gas',
+      data: serieRemovedKg,
+    }],
+    labels: labels,
+    chart: {
+      type: 'bar',
+      height: '140px',
+      foreColor: '#4B5563',
+      fontFamily: 'Inter, sans-serif',
+      toolbar: { show: false },
+    },
+    theme: { monochrome: { enabled: true, color: '#1A56DB' } },
+    plotOptions: {
+      bar: {
+        columnWidth: '25%',
+        borderRadius: 3,
+        colors: {
+          backgroundBarColors: signupsChartColors.backgroundBarColors,
+          backgroundBarRadius: 3,
+        },
+      },
+      dataLabels: { hideOverflowingLabels: false },
+    },
+    xaxis: {
+      floating: false,
+      labels: { show: false },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+    },
+    tooltip: {
+      shared: true,
+      intersect: false,
+      style: { fontSize: '14px', fontFamily: 'Inter, sans-serif' },
+    },
+    states: { hover: { filter: { type: 'darken', value: 0.8 } } },
+    fill: { opacity: 1 },
+    yaxis: { show: false },
+    grid: { show: false },
+    dataLabels: { enabled: false },
+    legend: { show: false },
+  };
+};
 
-	return {
-		series: [{
-			name: 'Internal pressure of gas',
-			data: outputData
-		}],
-		labels: hoursData,
-		chart: {
-			type: 'bar',
-			height: '140px',
-			foreColor: '#4B5563',
-			fontFamily: 'Inter, sans-serif',
-			toolbar: {
-				show: false
-			}
-		},
-		theme: {
-			monochrome: {
-				enabled: true,
-				color: '#1A56DB'
-			}
-		},
-		plotOptions: {
-			bar: {
-				columnWidth: '25%',
-				borderRadius: 3,
-				colors: {
-					backgroundBarColors: signupsChartColors.backgroundBarColors,
-					backgroundBarRadius: 3
-				},
-			},
-			dataLabels: {
-				hideOverflowingLabels: false
-			}
-		},
-		xaxis: {
-			floating: false,
-			labels: {
-				show: false
-			},
-			axisBorder: {
-				show: false
-			},
-			axisTicks: {
-				show: false
-			},
-		},
-		tooltip: {
-			shared: true,
-			intersect: false,
-			style: {
-				fontSize: '14px',
-				fontFamily: 'Inter, sans-serif'
-			}
-		},
-		states: {
-			hover: {
-				filter: {
-					type: 'darken',
-					value: 0.8
-				}
-			}
-		},
-		fill: {
-			opacity: 1
-		},
-		yaxis: {
-			show: false
-		},
-		grid: {
-			show: false
-		},
-		dataLabels: {
-			enabled: false
-		},
-		legend: {
-			show: false
-		},
-	};
-}
+// Montaje de los charts dependientes del DOM
+window.addEventListener('load', function () {
+  // Visitors chart
+  const visitorsEl = document.getElementById('visitors-chart');
+  if (visitorsEl) {
+    const chart = new ApexCharts(visitorsEl, getVisitorsChartOptions());
+    chart.render();
+    document.addEventListener('dark-mode', function () {
+      chart.updateOptions(getVisitorsChartOptions());
+    });
+  }
 
-if (document.getElementById('week-signups-chart')) {
-	const chart = new ApexCharts(document.getElementById('week-signups-chart'), getSignupsChartOptions());
-	chart.render();
-
-	// init again when toggling dark mode
-	document.addEventListener('dark-mode', function () {
-		chart.updateOptions(getSignupsChartOptions());
-	});
-}
+  // Week signups chart
+  const signupsEl = document.getElementById('week-signups-chart');
+  if (signupsEl) {
+    const chart = new ApexCharts(signupsEl, getSignupsChartOptions());
+    chart.render();
+    document.addEventListener('dark-mode', function () {
+      chart.updateOptions(getSignupsChartOptions());
+    });
+  }
+});
