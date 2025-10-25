@@ -2,45 +2,54 @@
 {% load static %}
 
 {% block content %}
-
 <main>
   <div class="px-4 pt-6">
-    <!-- Contenedor del mapa -->
-    <div class="flex justify-center items-center">
-        <!-- Ajuste del mapa con máximo ancho y alto -->
-        <div class="w-full sm:w-[75vw] h-[75vh] max-w-[1160px] max-h-[696px] mx-auto">
-            {{ mapa | safe }}
+    <div class="mx-auto w-full max-w-7xl">
+
+      <div class="mb-4 grid grid-cols-3 items-center">
+        <div class="justify-self-start">
+          <a
+            {% if sensor_pk %}
+              href="{% url 'app:gas_sens_dashboard' sensor_pk %}"
+            {% else %}
+              href="#"
+              onclick="history.back(); return false;"
+            {% endif %}
+            class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 shadow focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-300" aria-label="Volver al dashboard">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Volver
+          </a>
         </div>
+
+        <h1 class="justify-self-center text-lg font-semibold text-gray-900 dark:text-white">
+          Localización del sensor
+        </h1>
+
+        <div class="justify-self-end"><!-- placeholder para mantener el título centrado --></div>
+      </div>
+
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 text-center sm:text-left">
+        {{ sensor_name|default:"(sin nombre)" }} · Lat: {{ coords.lat }} · Lng: {{ coords.lng }}
+      </p>
+
+      <!-- Contenedor responsive del mapa -->
+      <div class="relative w-full h-[60vh] sm:h-[70vh] lg:h-[75vh]">
+        <style>
+          /* Forzar iframe de Folium a llenar el contenedor */
+          #map-container iframe {
+            width: 100% !important;
+            height: 100% !important;
+            border: 0;
+          }
+        </style>
+        <div id="map-container" class="w-full h-full rounded-lg overflow-hidden shadow">
+          {{ mapa|safe }}
+        </div>
+      </div>
     </div>
   </div>
 </main>
-
-{% endblock content %}
-{% block extra_js %}
-<script type="text/javascript">
-  document.addEventListener('DOMContentLoaded', function () {
-    // Bugg desactivado: el logo no aparecía
-    function toggleLogo() {
-      const logoLight = document.getElementById('logo-light');
-      const logoDark = document.getElementById('logo-dark');
-      if (document.documentElement.classList.contains('dark')) {
-        logoDark.style.display = 'block';  // Muestra el logo oscuro
-        logoLight.style.display = 'none';  // Oculta el logo claro
-      } else {
-        logoLight.style.display = 'block'; // Muestra el logo claro
-        logoDark.style.display = 'none';   // Oculta el logo oscuro
-      }
-    }
-  
-    // Llama a la función al cargar la página
-    toggleLogo();
-  
-    // Observa cambios en el modo claro/oscuro
-    const observer = new MutationObserver(toggleLogo);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class']
-    });
-  });
-</script>
 {% endblock %}
