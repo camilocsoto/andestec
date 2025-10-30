@@ -25,7 +25,7 @@ class AlarmAdapters:
             logger.warning("No se proporcionó email de destino")
             return
         try:
-            template = get_template("emails/alert_template.html")
+            template = get_template("emails/email_template.html")
             html_content = template.render(context)
             logger.debug("Template renderizado correctamente")
 
