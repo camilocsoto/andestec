@@ -6,13 +6,10 @@ from django.utils import timezone
 from django.db.models import Q
 from interface.models import Sensor, GasRestante, CaracteristicasCilindro
 from interface.strategies.alerts_strategy import AlertsStrategy
-
 logger = logging.getLogger(__name__)
-
 
 LOW_GAS_THRESHOLD_KG = 1.3
 LOW_BATTERY_THRESHOLD = 30.0  # "30" -> 30.0
-
 
 class AlarmService:
     """
@@ -21,18 +18,15 @@ class AlarmService:
 
     @staticmethod
     def _get_company_email(sensor: Sensor) -> Optional[str]:
-        logger.debug(f"Obteniendo email para sensor {sensor.pk}")
-        if sensor is not None:
-            logger.warning(f"Sensor {sensor.pk} es None")
-            return None
-        sensor=cast(Sensor,sensor)
+        email = None
         try:
-            email = sensor.empresa.usuario.email
-            logger.debug(f"Email obtenido: {email}")
-            return email  # usuario is not attribute of none.
+            # con select_related('empresa__usuario') debería venir ya en cache
+            if getattr(sensor, "empresa", None) and getattr(sensor.empresa, "usuario", None):
+                email = sensor.empresa.usuario.email
         except Exception as e:
-            logger.error(f"Error obteniendo email para sensor {sensor.pk}: {e}", exc_info=True)
-            return None
+            logger.error("No fue posible resolver email para sensor %s: %s", sensor.pk, e, exc_info=True)
+        logger.info("Email resuelto para sensor %s: %s", sensor.pk, email or "None")
+        return email
 
     @staticmethod
     def _get_gas(sensor: Sensor) -> Optional[GasRestante]:

@@ -1,4 +1,6 @@
 <!-- templates/emails/alert_template.html -->
+ {% load static %} 
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -25,7 +27,7 @@
     <p style="font-size: 13px;opacity:.9;">Fecha/hora: {{ fecha }}</p>
     <a href="https://andes-tec.com" class="btn">IR A REVISAR</a>
     <div style="margin-top: 30px;">
-      <img src="https://tinypic.host/images/2024/09/06/construction.png"
+      <img src="{% static 'dist/images/illustrations/construction.png'%}"
            alt="Andes Alerts" class="responsive-img" />
     </div>
   </div>
