@@ -3,3 +3,4 @@ This package includes all the adapters such as API's and different connections t
 """
 from .auth_TPserver import ToprieAuthAdapter
 from .toprie_info import ToprieInfoAdapter
+from .alarm_adapter import AlarmAdapters

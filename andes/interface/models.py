@@ -139,19 +139,7 @@ class Alarma(models.Model):
 
     def __str__(self):
         return f"Alarma {self.nombreAlarma} - {self.estado}"
-    
 
-class Notificacion(models.Model):
-    nombre_notificacion = models.CharField(max_length=45, null=True, blank=True, verbose_name="nombre de notificacion")
-    estado = models.BooleanField(null=True, blank=True, verbose_name="estado")
-    descripcion = models.TextField(null=True, blank=True, verbose_name="descripción")
-    alarma = models.ForeignKey(Alarma, on_delete=models.CASCADE, null=True, blank=True, verbose_name="alarma")
-
-    class Meta:
-        db_table = 'notificacion'
-
-    def __str__(self):
-        return f'{self.nombre_notificacion}'
 
 class TipoPeticion(models.Model):
     nombre = models.CharField(max_length=45, null=True, blank=True, verbose_name="nombre")
