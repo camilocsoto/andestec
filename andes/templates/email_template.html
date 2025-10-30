@@ -1,119 +1,63 @@
+<!-- templates/emails/alert_template.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Correo Electrónico - Andes Technologies</title>
-    <style>
-        
-        /* Estilos para la responsividad de las imágenes */
-        .responsive-img {
-            width: 578px;
-            max-width: 100%;
-            height: auto;
-        }
-        /* Estilos para la sección blanca y su contenedor */
-        .white-section {
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            flex-wrap: nowrap; /* No permite que los divs se alineen verticalmente */
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .white-section div {
-            flex: 1;
-            min-width: 0; /* Permite que los divs se reduzcan */
-            padding: 10px;
-            box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
-        }
-
-        /* Ajuste de interlineado en los párrafos y espacio inferior en los h3 */
-        h3 {
-            margin-bottom: 5px;
-        }
-
-        p {
-            line-height: 1.5;
-            margin-top: 5px;
-        }
-        /* Estilos para los íconos de contacto */
-        .contact-icons {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .contact-icons a {
-            display: inline-block;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Alerta – Andes Technologies</title>
+  <style>
+    .responsive-img { width: 578px; max-width: 100%; height: auto; }
+    .white-section { max-width: 800px; margin: 0 auto; display: flex; flex-wrap: nowrap; justify-content: space-between; gap: 10px; }
+    .white-section div { flex: 1; min-width: 0; padding: 10px; box-sizing: border-box; }
+    h3 { margin-bottom: 5px; }
+    p { line-height: 1.5; margin-top: 5px; }
+    .contact-icons { display: flex; gap: 8px; margin-top: 10px; }
+    .btn { background-color: #fff; color: #355fd3; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; margin-top: 20px; }
+  </style>
 </head>
-
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif;">
-
-    <!-- Sección Azul -->
-    <div style="background-color: #355fd3; height: 100vh; color: white; text-align: center; padding: 20px;">
-        <!-- Logo de la empresa -->
-        <img src="https://tinypic.host/images/2024/09/05/andes.png" alt="Logo Andes Technologies"
-            class="responsive-img" style="margin-top: 20px;" /> <br><br><br><br><br><br><br>
-
-        <!-- Título principal -->
-        <h1 style="font-size: 28px; margin-top: 20px;">¡Alerta en el cilindro {{sensor_name}}!</h1><br>
-
-        <!-- Texto descriptivo -->
-        <p style="font-size: 16px; line-height: 1.5; max-width: 600px; margin: 20px auto;">
-            Hola {{user}}, recientemente hemos detectado una anomalía en la información que recibimos del
-            cilindro {{sensor_name}} del grupo (zona 2) que tienes ubicado en (coordenadas).
-        </p>
-
-        <!-- Botón -->
-        <a href="https://andes-tec.com"
-            style="background-color: #fff; color: #355fd3; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; margin-top: 20px;">IR
-            A REVISAR</a>
-        <br>
-        <!-- Imagen principal -->
-        <img src="https://tinypic.host/images/2024/09/06/construction.png" alt="Ilustración" class="responsive-img"
-            style="margin-top: 40px;" />
+<body style="margin:0;padding:0;font-family:Arial,sans-serif;">
+  <!-- Sección Azul -->
+  <div style="background-color:#355fd3;min-height:400px;color:white;text-align:center;padding:20px;">
+    <h1 style="font-size: 26px; margin-top: 10px;">¡Alerta en el cilindro {{ sensor_name }}!</h1>
+    <p style="font-size: 16px; line-height: 1.5; max-width: 640px; margin: 20px auto;">
+      {{ descripcion }}
+    </p>
+    <p style="font-size: 13px;opacity:.9;">Fecha/hora: {{ fecha }}</p>
+    <a href="https://andes-tec.com" class="btn">IR A REVISAR</a>
+    <div style="margin-top: 30px;">
+      <img src="https://tinypic.host/images/2024/09/06/construction.png"
+           alt="Andes Alerts" class="responsive-img" />
     </div>
+  </div>
 
-    <!-- Sección Blanca -->
-    <div style="background-color: #ffffff; padding: 20px;">
-        <div class="white-section">
-            <!-- Primer Div de Texto -->
-            <div>
-                <h3>Acerca de nosotros</h3>
-                <p>Haciendo la diferencia y agregando valor a su negocio.</p>
-            </div>
-
-            <!-- Segundo Div de Texto -->
-            <div>
-                <h3>Soporte</h3>
-                <p>Eléctrico - Electrónico<br> Redes y telecomunicaciones<br> Operación IT<br> Operación OT</p>
-            </div>
-
-            <!-- Tercer Div de Texto -->
-            <div>
-                <h3>Contáctenos</h3>
-                <p>ingenieria@andes-tec.com<br> 316 2982169</p>
-                <!-- Íconos de contacto -->
-                <div class="contact-icons">
-                    <a href="#" target="_blank">
-                        <img src="https://img.icons8.com/?size=100&id=8808&format=png&color=000000" alt="LinkedIn" title="LinkedIn" width="32" height="auto" style="display: block; height: auto; border: 0;">
-                    </a>
-                    <a href="#" target="_blank">
-                        <img src="https://img.icons8.com/?size=100&id=62856&format=png&color=000000" alt="GitHub" title="GitHub" width="32" height="auto" style="display: block; height: auto; border: 0;">
-                    </a>
-                    <a href="https://andes-tec.com/" target="_blank">
-                        <img src="https://img.icons8.com/?size=100&id=112575&format=png&color=000000" alt="Landing Page" title="Landing Page" width="32" height="auto" style="display: block; height: auto; border: 0;">
-                    </a>
-                </div>
-            </div>
+  <!-- Sección Blanca -->
+  <div style="background-color:#ffffff;padding:20px;">
+    <div class="white-section">
+      <div>
+        <h3>Acerca de nosotros</h3>
+        <p>Haciendo la diferencia y agregando valor a su negocio.</p>
+      </div>
+      <div>
+        <h3>Soporte</h3>
+        <p>Eléctrico - Electrónico<br/>Redes y telecomunicaciones<br/>Operación IT<br/>Operación OT</p>
+      </div>
+      <div>
+        <h3>Contáctenos</h3>
+        <p>ingenieria@andes-tec.com<br/>316 2982169</p>
+        <div class="contact-icons">
+          <a href="#" target="_blank">
+            <img src="https://img.icons8.com/?size=100&id=8808&format=png&color=000000" alt="LinkedIn" width="32"/>
+          </a>
+          <a href="#" target="_blank">
+            <img src="https://img.icons8.com/?size=100&id=62856&format=png&color=000000" alt="GitHub" width="32"/>
+          </a>
+          <a href="https://andes-tec.com/" target="_blank">
+            <img src="https://img.icons8.com/?size=100&id=112575&format=png&color=000000" alt="Landing Page" width="32"/>
+          </a>
         </div>
-        <p style="text-align: center; color: #999; margin-top: 20px;">© 2024 - Diseñado por Andes Technologies S.A.S</p>
+      </div>
     </div>
+    <p style="text-align:center;color:#999;margin-top:20px;">© 2024 - Diseñado por Andes Technologies S.A.S</p>
+  </div>
 </body>
-
 </html>

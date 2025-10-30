@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 import os
 from celery import Celery
+from datetime import timedelta
 from celery.schedules import crontab
 
 # Configura el módulo de configuración predeterminado para Celery
@@ -25,5 +26,9 @@ app.conf.beat_schedule = {
     "connect_sensor_each_1_min": {
         "task": "interface.tasks.conn_sen.connect_sensor",
         "schedule": crontab(minute="*/1")
+    },
+    "scan_alerts_every_24h": {
+        "task": "interface.tasks.alerts.scan_sensors_and_raise_alerts",
+        "schedule": crontab(minute="*/3"),  # cada 3 minutos para pruebas
     },
 }
