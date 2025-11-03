@@ -1,74 +1,19 @@
-# Dashboard de Monitoreo de Sensores - Andes Technologies
+#### ¿cómo correr el proyecto en mi computadora?  
 
-## Descripción del Proyecto
+Hay una guía paso a paso para ejecutar el proyecto en producción utilizando Docker **(pag 1-7)**, y otra para para ejecutarlo en un servidor local **(pag 7-10)**.  
 
-Este proyecto es un sistema de monitoreo de sensores desarrollado para **Andes Technologies**. Se compone de una arquitectura basada en Django para el backend, Celery + Redis para tareas periódicas, y un dashboard interactivo construido con TailwindCSS, Flowbite y ApexCharts.
+[manual to exec .pdf](https://uniminuto0-my.sharepoint.com/:b:/g/personal/juan_suarez-so_uniminuto_edu_co/EZ1Uoj-pertMoOMVvkrDO9YB-B7wSpkq6uEgX3F1lkS3Cw?e=Lhh86b)  
 
-El sistema consume datos de sensores remotos que miden parámetros como:
-- Temperatura
-- Presión
-- Batería
-- Señal
-- Capacidad del cilindro
-- Hora del registro
+#### ¿cómo ejecutar el proyecto?  
 
-Los datos son almacenados en una base de datos PostgreSQL, con un esquema personalizado `public`, y tres tablas principales: `andes_users`, `andes_sensors`, `andes_variables`.
+Debe crear un super usuario para entrar al módulo del administrador con el comando: `py manage.py createsuperuser` para acceder al módulo del administrador.  
 
-## Tecnologías Utilizadas
+![superuser](./cloudhive/templates/static/images/create_super_user.png)
 
-- **Django**: Framework web en Python
-- **PostgreSQL**: Base de datos relacional
-- **Celery**: Sistema de tareas asíncronas
-- **Redis**: Broker para Celery
-- **Docker y Docker Compose**: Contenedores y orquestación
-- **TailwindCSS + Flowbite**: UI moderna y responsiva
-- **ApexCharts**: Visualización de datos en tiempo real
+#### otros:  
 
-## Funcionalidades Clave
+debe ejecutar el comando: `docker-compose exec django-web python manage.py migrate` para activar todos los servicios de django.
 
-- Consumo automático de datos cada minuto usando Celery y Beat.
-- Renderizado dinámico del dashboard con los últimos registros.
-- Visualización de estadísticas clave y alertas.
-- Interfaz responsive accesible desde dispositivos móviles.
-- Exportación de reportes en PDF.
+![alt func](https://developer.mozilla.org/es/docs/Learn_web_development/Extensions/Server-side/Django/Home_page/basic-django.png)
 
-## Estructura de la Base de Datos
-
-### `andes_users`
-- `id`: ID del usuario
-- `us_name`: Nombre
-- `us_contact`: Teléfono
-- `us_mail`: Correo electrónico
-- `us_hash_pass`: Contraseña hasheada
-- `us_status`: Estado (bytea)
-
-### `andes_sensors`
-- `sen_id`: ID del sensor
-- `sen_name`: Nombre del sensor
-- `sen_direction`: Dirección física
-- `max_output_force`: Fuerza máxima
-- `max_masa`: Masa máxima
-- `sen_serialno`: Serial del sensor
-- `sen_imei`: IMEI del sensor
-- `user_us_id_id`: FK al usuario
-
-### `andes_variables`
-- `id`: ID del registro
-- `var_temperature`: Temperatura registrada
-- `var_radiofrecuency`: Frecuencia de señal
-- `var_presure`: Presión
-- `var_time`: Fecha y hora del registro
-- `var_output_capacity`: Capacidad salida
-- `var_current_capacity`: Capacidad actual
-- `var_litres`: Volumen en litros
-- `var_battery`: Nivel de batería
-- `localizacion`: Coordenadas GPS
-- `sensors_sen_id_id`: FK al sensor
-
-## Documentación  
-Pronto
-
-## Última Actualización
-
-2025-07-07 23:53:51
 
