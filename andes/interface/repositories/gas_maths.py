@@ -1,10 +1,13 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Tuple, cast
+import logging
 from django.db import transaction
 from django.utils import timezone
 
 from interface.models import Sensor, GasRestante, ComposicionGas, CaracteristicasCilindro, ResultsGasRestante
+
+logger = logging.getLogger(__name__)
 
 
 # ---------- constants units ----------
@@ -57,37 +60,12 @@ def pct_used_from_rest(pct_rest: Optional[float]) -> Optional[float]:
     # 100 - restante, limitado a [0,100]
     return clamp01pct(100.0 - pct_rest)
 
-@dataclass
-class StaticParams:
-    # De CaracteristicasCilindro
-    volumen_m3: Optional[float]
-    masa_tara_kg: Optional[float]
-    masa_lleno_kg: Optional[float]
-    masa_gas_restante_kg: Optional[float]  # campo “estado” si lo usas como memoria
-    cd: Optional[float]
-    diam_m: Optional[float]
-    area_m2: Optional[float]
-    notas: Optional[str]
-
-    # De ComposicionGas
-    M_kg_mol: float           # masa molar mezcla
-    gamma: float              # cp/cv estimado (usaremos y_entropia si viene)
-    z_factor: Optional[float]
-    densidad_ref: Optional[float]
-
-    # Ambient/reference
-    p_atm_pa: float           # si no hay, usar 101325 por defecto
-
-    # Foreign keys prácticos
-    cilindro: CaracteristicasCilindro
-    comp: Optional[ComposicionGas]
-    gas_restante_row: Optional[GasRestante]
 
 class GasMaths:
     """Cálculos físicos y persistencia para GasRestante/ResultsGasRestante."""
 
     # ---------- Carga de parámetros estáticos ----------
-    def _load_static(self, sensor_id: int) -> StaticParams:
+    def _load_static(self, sensor_id: int) -> Dict[str, Any]:
         # # traer GasRestante (1:1 con Sensor)  y trae el último dato
         try:
             gr = GasRestante.objects.select_related("Sensor_idSensor").get(Sensor_idSensor_id=sensor_id)
@@ -100,9 +78,9 @@ class GasMaths:
             raise ValueError(f"No existe CaracteristicasCilindro asociado al GasRestante del sensor_id={sensor_id}")
         cil = cil_qs.first()
         cil = cast(CaracteristicasCilindro, cil)
-        
+
         comp = getattr(cil, 'ComposicionGas', None)
-        comp = cast(Optional[ComposicionGas], comp) 
+        comp = cast(Optional[ComposicionGas], comp)
 
         # Masa molar de la mezcla
         M_kg_mol = comp.masa_molar if comp and comp.masa_molar else 0.04901  # fallback 49.01 g/mol
@@ -120,32 +98,32 @@ class GasMaths:
         area = cil.diametro_orificio_m
         area = area_from_diam(area) if area else getattr(cil, "area_orificio_m2", None)
 
-        return StaticParams(
-            volumen_m3=cil.volumen_interno_m3,
-            masa_tara_kg=cil.masa_cil_vacio_kg,
-            masa_lleno_kg=cil.masa_cil_lleno_kg,
-            masa_gas_restante_kg=cil.masa_gas_restant_kg,  # si lo usas como “estado”
-            cd=cil.coef_descarga_cd,
-            diam_m=cil.diametro_orificio_m,
-            area_m2=area,
-            notas=cil.notas,
+        return {
+            "volumen_m3": cil.volumen_interno_m3,
+            "masa_tara_kg": cil.masa_cil_vacio_kg,
+            "masa_lleno_kg": cil.masa_cil_lleno_kg,
+            "masa_gas_restante_kg": cil.masa_gas_restant_kg,  # si lo usas como "estado"
+            "cd": cil.coef_descarga_cd,
+            "diam_m": cil.diametro_orificio_m,
+            "area_m2": area,
+            "notas": cil.notas,
 
-            M_kg_mol=M_kg_mol,
-            gamma=gamma,
-            z_factor=z_factor,
-            densidad_ref=dens_ref,
+            "M_kg_mol": M_kg_mol,
+            "gamma": gamma,
+            "z_factor": z_factor,
+            "densidad_ref": dens_ref,
 
-            p_atm_pa=p_atm,
+            "p_atm_pa": p_atm,
 
-            cilindro=cil,
-            comp=comp,
-            gas_restante_row=gr,
-        )
+            "cilindro": cil,
+            "comp": comp,
+            "gas_restante_row": gr,
+        }
         
     # ---------- helpers de últimos resultados ----------
     def _get_cylinder_for_sensor(self, sensor_id: int) -> CaracteristicasCilindro:
-        sp = self._load_static(sensor_id=sensor_id)  # ya valida y retorna StaticParams
-        return sp.cilindro
+        sp = self._load_static(sensor_id=sensor_id)  # ya valida y retorna dict
+        return sp["cilindro"]
 
     def _last_result(self, cil: CaracteristicasCilindro) -> Optional[ResultsGasRestante]:
         return (ResultsGasRestante.objects.filter(caracteristicas_cilindro=cil).order_by("-timestamp").first())
@@ -163,7 +141,7 @@ class GasMaths:
         P_gauge_psi = safe_float(info.get("pressure"))
         T0_K = safe_float(info.get("temperature"))
         T0_K_raw = safe_float(info.get("temperature"))
-        T0_K = norm_temperature_to_K(T0_K_raw) 
+        T0_K = norm_temperature_to_K(T0_K_raw)
 
         # Si presión < 5 psi => rama "low pressure"
         if P_gauge_psi is None or P_gauge_psi < 5.0:
@@ -171,19 +149,25 @@ class GasMaths:
                 "skip_calc": True,
                 "reason": "low_pressure_or_none",
                 "sensor_id": sensor_id,
-                "p2_pa": sp.p_atm_pa,
+                "p2_pa": sp["p_atm_pa"],
                 "P_gauge_psi": P_gauge_psi,
-                "p0_abs_pa": (P_gauge_psi or 0.0) * PSI_TO_PA + sp.p_atm_pa,
+                "p0_abs_pa": (P_gauge_psi or 0.0) * PSI_TO_PA + sp["p_atm_pa"],
                 "T0_K": T0_K,
-                "cilindro": sp.cilindro,
-                "M_kg_mol": sp.M_kg_mol,
+                "cilindro": sp["cilindro"],
+                "M_kg_mol": sp["M_kg_mol"],
             }
 
         # Caso normal >= 5 psi
-        p0_abs_pa = P_gauge_psi * PSI_TO_PA + sp.p_atm_pa
-        p2_pa = sp.p_atm_pa
+        result = self._is_choked_calc(sp=sp, sensor_id=sensor_id, P_gauge_psi=P_gauge_psi, T0_K=T0_K)
+        logger.info("detección de choked para sensor_id %s: is_choked=%s", sensor_id, result["is_choked"])
+        return result
 
-        gamma = sp.gamma
+    @staticmethod
+    def _is_choked_calc(*, sp: Dict[str, Any], sensor_id: int, P_gauge_psi: float, T0_K: float) -> Dict[str, Any]:
+        p0_abs_pa = P_gauge_psi * PSI_TO_PA + sp["p_atm_pa"]
+        p2_pa = sp["p_atm_pa"]
+
+        gamma = sp["gamma"]
         ratio_crit = (2.0 / (gamma + 1.0)) ** (gamma / (gamma - 1.0))
         ratio_real = p2_pa / p0_abs_pa
         is_choked = ratio_real < ratio_crit
@@ -198,17 +182,17 @@ class GasMaths:
             "ratio_real": ratio_real,
             "ratio_crit": ratio_crit,
             "gamma": gamma,
-            "M_kg_mol": sp.M_kg_mol,
-            "R_spec": R_UNIV / sp.M_kg_mol,
-            "cd": sp.cd if sp.cd is not None else 0.62,
-            "area_m2": sp.area_m2 if sp.area_m2 is not None else (area_from_diam(sp.diam_m) if sp.diam_m else None),
-            "volumen_m3": sp.volumen_m3,
-            "cilindro": sp.cilindro,
-            "p_atm_pa": sp.p_atm_pa,
-            "masa_lleno_kg": sp.masa_lleno_kg,
-            "masa_tara_kg": sp.masa_tara_kg,
-            "masa_gas_restante_kg": sp.masa_gas_restante_kg,
-            "z_factor": sp.z_factor,
+            "M_kg_mol": sp["M_kg_mol"],
+            "R_spec": R_UNIV / sp["M_kg_mol"],
+            "cd": sp["cd"] if sp["cd"] is not None else 0.62,
+            "area_m2": sp["area_m2"] if sp["area_m2"] is not None else (area_from_diam(sp["diam_m"]) if sp["diam_m"] else None),
+            "volumen_m3": sp["volumen_m3"],
+            "cilindro": sp["cilindro"],
+            "p_atm_pa": sp["p_atm_pa"],
+            "masa_lleno_kg": sp["masa_lleno_kg"],
+            "masa_tara_kg": sp["masa_tara_kg"],
+            "masa_gas_restante_kg": sp["masa_gas_restante_kg"],
+            "z_factor": sp["z_factor"],
         }
 
     # ---------- guardado rama low-pressure ----------
@@ -274,6 +258,7 @@ class GasMaths:
             caracteristicas_cilindro=cil,
             valido=1,
         )
+        logger.info("guardando en la base de datos para sensor_id %s", ctx.get("sensor_id"))
         # Importante: **NO** actualizar cil.masa_gas_restant_kg en esta rama
         return row
 
@@ -293,6 +278,12 @@ class GasMaths:
         mdot choked (isentrópico + Cd):
         mdot = Cd * A * p0 * sqrt( gamma/(Rspec*T0) ) * ((gamma+1)/2)^(-(gamma+1)/(2*(gamma-1)))
         """
+        result = self._choked_calc(ctx=ctx)
+        logger.info("calculando flujo masico para sensor_id %s: mdot=%.6f kg/s", ctx.get("sensor_id"), result["mdot_kg_s"])
+        return result
+
+    @staticmethod
+    def _choked_calc(*, ctx: Dict[str, Any]) -> Dict[str, Any]:
         area = ctx.get("area_m2")
         cd = ctx["cd"]
         p0 = ctx["p0_abs_pa"]
@@ -339,6 +330,12 @@ class GasMaths:
         mdot = Cd * A * p0 * sqrt( (2*gamma)/(Rspec*T0*(gamma-1))
                * [ (p2/p0)^(2/gamma) - (p2/p0)^((gamma+1)/gamma) ] )
         """
+        result = self._no_choked_calc(ctx=ctx)
+        logger.info("calculando flujo masico para sensor_id %s: mdot=%.6f kg/s", ctx.get("sensor_id"), result["mdot_kg_s"])
+        return result
+
+    @staticmethod
+    def _no_choked_calc(*, ctx: Dict[str, Any]) -> Dict[str, Any]:
         area = ctx.get("area_m2")
         cd = ctx["cd"]
         p0 = ctx["p0_abs_pa"]
@@ -426,6 +423,7 @@ class GasMaths:
             caracteristicas_cilindro=cil,
             valido=1,
         )
+        logger.info("guardando en la base de datos para sensor_id %s", calc.get("sensor_id"))
 
         # Persistir estado en cilindro sólo en modos normales
         try:

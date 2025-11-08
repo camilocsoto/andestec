@@ -2,142 +2,151 @@
 {% load static %}
 
 {% block content %}
-<div class="container mx-auto mt-8">
-  <div class="w-full max-w-2xl p-6 space-y-6 bg-white rounded-lg shadow dark:bg-gray-800">
-
-    <div class="flex items-center justify-between">
-      <div>
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Detalle PQRS #{{ ticket.pk }}</h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Información completa de la petición</p>
-      </div>
-      <div class="text-right text-sm text-gray-600 dark:text-gray-300">
-        <div>Empresa: <span class="font-medium text-gray-800 dark:text-white">{{ empresa_name }}</span></div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 gap-4">
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tipo de petición</label>
-        <div class="mt-1 text-sm text-gray-900 dark:text-white">{{ ticket.TipoPeticion }}</div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Asunto</label>
-        <div class="mt-1 text-sm text-gray-900 dark:text-white">{{ ticket.asunto|default:"(sin asunto)" }}</div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Nivel de importancia</label>
-        <div class="mt-1 text-sm text-gray-900 dark:text-white">{{ ticket.NivelImportancia }}</div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Estado</label>
-        <div class="mt-1 text-sm text-gray-900 dark:text-white">{{ estado_label }}</div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Descripción</label>
-        <div class="mt-1 text-sm text-gray-900 dark:text-white whitespace-pre-line">{{ ticket.descripcion|default:"(sin descripción)" }}</div>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div class="px-4 pt-6">
+  <div class="mx-auto w-full max-w-7xl">
+    <!-- Tarjeta: detalle del ticket -->
+    <div class="w-full p-6 space-y-6 bg-white rounded-lg shadow dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+      <!-- Encabezado -->
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Detalle PQRS #{{ ticket.pk }}</h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Información completa de la petición</p>
+        </div>
+        <div class="text-sm text-gray-600 dark:text-gray-300">
+          <div>
+            Empresa:
+            <span class="font-medium text-gray-800 dark:text-white">{{ empresa_name }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid de campos -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div class="col-span-1">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tipo de petición</label>
+          <div class="mt-1 text-sm text-gray-900 dark:text-white">{{ ticket.TipoPeticion }}</div>
+        </div>
+
+        <div class="col-span-1 md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Asunto</label>
+          <div class="mt-1 text-sm text-gray-900 dark:text-white">{{ ticket.asunto|default:"(sin asunto)" }}</div>
+        </div>
+
+        <div class="col-span-1">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Nivel de importancia</label>
+          <div class="mt-1 text-sm text-gray-900 dark:text-white">{{ ticket.NivelImportancia }}</div>
+        </div>
+
+        <div class="col-span-1">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Estado</label>
+          <div class="mt-1 text-sm text-gray-900 dark:text-white">{{ estado_label }}</div>
+        </div>
+
+        <div class="col-span-1 md:col-span-2 xl:col-span-3">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Descripción</label>
+          <div class="mt-1 text-sm text-gray-900 dark:text-white whitespace-pre-line">
+            {{ ticket.descripcion|default:"(sin descripción)" }}
+          </div>
+        </div>
+
+        <div class="col-span-1">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Fecha creación</label>
           <div class="mt-1 text-sm text-gray-900 dark:text-white">
             {% if ticket.fecha_creacion %}{{ ticket.fecha_creacion|date:"Y-m-d H:i" }}{% else %}—{% endif %}
           </div>
         </div>
-        <div>
+
+        <div class="col-span-1">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Fecha actualización</label>
           <div class="mt-1 text-sm text-gray-900 dark:text-white">
             {% if ticket.fecha_actualizacion %}{{ ticket.fecha_actualizacion|date:"Y-m-d H:i" }}{% else %}—{% endif %}
           </div>
         </div>
-      </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Archivo adjunto</label>
-        <div class="mt-1">
-          {% if has_attachment %}
-            <p class="text-sm text-gray-900 dark:text-white">Adjunto disponible.</p>
-            <a href="{% url 'app:ticket_download' ticket.pk %}"
-               class="inline-flex items-center px-3 py-1 mt-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-white">
-              Descargar adjunto
-            </a>
-          {% else %}
-            <p class="text-sm text-gray-500 dark:text-gray-400">No hay adjunto.</p>
-          {% endif %}
+        <div class="col-span-1 md:col-span-2 xl:col-span-3">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Archivo adjunto</label>
+          <div class="mt-1">
+            {% if has_attachment %}
+              <p class="text-sm text-gray-900 dark:text-white">Adjunto disponible.</p>
+              <a href="{% url 'app:ticket_download' ticket.pk %}"
+                 class="inline-flex items-center px-3 py-1 mt-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-white">
+                Descargar adjunto
+              </a>
+            {% else %}
+              <p class="text-sm text-gray-500 dark:text-gray-400">No hay adjunto.</p>
+            {% endif %}
+          </div>
         </div>
-      </div>
 
-      {% if request.user.is_authenticated and request.user.rol_id == 1 or request.user.is_authenticated and request.user.rol_id == 2 %}
-        <div class="mt-4">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Actualizar estado</label>
+        {% if request.user.is_authenticated and request.user.rol_id == 1 or request.user.is_authenticated and request.user.rol_id == 2 %}
+          <div class="col-span-1 md:col-span-2 xl:col-span-3">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Actualizar estado</label>
 
-          <div class="flex items-center gap-3 mt-2">
-            <button id="btn-open-state" type="button"
-              class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg
-                    bg-gray-200 text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300
-                    dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
-              Cambiar estado
-            </button>
-            <div id="current-state" class="text-sm text-gray-700 dark:text-gray-200">
-              Estado actual: <span class="font-medium">{{ estado_label }}</span>
+            <div class="flex flex-wrap items-center gap-3 mt-2">
+              <button id="btn-open-state" type="button"
+                class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg
+                       bg-gray-200 text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300
+                       dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                Cambiar estado
+              </button>
+              <div id="current-state" class="text-sm text-gray-700 dark:text-gray-200">
+                Estado actual: <span class="font-medium">{{ estado_label }}</span>
+              </div>
+            </div>
+
+            <!-- Form inline oculto -->
+            <div id="state-form-block" class="mt-3 p-3 border rounded bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hidden">
+              <form method="post" action="{% url 'app:ticket_update_state' ticket.pk %}">
+                {% csrf_token %}
+                <label for="id_estado" class="sr-only">Estado</label>
+                <select name="estado" id="id_estado"
+                        class="w-full max-w-xs px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white text-gray-900
+                               focus:outline-none focus:ring-2 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-600">
+                  <option value="abierto" {% if estado_value == 'abierto' %}selected{% endif %}>Abierto</option>
+                  <option value="en_proceso" {% if estado_value == 'en_proceso' %}selected{% endif %}>En proceso</option>
+                  <option value="cerrado" {% if estado_value == 'cerrado' %}selected{% endif %}>Cerrado</option>
+                </select>
+
+                <div class="flex justify-end gap-2 mt-3">
+                  <button type="button" id="btn-cancel-state"
+                          class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg
+                                 bg-gray-200 text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300
+                                 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                    Cancelar
+                  </button>
+                  <button type="submit"
+                          class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg
+                                 bg-primary-600 text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-300
+                                 dark:bg-primary-500 dark:hover:bg-primary-600 dark:focus:ring-primary-600">
+                    Actualizar
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
-          {# Form inline oculto por defecto #}
-          <div id="state-form-block" class="mt-3 p-3 border rounded bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hidden">
-            <form method="post" action="{% url 'app:ticket_update_state' ticket.pk %}">
-              {% csrf_token %}
-              <label for="id_estado" class="sr-only">Estado</label>
-              <select name="estado" id="id_estado"
-                      class="w-full max-w-xs px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white text-gray-900
-                            focus:outline-none focus:ring-2 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-600">
-                <option value="abierto" {% if estado_value == 'abierto' %}selected{% endif %}>Abierto</option>
-                <option value="en_proceso" {% if estado_value == 'en_proceso' %}selected{% endif %}>En proceso</option>
-                <option value="cerrado" {% if estado_value == 'cerrado' %}selected{% endif %}>Cerrado</option>
-              </select>
-
-              <div class="flex justify-end gap-2 mt-3">
-                <button type="button" id="btn-cancel-state"
-                  class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg
-                        bg-gray-200 text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300
-                        dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
-                  Cancelar
-                </button>
-                <button type="submit"
-                  class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg
-                        bg-primary-600 text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-300
-                        dark:bg-primary-500 dark:hover:bg-primary-600 dark:focus:ring-primary-600">
-                  Actualizar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      {% endif %}
+        {% endif %}
+      </div>
     </div>
 
-    {# Mensajes / Comentarios #}
-    <div class="w-full max-w-2xl p-6 mt-6 bg-white rounded-lg shadow dark:bg-gray-800">
+    <!-- Tarjeta: comentarios -->
+    <div class="w-full p-6 mt-6 bg-white rounded-lg shadow dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Comentarios</h3>
-        {# Mostrar botón "Agregar comentario" solo si el usuario tiene rol 1 o 2. #}
         {% if request.user.is_authenticated and request.user.rol_id == 1 or request.user.is_authenticated and request.user.rol_id == 2 %}
-          <button id="btn-open-comment" class="px-3 py-1 inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg
-                bg-gray-200 text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300
-                dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+          <button id="btn-open-comment"
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg
+                         bg-gray-200 text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300
+                         dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
             Añadir comentario
           </button>
         {% endif %}
       </div>
 
-      {# Lista de mensajes #}
+      <!-- Lista -->
       <div id="messages-list" class="space-y-4">
         {% if mensajes %}
           {% for msg in mensajes %}
-            <div class="p-3 border rounded bg-gray-50 dark:bg-gray-700">
+            <div class="p-3 border rounded bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
               <div class="flex items-center justify-between mb-1">
                 <div class="text-sm font-medium text-gray-800 dark:text-white">
                   {{ msg.Usuario.get_full_name|default:msg.Usuario.email }}
@@ -156,9 +165,9 @@
         {% endif %}
       </div>
 
-      {# Form inline oculto por defecto #}    
+      <!-- Form inline oculto -->
       <div id="comment-form-block"
-          class="mt-4 p-4 border rounded bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hidden">
+           class="mt-4 p-4 border rounded bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hidden">
         <form id="comment-form" method="post" action="{% url 'app:ticket_add_message' ticket.pk %}">
           {% csrf_token %}
           <label for="{{ message_form.mensajes.id_for_label }}" class="sr-only">Comentario</label>
@@ -168,27 +177,26 @@
             rows="4"
             placeholder="Escribe tu comentario aquí..."
             class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-500
-                  focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent
-                  dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-primary-600">
-            {{ message_form.mensajes.value|default_if_none:"" }}
-          </textarea>
-          {# errores del campo #}
+                   focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent
+                   dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-primary-600">{{ message_form.mensajes.value|default_if_none:"" }}</textarea>
+
           {% if message_form.mensajes.errors %}
             <p class="mt-2 text-sm text-red-600 dark:text-red-400">
               {{ message_form.mensajes.errors.as_text|linebreaksbr }}
             </p>
           {% endif %}
+
           <div class="flex justify-end gap-2 mt-3">
             <a href="{% url 'app:ticket_detail' ticket.pk %}" id="btn-cancel-comment"
-              class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg
+               class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg
                       bg-gray-200 text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300
                       dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
               Cancelar
             </a>
             <button type="submit"
                     class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg
-                          bg-primary-600 text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-300
-                          dark:bg-primary-500 dark:hover:bg-primary-600 dark:focus:ring-primary-600">
+                           bg-primary-600 text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-300
+                           dark:bg-primary-500 dark:hover:bg-primary-600 dark:focus:ring-primary-600">
               Guardar
             </button>
           </div>
@@ -196,6 +204,7 @@
       </div>
     </div>
 
+    <!-- Footer acciones -->
     <div class="flex justify-end gap-3 mt-6">
       <a href="{% url 'app:ticketList' %}"
          class="px-4 py-2 rounded-lg bg-gray-200 text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300
@@ -203,7 +212,6 @@
         ← Volver a la lista
       </a>
     </div>
-
   </div>
 </div>
 {% endblock %}
@@ -214,7 +222,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Comentarios
   const openBtn = document.getElementById('btn-open-comment');
   const formBlock = document.getElementById('comment-form-block');
-
   if (openBtn && formBlock) {
     openBtn.addEventListener('click', function() {
       formBlock.classList.toggle('hidden');
@@ -222,8 +229,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (textarea) textarea.focus();
     });
   }
-
-  // Si el form de comentario fue renderizado con errores, mostrarlo
   const commentFormHasErrors = document.querySelector('#comment-form .errorlist, #comment-form .is-invalid, #comment-form .field-error');
   if (commentFormHasErrors && formBlock) {
     formBlock.classList.remove('hidden');
@@ -233,7 +238,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const btnOpenState = document.getElementById('btn-open-state');
   const stateFormBlock = document.getElementById('state-form-block');
   const btnCancelState = document.getElementById('btn-cancel-state');
-
   if (btnOpenState && stateFormBlock) {
     btnOpenState.addEventListener('click', function() {
       stateFormBlock.classList.toggle('hidden');
@@ -241,15 +245,12 @@ document.addEventListener('DOMContentLoaded', function() {
       if (sel) sel.focus();
     });
   }
-
   if (btnCancelState && stateFormBlock) {
     btnCancelState.addEventListener('click', function(e) {
       e.preventDefault();
       stateFormBlock.classList.add('hidden');
     });
   }
-
-  // Si el form de estado fue renderizado con errores, mostrarlo
   const stateFormHasErrors = document.querySelector('#state-form-block .errorlist, #state-form-block .is-invalid, #state-form-block .field-error');
   if (stateFormHasErrors && stateFormBlock) {
     stateFormBlock.classList.remove('hidden');
